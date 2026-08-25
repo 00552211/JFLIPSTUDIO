@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
 /** 管理者以外は例外。実際の防御は RLS 側でも二重にかける。 */
@@ -14,4 +15,13 @@ export async function requireAdmin() {
 
   if (profile?.role !== "admin") throw new Error("FORBIDDEN");
   return user;
+}
+
+/** ページ(Server Component)から使う版。未認証・非管理者はログイン画面へ飛ばす。 */
+export async function requireAdminPage() {
+  try {
+    return await requireAdmin();
+  } catch {
+    redirect("/admin/login");
+  }
 }
