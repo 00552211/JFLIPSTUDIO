@@ -1,0 +1,131 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #0a0a0a;
+  color: #fff;
+  font-family: var(--font-noto-sans-jp), "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: #fff;
+  text-decoration: none;
+}
+a:hover {
+  color: #bdbdbd;
+}
+
+::selection {
+  background: #fff;
+  color: #0a0a0a;
+}
+
+@keyframes glitch-main {
+  0%, 88%, 100% { transform: translate(0, 0); filter: none; opacity: 1; }
+  89% { transform: translate(-3px, 1px); filter: drop-shadow(3px 0 rgba(255,0,80,.85)) drop-shadow(-3px 0 rgba(0,220,255,.85)); }
+  90% { transform: translate(3px, -2px); filter: drop-shadow(-4px 0 rgba(255,0,80,.85)) drop-shadow(4px 0 rgba(0,220,255,.85)); }
+  91% { transform: translate(-2px, 2px); filter: drop-shadow(2px 0 rgba(0,220,255,.7)); }
+  92% { transform: translate(1px, 0); filter: none; opacity: .72; }
+  93% { transform: translate(0, 0); filter: drop-shadow(-2px 0 rgba(255,0,80,.6)); }
+  94% { transform: translate(0, 0); filter: none; }
+}
+
+@keyframes glitch-slice {
+  0%, 88%, 100% { opacity: 0; clip-path: inset(0 0 100% 0); }
+  89% { opacity: .9; clip-path: inset(18% 0 52% 0); transform: translateX(6px); }
+  90.5% { opacity: .9; clip-path: inset(62% 0 14% 0); transform: translateX(-7px); }
+  92% { opacity: .8; clip-path: inset(38% 0 40% 0); transform: translateX(4px); }
+  93.5% { opacity: 0; clip-path: inset(0 0 100% 0); }
+}
+
+.glitch {
+  position: relative;
+  display: inline-flex;
+}
+.glitch > img {
+  animation: glitch-main 7s steps(1, end) infinite;
+}
+.glitch::after,
+.glitch::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+  pointer-events: none;
+  opacity: 0;
+}
+.glitch::before {
+  background-image: url(/assets/jflip-logo-white.png);
+  animation: glitch-slice 7s steps(1, end) infinite;
+  mix-blend-mode: screen;
+  filter: drop-shadow(-5px 0 rgba(255,0,80,.9));
+}
+.glitch::after {
+  background-image: url(/assets/jflip-logo-white.png);
+  animation: glitch-slice 7s steps(1, end) infinite .12s;
+  mix-blend-mode: screen;
+  filter: drop-shadow(5px 0 rgba(0,220,255,.9));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glitch > img,
+  .glitch::before,
+  .glitch::after {
+    animation: none;
+  }
+}
+
+@media (max-width: 1120px) {
+  .hdr-hours { display: none; }
+}
+@media (max-width: 940px) {
+  .hdr-nav { display: none; }
+}
+
+.hover-lift {
+  transition: transform .22s cubic-bezier(.22,.7,.3,1), box-shadow .22s ease, background-color .22s ease, color .22s ease, border-color .22s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 10px 26px rgba(255,255,255,.18);
+}
+.hover-lift:active {
+  transform: translateY(0) scale(.97);
+}
+.hover-outline {
+  transition: transform .22s cubic-bezier(.22,.7,.3,1), background-color .22s ease, border-color .22s ease, color .22s ease;
+}
+.hover-outline:hover {
+  transform: translateY(-2px);
+  background-color: rgba(255,255,255,.08);
+  border-color: rgba(255,255,255,.5);
+  color: #fff;
+}
+.hover-outline:active {
+  transform: translateY(0) scale(.97);
+}
+.hover-link:hover {
+  color: #fff;
+}
+
+.hover-outline-sm {
+  transition: transform .22s cubic-bezier(.22,.7,.3,1), background-color .22s ease, border-color .22s ease, color .22s ease;
+}
+.hover-outline-sm:hover {
+  transform: translateY(-2px);
+  background-color: rgba(255,255,255,.1);
+  border-color: rgba(255,255,255,.45);
+  color: #fff;
+}
+.hover-outline-sm:active {
+  transform: translateY(0) scale(.96);
+}
