@@ -5,8 +5,13 @@ export type DayStatus = "open" | "few" | "full" | "closed";
 /** 営業時間（JST）。この範囲の空き時間だけを数える */
 const OPEN_HOUR = 13;
 const CLOSE_HOUR = 23;
-const BUSINESS_HOURS = CLOSE_HOUR - OPEN_HOUR; // 10h
 const CLOSED_WEEKDAY = 0;                      // 日曜定休
+
+// 判定は「営業時間内で一番長く連続して空いている時間」を見る。
+// 営業時間まるまる(10h)が条件だと予定が1件でもあれば絶対に open にならず
+// 機能しないため、実利用（最短2〜3h想定）に沿った閾値にする。
+const OPEN_THRESHOLD_HOURS = 7;  // これ以上連続で空いていれば「空きあり」
+const FEW_THRESHOLD_HOURS = 3;   // これ以上なら「残りわずか」、未満なら「満席」
 
 type CalEvent = { start?: { dateTime?: string; date?: string }; end?: { dateTime?: string; date?: string } };
 type EventsResponse = { items?: CalEvent[]; error?: { message?: string } };
@@ -37,17 +42,9 @@ export async function fetchAvailability(
   const json = (await res.json()) as EventsResponse;
   if (!res.ok) throw new Error(json.error?.message ?? `Calendar API ${res.status}`);
 
-  // TEMP DEBUG: 実際の予定の時刻がどう解釈されているか確認するため一時的に出力
-  console.log("[availability-debug]", JSON.stringify({
-    calendarId,
-    timeMin: startAt.toISOString(),
-    timeMax: endAt.toISOString(),
-    eventCount: (json.items ?? []).length,
-    events: (json.items ?? []).map((ev) => ({ start: ev.start, end: ev.end })),
-  }));
-
-  // 日付ごとの「埋まっている時間数」を積算
-  const busyHours: Record<string, number> = {};
+  // 日付ごとの busy 区間（実時刻）を集める。合計時間ではなく「営業時間内で
+  // 一番長く連続して空いている時間」で判定するため、区間そのものを保持する。
+  const busyIntervalsByDay: Record<string, { startMs: number; endMs: number }[]> = {};
   const allDay = new Set<string>();
 
   for (const ev of json.items ?? []) {
@@ -60,11 +57,18 @@ export async function fetchAvailability(
     }
     if (!ev.start?.dateTime || !ev.end?.dateTime) continue;
 
-    const s = new Date(ev.start.dateTime);
-    const e = new Date(ev.end.dateTime);
-    const key = jstKey(s);
-    const hours = Math.max(0, (e.getTime() - s.getTime()) / 3_600_000);
-    busyHours[key] = (busyHours[key] ?? 0) + Math.min(hours, BUSINESS_HOURS);
+    const startMs = new Date(ev.start.dateTime).getTime();
+    const endMs = new Date(ev.end.dateTime).getTime();
+    if (endMs <= startMs) continue;
+
+    // 日をまたぐ予定もあるため、開始日・終了日の両方に登録しておく
+    // （maxFreeBlockHours 側で当日の営業時間外にクリップされる）。
+    const startKey = jstKey(new Date(startMs));
+    const endKey = jstKey(new Date(endMs - 1));
+    (busyIntervalsByDay[startKey] ??= []).push({ startMs, endMs });
+    if (endKey !== startKey) {
+      (busyIntervalsByDay[endKey] ??= []).push({ startMs, endMs });
+    }
   }
 
   const out: Record<string, DayStatus> = {};
@@ -73,11 +77,41 @@ export async function fetchAvailability(
     if (weekdayOf(key) === CLOSED_WEEKDAY) { out[key] = "closed"; continue; }
     if (allDay.has(key)) { out[key] = "full"; continue; }
 
-    const free = BUSINESS_HOURS - (busyHours[key] ?? 0);
-    // 3時間未満しか空いていなければ×（最短利用が2〜3時間想定）
-    out[key] = free >= BUSINESS_HOURS ? "open" : free >= 3 ? "few" : "full";
+    const free = maxFreeBlockHours(key, busyIntervalsByDay[key] ?? []);
+    out[key] = free >= OPEN_THRESHOLD_HOURS ? "open" : free >= FEW_THRESHOLD_HOURS ? "few" : "full";
   }
   return out;
+}
+
+/**
+ * その日の営業時間(JST OPEN_HOUR〜CLOSE_HOUR)のうち、予定(busy区間)を
+ * 差し引いた「一番長く連続して空いている時間」を時間単位で返す。
+ * 単純な合計busy時間で判定すると、短い予定が1件あるだけでも即座に
+ * 「空きなし」寄りの判定になってしまうため、連続区間で見る。
+ */
+function maxFreeBlockHours(
+  dateKey: string,
+  busyIntervals: { startMs: number; endMs: number }[],
+): number {
+  const dayStart = new Date(`${dateKey}T${String(OPEN_HOUR).padStart(2, "0")}:00:00+09:00`).getTime();
+  const dayEnd = new Date(`${dateKey}T${String(CLOSE_HOUR).padStart(2, "0")}:00:00+09:00`).getTime();
+
+  const clipped = busyIntervals
+    .map(({ startMs, endMs }) => ({
+      start: Math.max(startMs, dayStart),
+      end: Math.min(endMs, dayEnd),
+    }))
+    .filter((iv) => iv.end > iv.start)
+    .sort((a, b) => a.start - b.start);
+
+  let cursor = dayStart;
+  let maxFreeMs = 0;
+  for (const iv of clipped) {
+    if (iv.start > cursor) maxFreeMs = Math.max(maxFreeMs, iv.start - cursor);
+    cursor = Math.max(cursor, iv.end);
+  }
+  maxFreeMs = Math.max(maxFreeMs, dayEnd - cursor);
+  return maxFreeMs / 3_600_000;
 }
 
 /** JSTの YYYY-MM-DD */
