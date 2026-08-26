@@ -138,7 +138,7 @@ export function AvailabilityCalendar() {
           <a className="hover-lift" href={BOOKING} target="_blank" rel="noopener noreferrer" style={{ marginLeft: "auto", background: "#fff", color: "#0a0a0a", fontSize: 12.5, fontWeight: 700, padding: "12px 24px", borderRadius: 999 }}>今すぐ予約する</a>
         </div>
         <p style={{ fontSize: 11.5, lineHeight: 1.9, color: "rgba(255,255,255,.34)", margin: "16px 0 0" }}>
-          ※ {live ? "Squareの予約枠から自動反映しています。" : "現在は目安表示です。確定した空き枠は予約ページでご確認ください。"}　日曜は定休日です。
+          ※ {live ? "Googleカレンダーの予定から自動反映しています。" : "現在は目安表示です。確定した空き枠は予約ページでご確認ください。"}　日曜は定休日です。
         </p>
         <p style={{ fontSize: 12, lineHeight: 1.9, color: "rgba(255,255,255,.5)", margin: "10px 0 0" }}>
           再来月以降のご予約・空き状況は、
