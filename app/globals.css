@@ -138,6 +138,27 @@ a:hover {
 html, body { max-width: 100%; overflow-x: hidden; }
 img, iframe { max-width: 100%; }
 .hdr-mobnav::-webkit-scrollbar { display: none; }
+/* スマホ用ナビは常時表示（隠れずに横スクロールで全項目にアクセス可能）。
+   端がフェードすることで、まだ隠れている項目があると分かるようにする */
+.hdr-mobnav {
+  mask-image: linear-gradient(to right, transparent, #000 20px, #000 calc(100% - 20px), transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 20px, #000 calc(100% - 20px), transparent);
+}
+
+/* 5. ヘッダーロゴのホバーエフェクト */
+.hdr-logo-mark {
+  transition: transform .32s cubic-bezier(.22,.7,.3,1), filter .32s ease;
+}
+.hdr-logo:hover .hdr-logo-mark {
+  transform: scale(1.14) rotate(-6deg);
+  filter: drop-shadow(0 0 10px rgba(255,255,255,.55));
+}
+.hdr-logo:active .hdr-logo-mark {
+  transform: scale(1.02) rotate(-2deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hdr-logo-mark { transition: none; }
+}
 
 /* 3. ローディング画面 */
 @keyframes boot-fade { to { opacity: 0; visibility: hidden; } }

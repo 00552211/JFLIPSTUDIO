@@ -58,6 +58,35 @@ async function getWorks(): Promise<WorkItem[]> {
   }
 }
 
+type GalleryItem = { id: string; url: string; alt: string };
+
+const FALLBACK_GALLERY: GalleryItem[] = [1, 2, 3, 4, 5, 6, 7, 8].map((n) => ({
+  id: `fallback-${n}`,
+  url: `/assets/photo-${String(n).padStart(2, "0")}.jpg`,
+  alt: "",
+}));
+
+async function getGalleryImages(): Promise<GalleryItem[]> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("gallery_images")
+      .select("id,image_path,alt")
+      .eq("is_published", true)
+      .order("sort_order", { ascending: true });
+
+    if (error || !data || data.length === 0) return [];
+
+    return data.map((g) => ({
+      id: g.id as string,
+      alt: (g.alt as string) ?? "",
+      url: supabase.storage.from("gallery").getPublicUrl(g.image_path as string).data.publicUrl,
+    }));
+  } catch {
+    return [];
+  }
+}
+
 const GEAR = [
   { label: "MICROPHONE", name: "Universal Audio Sphere DLX", note: "定番マイクをモデリングできるフラッグシップ・モデリングマイクシステム。" },
   { label: "AUDIO INTERFACE", name: "MOTU UltraLite mk5", note: "低レイテンシー・高安定のUSBオーディオインターフェース。" },
@@ -71,7 +100,8 @@ const BOOKING_URL = "https://book.squareup.com/appointments/atrhlg3x3adiil/locat
 const INSTAGRAM_URL = "https://www.instagram.com/jfliponthegame/";
 
 export default async function Home() {
-  const works = await getWorks();
+  const [works, galleryFromDb] = await Promise.all([getWorks(), getGalleryImages()]);
+  const galleryItems = galleryFromDb.length > 0 ? galleryFromDb : FALLBACK_GALLERY;
 
   return (
     <div style={{ background: "#0a0a0a", minHeight: "100vh" }}>
@@ -86,8 +116,8 @@ export default async function Home() {
         }}
       >
         <div className="hdr-in" style={{ maxWidth: 1180, margin: "0 auto", padding: "14px 32px", display: "flex", alignItems: "center", gap: 24, flexWrap: "nowrap" }}>
-          <a href="#top" style={{ display: "flex", alignItems: "center", gap: 10, flex: "none", whiteSpace: "nowrap" }}>
-            <img src="/assets/jflip-logo-white.png" alt="JFLIPSTUDIO" style={{ width: 26, height: 26, objectFit: "contain" }} />
+          <a href="#top" className="hdr-logo" style={{ display: "flex", alignItems: "center", gap: 10, flex: "none", whiteSpace: "nowrap" }}>
+            <img src="/assets/jflip-logo-white.png" alt="JFLIPSTUDIO" className="hdr-logo-mark" style={{ width: 26, height: 26, objectFit: "contain" }} />
             <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: ".16em" }}>JFLIPSTUDIO</span>
           </a>
           <nav className="hdr-nav" style={{ display: "flex", gap: 20, fontSize: 11, letterSpacing: ".14em", color: "rgba(255,255,255,.55)", flex: "none" }}>
@@ -208,16 +238,16 @@ export default async function Home() {
             実際のスタジオの様子です。
           </p>
           <div className="gal" style={{ display: "grid", gridTemplateColumns: "repeat(12,1fr)", gap: 14 }}>
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+            {galleryItems.map((item, i) => (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                key={n}
-                src={`/assets/photo-${String(n).padStart(2, "0")}.jpg`}
-                alt=""
+                key={item.id}
+                src={item.url}
+                alt={item.alt}
                 loading="lazy"
                 style={{
-                  gridColumn: n <= 2 ? "span 6" : "span 4",
-                  aspectRatio: n <= 2 ? "3/2" : "4/3",
+                  gridColumn: i < 2 ? "span 6" : "span 4",
+                  aspectRatio: i < 2 ? "3/2" : "4/3",
                   width: "100%",
                   borderRadius: 12,
                   objectFit: "cover",

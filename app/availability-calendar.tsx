@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 
 const BOOKING =
   "https://book.squareup.com/appointments/atrhlg3x3adiil/location/LJFDVKXY7Y7PC/services";
+const INSTAGRAM_URL = "https://www.instagram.com/jfliponthegame/";
 const WD = ["月", "火", "水", "木", "金", "土", "日"];
 
 type DayStatus = "open" | "few" | "full" | "closed";
@@ -38,9 +39,13 @@ const navBtn: React.CSSProperties = {
   fontSize: 14, color: "rgba(255,255,255,.7)", userSelect: "none", background: "transparent",
 };
 
+/** カレンダーに表示するのは今月・来月まで。それ以降はDM/メールに誘導する。 */
+const MAX_OFFSET = 1;
+
 export function AvailabilityCalendar() {
   const [offset, setOffset] = useState(0);
   const [live, setLive] = useState<Record<string, DayStatus> | null>(null);
+  const atMax = offset >= MAX_OFFSET;
 
   const now = new Date();
   const base = new Date(now.getFullYear(), now.getMonth() + offset, 1);
@@ -83,7 +88,16 @@ export function AvailabilityCalendar() {
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <button className="hover-outline-sm" style={navBtn} onClick={() => setOffset((o) => Math.max(0, o - 1))} aria-label="前の月">‹</button>
             <div style={{ fontSize: 15, fontWeight: 700, minWidth: 118, textAlign: "center" }}>{y}年 {m + 1}月</div>
-            <button className="hover-outline-sm" style={navBtn} onClick={() => setOffset((o) => Math.min(3, o + 1))} aria-label="次の月">›</button>
+            <button
+              className="hover-outline-sm"
+              style={atMax ? { ...navBtn, opacity: 0.3, cursor: "not-allowed" } : navBtn}
+              onClick={() => setOffset((o) => Math.min(MAX_OFFSET, o + 1))}
+              aria-label="次の月"
+              aria-disabled={atMax}
+              disabled={atMax}
+            >
+              ›
+            </button>
           </div>
         </div>
         <p style={{ fontSize: 13.5, color: "rgba(255,255,255,.55)", margin: "0 0 26px" }}>
@@ -125,6 +139,13 @@ export function AvailabilityCalendar() {
         </div>
         <p style={{ fontSize: 11.5, lineHeight: 1.9, color: "rgba(255,255,255,.34)", margin: "16px 0 0" }}>
           ※ {live ? "Squareの予約枠から自動反映しています。" : "現在は目安表示です。確定した空き枠は予約ページでご確認ください。"}　日曜は定休日です。
+        </p>
+        <p style={{ fontSize: 12, lineHeight: 1.9, color: "rgba(255,255,255,.5)", margin: "10px 0 0" }}>
+          再来月以降のご予約・空き状況は、
+          <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="hover-link" style={{ color: "inherit", textDecoration: "underline" }}>Instagram DM</a>
+          または
+          <a href="mailto:jfliponthegame@gmail.com" className="hover-link" style={{ color: "inherit", textDecoration: "underline" }}>メール（jfliponthegame@gmail.com）</a>
+          にてお問い合わせください。
         </p>
       </div>
     </section>
