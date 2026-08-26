@@ -37,6 +37,7 @@ async function getWorks(): Promise<WorkItem[]> {
         : null,
       spotifyTrackId: (w.spotify_track_id as string | null) ?? null,
       spotifyEmbedKind: typeof w.spotify_url === "string" && w.spotify_url.includes("/album/") ? "album" : "track",
+      note: (w.note as string | null) ?? null,
       // Spotify は埋め込みプレイヤーで直接聴けるので、リンクバッジからは外す
       links: Array.isArray(w.links)
         ? (w.links as { platform: string; url: string }[])

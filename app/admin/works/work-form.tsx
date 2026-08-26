@@ -30,6 +30,7 @@ export function WorkForm({ defaultValues, onSubmitAction, submitLabel }: Props) 
       spotifyUrl: "",
       durationMs: null,
       jacketPath: null,
+      note: "",
       isPublished: false,
       credits: [],
       links: [],
@@ -91,6 +92,17 @@ export function WorkForm({ defaultValues, onSubmitAction, submitLabel }: Props) 
               公開する
             </label>
           </div>
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-xs tracking-widest text-neutral-400">補足(任意)</label>
+          <Input
+            placeholder="例: アルバム収録曲のうち「3. Track Name」を担当"
+            {...form.register("note")}
+          />
+          <p className="text-xs text-neutral-500">
+            アルバムの一部の曲だけ担当した場合など、公開ページのカードに小さく表示されます。
+          </p>
         </div>
 
         <div className="space-y-2">

@@ -29,6 +29,7 @@ const workSchema = z.object({
   spotifyUrl: z.string().url().or(z.literal("")).nullable().optional(),
   durationMs: z.number().int().positive().nullable().optional(),
   jacketPath: z.string().nullable().optional(),
+  note: z.string().nullable().optional(),
   isPublished: z.boolean(),
   credits: z.array(creditSchema),
   links: z.array(linkSchema),
@@ -84,6 +85,7 @@ function toWorkRow(data: WorkFormValues) {
     spotify_synced_at: data.spotifyTrackId ? new Date().toISOString() : null,
     duration_ms: data.durationMs ?? null,
     jacket_path: data.jacketPath ?? null,
+    note: data.note || null,
     is_published: data.isPublished,
   };
 }

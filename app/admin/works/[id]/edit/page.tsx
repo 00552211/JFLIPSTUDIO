@@ -38,6 +38,7 @@ export default async function EditWorkPage({ params }: { params: Promise<{ id: s
           spotifyUrl: work.spotify_url ?? "",
           durationMs: work.duration_ms,
           jacketPath: work.jacket_path,
+          note: work.note ?? "",
           isPublished: work.is_published,
           credits: credits ?? [],
           links: links ?? [],

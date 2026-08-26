@@ -15,10 +15,13 @@ export type WorkItem = {
   spotifyTrackId: string | null;
   /** spotify_url に含まれる /track/ か /album/ から判定。埋め込みURLの種別に必要 */
   spotifyEmbedKind: "track" | "album";
+  /** 「アルバム収録曲のうち一部だけ担当」等の補足。カードに小さく表示する */
+  note: string | null;
   links: WorkLink[];
 };
 
 const ROLE_ORDER = ["REC", "MIX", "MASTER", "PRODUCE"] as const;
+const PAGE_SIZE = 6;
 
 function pillStyle(active: boolean): CSSProperties {
   return {
@@ -40,17 +43,26 @@ export function WorksGrid({ works }: { works: WorkItem[] }) {
     [works],
   );
   const [filter, setFilter] = useState<string | null>(null);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+
   const filtered = filter ? works.filter((w) => w.roles.includes(filter)) : works;
+  const visible = filtered.slice(0, visibleCount);
+  const remaining = filtered.length - visible.length;
+
+  const selectFilter = (next: string | null) => {
+    setFilter(next);
+    setVisibleCount(PAGE_SIZE);
+  };
 
   return (
     <>
       {availableRoles.length > 1 && (
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 28 }}>
-          <button type="button" onClick={() => setFilter(null)} style={pillStyle(filter === null)}>
+          <button type="button" onClick={() => selectFilter(null)} style={pillStyle(filter === null)}>
             ALL
           </button>
           {availableRoles.map((r) => (
-            <button key={r} type="button" onClick={() => setFilter(r)} style={pillStyle(filter === r)}>
+            <button key={r} type="button" onClick={() => selectFilter(r)} style={pillStyle(filter === r)}>
               {r}
             </button>
           ))}
@@ -58,7 +70,7 @@ export function WorksGrid({ works }: { works: WorkItem[] }) {
       )}
 
       <div className="g2" style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 16 }}>
-        {filtered.map((w) => (
+        {visible.map((w) => (
           <div key={w.id} style={{ background: "#111", border: "1px solid rgba(255,255,255,.09)", borderRadius: 14, padding: 20 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
               <div style={{ display: "flex", gap: 6 }}>
@@ -81,6 +93,9 @@ export function WorksGrid({ works }: { works: WorkItem[] }) {
                   allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
                   loading="lazy"
                 />
+                {w.note && (
+                  <div style={{ fontSize: 11, lineHeight: 1.7, color: "rgba(255,255,255,.4)", marginTop: 12 }}>※ {w.note}</div>
+                )}
                 {(w.credits || w.links.length > 0) && (
                   <div style={{ marginTop: 14 }}>
                     {w.credits && (
@@ -118,7 +133,10 @@ export function WorksGrid({ works }: { works: WorkItem[] }) {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 6, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{w.title}</div>
                   <div style={{ fontSize: 12.5, color: "rgba(255,255,255,.55)", marginBottom: 12 }}>{w.artist}</div>
-                  <div style={{ fontSize: 11.5, lineHeight: 1.85, color: "rgba(255,255,255,.4)", marginBottom: 14 }}>{w.credits}</div>
+                  <div style={{ fontSize: 11.5, lineHeight: 1.85, color: "rgba(255,255,255,.4)", marginBottom: w.note ? 6 : 14 }}>{w.credits}</div>
+                  {w.note && (
+                    <div style={{ fontSize: 11, lineHeight: 1.7, color: "rgba(255,255,255,.4)", marginBottom: 14 }}>※ {w.note}</div>
+                  )}
                   <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                     {w.links.map((l) => (
                       <a
@@ -139,17 +157,31 @@ export function WorksGrid({ works }: { works: WorkItem[] }) {
           </div>
         ))}
 
-        {works.length === 0 ? (
+        {works.length === 0 && (
           <div style={{ gridColumn: "1 / -1", border: "1px dashed rgba(255,255,255,.14)", borderRadius: 14, padding: 20, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, minHeight: 180 }}>
             <div style={{ fontSize: 13, letterSpacing: ".16em", color: "rgba(255,255,255,.45)" }}>MORE WORKS COMING SOON</div>
             <div style={{ fontSize: 11.5, color: "rgba(255,255,255,.3)", textAlign: "center", maxWidth: "36em" }}>現在準備中です。公開できる制作実績が揃いしだい、こちらに掲載していきます。</div>
           </div>
-        ) : filtered.length === 0 ? (
+        )}
+        {works.length > 0 && filtered.length === 0 && (
           <div style={{ gridColumn: "1 / -1", border: "1px dashed rgba(255,255,255,.14)", borderRadius: 14, padding: 20, display: "flex", alignItems: "center", justifyContent: "center", minHeight: 120 }}>
             <div style={{ fontSize: 12.5, color: "rgba(255,255,255,.4)" }}>「{filter}」に該当するWorksはまだありません。</div>
           </div>
-        ) : null}
+        )}
       </div>
+
+      {remaining > 0 && (
+        <div style={{ display: "flex", justifyContent: "center", marginTop: 28 }}>
+          <button
+            type="button"
+            onClick={() => setVisibleCount((n) => n + PAGE_SIZE)}
+            className="hover-outline-sm"
+            style={{ fontSize: 12, letterSpacing: ".08em", color: "rgba(255,255,255,.8)", border: "1px solid rgba(255,255,255,.22)", borderRadius: 999, padding: "12px 28px", background: "transparent", cursor: "pointer" }}
+          >
+            もっと見る（残り{remaining}件）
+          </button>
+        </div>
+      )}
     </>
   );
 }
