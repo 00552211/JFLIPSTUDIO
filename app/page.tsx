@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PricingToggle } from "./pricing-toggle";
 import { AvailabilityCalendar } from "./availability-calendar";
 import { WorksGrid, type WorkItem } from "./works-grid";
+import { ScrollReveal } from "./scroll-reveal";
 
 const PLATFORM_LABEL: Record<string, string> = {
   spotify: "Spotify",
@@ -100,6 +101,7 @@ export default async function Home() {
 
   return (
     <div style={{ background: "#0a0a0a", minHeight: "100vh" }}>
+      <ScrollReveal />
       <header
         style={{
           position: "sticky",
@@ -147,20 +149,20 @@ export default async function Home() {
       </header>
 
       <section id="top" className="wrap-hero" style={{ maxWidth: 1180, margin: "0 auto", padding: "96px 32px 88px" }}>
-        <p style={{ fontSize: 10.5, letterSpacing: ".32em", color: "rgba(255,255,255,.42)", margin: "0 0 26px" }}>
+        <p data-reveal style={{ fontSize: 10.5, letterSpacing: ".32em", color: "rgba(255,255,255,.42)", margin: "0 0 26px" }}>
           RECORDING &amp; MIXING STUDIO / NERIMA TOKYO
         </p>
         <div className="hero-grid" style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 56, alignItems: "start" }}>
           <div>
-            <h1 className="h-hero" style={{ fontSize: 52, lineHeight: 1.24, fontWeight: 700, letterSpacing: "-.01em", margin: "0 0 26px" }}>
+            <h1 data-reveal className="h-hero" style={{ fontSize: 52, lineHeight: 1.24, fontWeight: 700, letterSpacing: "-.01em", margin: "0 0 26px", transitionDelay: ".08s" }}>
               録音からMIX・マスタリングまで、
               <br />
               その場で立ち合い完結。
             </h1>
-            <p style={{ fontSize: 14.5, lineHeight: 2, color: "rgba(255,255,255,.6)", maxWidth: "44em", margin: "0 0 34px" }}>
+            <p data-reveal style={{ fontSize: 14.5, lineHeight: 2, color: "rgba(255,255,255,.6)", maxWidth: "44em", margin: "0 0 34px", transitionDelay: ".16s" }}>
               JFLIPSTUDIO は、アーティストの理想のサウンドをその場で創り上げる立ち合い型スタジオ。ボーカル録音からMIX・マスタリングまでを一貫して行い、納品までの時間とワークフローを最短化します。10hパックなら1時間あたり¥4,000から。
             </p>
-            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+            <div data-reveal style={{ display: "flex", gap: 12, flexWrap: "wrap", transitionDelay: ".24s" }}>
               <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer" className="hover-lift" style={{ background: "#fff", color: "#0a0a0a", fontSize: 13, fontWeight: 700, padding: "14px 26px", borderRadius: 999 }}>
                 WEBで予約する
               </a>
@@ -168,7 +170,7 @@ export default async function Home() {
                 @jfliponthegame
               </a>
             </div>
-            <div className="hero-stats" style={{ display: "flex", gap: 44, marginTop: 56, paddingTop: 30, borderTop: "1px solid rgba(255,255,255,.1)" }}>
+            <div data-reveal className="hero-stats" style={{ display: "flex", gap: 44, marginTop: 56, paddingTop: 30, borderTop: "1px solid rgba(255,255,255,.1)", transitionDelay: ".32s" }}>
               <div>
                 <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-.01em" }}>1時間 ¥4,000〜</div>
                 <div style={{ fontSize: 11, letterSpacing: ".14em", color: "rgba(255,255,255,.42)", marginTop: 7 }}>10hパック利用時 / エンジニア込み</div>
@@ -183,7 +185,7 @@ export default async function Home() {
               </div>
             </div>
           </div>
-          <div className="hero-card" style={{ background: "#111", border: "1px solid rgba(255,255,255,.09)", borderRadius: 14, padding: "34px 30px", display: "flex", flexDirection: "column", alignItems: "center", gap: 22 }}>
+          <div data-reveal className="hero-card" style={{ background: "#111", border: "1px solid rgba(255,255,255,.09)", borderRadius: 14, padding: "34px 30px", display: "flex", flexDirection: "column", alignItems: "center", gap: 22, transitionDelay: ".2s" }}>
             <span style={{ fontSize: 9.5, letterSpacing: ".26em", color: "rgba(255,255,255,.4)", border: "1px solid rgba(255,255,255,.14)", borderRadius: 999, padding: "6px 14px" }}>
               RECORDING &amp; SOUND DESIGN
             </span>
@@ -202,13 +204,13 @@ export default async function Home() {
 
       <section id="pricing" style={{ borderTop: "1px solid rgba(255,255,255,.08)", background: "#0d0d0d" }}>
         <div className="wrap" style={{ maxWidth: 1180, margin: "0 auto", padding: "88px 32px" }}>
-          <p style={{ fontSize: 10.5, letterSpacing: ".32em", color: "rgba(255,255,255,.42)", margin: "0 0 18px" }}>HOURS &amp; PRICE</p>
-          <h2 className="h-sec" style={{ fontSize: 32, fontWeight: 700, margin: "0 0 14px", letterSpacing: "-.01em" }}>営業時間 &amp; 料金案内</h2>
-          <p style={{ fontSize: 13.5, color: "rgba(255,255,255,.55)", margin: "0 0 38px" }}>
+          <p data-reveal style={{ fontSize: 10.5, letterSpacing: ".32em", color: "rgba(255,255,255,.42)", margin: "0 0 18px" }}>HOURS &amp; PRICE</p>
+          <h2 data-reveal className="h-sec" style={{ fontSize: 32, fontWeight: 700, margin: "0 0 14px", letterSpacing: "-.01em", transitionDelay: ".08s" }}>営業時間 &amp; 料金案内</h2>
+          <p data-reveal style={{ fontSize: 13.5, color: "rgba(255,255,255,.55)", margin: "0 0 38px", transitionDelay: ".16s" }}>
             シンプルでわかりやすいパック料金制。WEB予約ページより即時予約が可能です。
           </p>
 
-          <div className="hours-box" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#141414", border: "1px solid rgba(255,255,255,.09)", borderRadius: 14, padding: "26px 30px", marginBottom: 26 }}>
+          <div data-reveal className="hours-box" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#141414", border: "1px solid rgba(255,255,255,.09)", borderRadius: 14, padding: "26px 30px", marginBottom: 26, transitionDelay: ".22s" }}>
             <div>
               <div style={{ fontSize: 10.5, letterSpacing: ".26em", color: "rgba(255,255,255,.4)", marginBottom: 10 }}>BUSINESS HOURS</div>
               <div style={{ fontSize: 34, fontWeight: 700, letterSpacing: "-.01em" }}>13:00 – 23:00</div>
@@ -219,7 +221,9 @@ export default async function Home() {
             </div>
           </div>
 
-          <PricingToggle />
+          <div data-reveal style={{ transitionDelay: ".28s" }}>
+            <PricingToggle />
+          </div>
         </div>
       </section>
 
@@ -227,21 +231,23 @@ export default async function Home() {
 
       <section id="gallery" style={{ borderTop: "1px solid rgba(255,255,255,.08)" }}>
         <div className="wrap" style={{ maxWidth: 1180, margin: "0 auto", padding: "88px 32px" }}>
-          <p style={{ fontSize: 10.5, letterSpacing: ".32em", color: "rgba(255,255,255,.42)", margin: "0 0 18px" }}>STUDIO ATMOSPHERE</p>
-          <h2 className="h-sec" style={{ fontSize: 32, fontWeight: 700, margin: "0 0 14px", letterSpacing: "-.01em" }}>スタジオ風景 &amp; GALLERY</h2>
-          <p style={{ fontSize: 13.5, color: "rgba(255,255,255,.55)", margin: "0 0 34px" }}>
+          <p data-reveal style={{ fontSize: 10.5, letterSpacing: ".32em", color: "rgba(255,255,255,.42)", margin: "0 0 18px" }}>STUDIO ATMOSPHERE</p>
+          <h2 data-reveal className="h-sec" style={{ fontSize: 32, fontWeight: 700, margin: "0 0 14px", letterSpacing: "-.01em", transitionDelay: ".08s" }}>スタジオ風景 &amp; GALLERY</h2>
+          <p data-reveal style={{ fontSize: 13.5, color: "rgba(255,255,255,.55)", margin: "0 0 34px", transitionDelay: ".16s" }}>
             実際のスタジオの様子です。
           </p>
           <div className="gal" style={{ display: "grid", gridTemplateColumns: "repeat(12,1fr)", gap: 14 }}>
             {galleryItems.map((item, i) => (
               <div
                 key={item.id}
+                data-reveal
                 style={{
                   position: "relative",
                   gridColumn: i < 2 ? "span 6" : "span 4",
                   aspectRatio: i < 2 ? "3/2" : "4/3",
                   borderRadius: 12,
                   overflow: "hidden",
+                  transitionDelay: `${Math.min(i, 6) * 0.06}s`,
                 }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -284,12 +290,12 @@ export default async function Home() {
       <section id="about" style={{ borderTop: "1px solid rgba(255,255,255,.08)", background: "#0d0d0d" }}>
         <div className="wrap" style={{ maxWidth: 1180, margin: "0 auto", padding: "88px 32px" }}>
           <div style={{ textAlign: "center", marginBottom: 44 }}>
-            <p style={{ fontSize: 10.5, letterSpacing: ".32em", color: "rgba(255,255,255,.42)", margin: "0 0 18px" }}>WHY JFLIPSTUDIO</p>
-            <h2 className="h-sec" style={{ fontSize: 32, fontWeight: 700, margin: "0 0 14px", letterSpacing: "-.01em" }}>スタジオの3つの強み</h2>
-            <p style={{ fontSize: 13.5, color: "rgba(255,255,255,.55)", margin: 0 }}>理想の音像をスピーディーかつ確実に出せる環境を整えています。</p>
+            <p data-reveal style={{ fontSize: 10.5, letterSpacing: ".32em", color: "rgba(255,255,255,.42)", margin: "0 0 18px" }}>WHY JFLIPSTUDIO</p>
+            <h2 data-reveal className="h-sec" style={{ fontSize: 32, fontWeight: 700, margin: "0 0 14px", letterSpacing: "-.01em", transitionDelay: ".08s" }}>スタジオの3つの強み</h2>
+            <p data-reveal style={{ fontSize: 13.5, color: "rgba(255,255,255,.55)", margin: 0, transitionDelay: ".16s" }}>理想の音像をスピーディーかつ確実に出せる環境を整えています。</p>
           </div>
           <div className="g3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16 }}>
-            <div style={{ background: "#141414", border: "1px solid rgba(255,255,255,.09)", borderRadius: 14, padding: "30px 26px" }}>
+            <div data-reveal style={{ background: "#141414", border: "1px solid rgba(255,255,255,.09)", borderRadius: 14, padding: "30px 26px", transitionDelay: "0s" }}>
               <div style={{ width: 44, height: 44, border: "1px solid rgba(255,255,255,.16)", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20, background: "rgba(255,255,255,.04)" }}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={1.6} strokeLinecap="round">
                   <path d="M3 12h2" />
@@ -304,7 +310,7 @@ export default async function Home() {
                 録音からその場で MIX・マスタリングまで一貫対応。方向性を相談しながら、その日のうちに仕上がりを確認できます。
               </p>
             </div>
-            <div style={{ background: "#141414", border: "1px solid rgba(255,255,255,.09)", borderRadius: 14, padding: "30px 26px" }}>
+            <div data-reveal style={{ background: "#141414", border: "1px solid rgba(255,255,255,.09)", borderRadius: 14, padding: "30px 26px", transitionDelay: ".1s" }}>
               <div style={{ width: 44, height: 44, border: "1px solid rgba(255,255,255,.16)", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20, background: "rgba(255,255,255,.04)" }}>
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={1.6} strokeLinecap="round">
                   <rect x="9" y="2.5" width="6" height="11" rx="3" />
@@ -318,7 +324,7 @@ export default async function Home() {
                 マイクモデリング対応のフラッグシップ機と、施工済みの防音ブース。声の質感をそのまま収録できます。
               </p>
             </div>
-            <div style={{ background: "#141414", border: "1px solid rgba(255,255,255,.09)", borderRadius: 14, padding: "30px 26px" }}>
+            <div data-reveal style={{ background: "#141414", border: "1px solid rgba(255,255,255,.09)", borderRadius: 14, padding: "30px 26px", transitionDelay: ".2s" }}>
               <div style={{ width: 44, height: 44, border: "1px solid rgba(255,255,255,.16)", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20, background: "rgba(255,255,255,.04)" }}>
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12 21.5s7-6.1 7-11.1A7 7 0 0 0 5 10.4c0 5 7 11.1 7 11.1Z" />
@@ -338,11 +344,11 @@ export default async function Home() {
         <div className="wrap" style={{ maxWidth: 1180, margin: "0 auto", padding: "88px 32px" }}>
           <div className="works-hd" style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 12 }}>
             <div>
-              <p style={{ fontSize: 10.5, letterSpacing: ".32em", color: "rgba(255,255,255,.42)", margin: "0 0 18px" }}>DISCOGRAPHY &amp; PORTFOLIO</p>
-              <h2 className="h-sec" style={{ fontSize: 32, fontWeight: 700, margin: 0, letterSpacing: "-.01em" }}>制作実績 &amp; WORKS</h2>
+              <p data-reveal style={{ fontSize: 10.5, letterSpacing: ".32em", color: "rgba(255,255,255,.42)", margin: "0 0 18px" }}>DISCOGRAPHY &amp; PORTFOLIO</p>
+              <h2 data-reveal className="h-sec" style={{ fontSize: 32, fontWeight: 700, margin: 0, letterSpacing: "-.01em", transitionDelay: ".08s" }}>制作実績 &amp; WORKS</h2>
             </div>
           </div>
-          <p style={{ fontSize: 13.5, color: "rgba(255,255,255,.55)", margin: "0 0 34px" }}>
+          <p data-reveal style={{ fontSize: 13.5, color: "rgba(255,255,255,.55)", margin: "0 0 34px", transitionDelay: ".16s" }}>
             JFLIPSTUDIOが手がけたレコーディング / MIX / マスタリングの実例です。
           </p>
 
@@ -352,12 +358,12 @@ export default async function Home() {
 
       <section id="gear" style={{ borderTop: "1px solid rgba(255,255,255,.08)", background: "#0d0d0d" }}>
         <div className="wrap" style={{ maxWidth: 1180, margin: "0 auto", padding: "88px 32px" }}>
-          <p style={{ fontSize: 10.5, letterSpacing: ".32em", color: "rgba(255,255,255,.42)", margin: "0 0 18px" }}>STUDIO GEAR &amp; ENVIRONMENT</p>
-          <h2 className="h-sec" style={{ fontSize: 32, fontWeight: 700, margin: "0 0 14px", letterSpacing: "-.01em" }}>機材・スタジオスペック</h2>
-          <p style={{ fontSize: 13.5, color: "rgba(255,255,255,.55)", margin: "0 0 34px" }}>選び抜いた機材構成で、高解像なリスニング環境と安定した動作を実現します。</p>
+          <p data-reveal style={{ fontSize: 10.5, letterSpacing: ".32em", color: "rgba(255,255,255,.42)", margin: "0 0 18px" }}>STUDIO GEAR &amp; ENVIRONMENT</p>
+          <h2 data-reveal className="h-sec" style={{ fontSize: 32, fontWeight: 700, margin: "0 0 14px", letterSpacing: "-.01em", transitionDelay: ".08s" }}>機材・スタジオスペック</h2>
+          <p data-reveal style={{ fontSize: 13.5, color: "rgba(255,255,255,.55)", margin: "0 0 34px", transitionDelay: ".16s" }}>選び抜いた機材構成で、高解像なリスニング環境と安定した動作を実現します。</p>
           <div style={{ background: "#141414", border: "1px solid rgba(255,255,255,.09)", borderRadius: 14, overflow: "hidden" }}>
-            {GEAR.map((g) => (
-              <div key={g.label} className="gear-row" style={{ display: "grid", gridTemplateColumns: "200px 1fr", gap: 28, padding: "22px 28px", borderBottom: "1px solid rgba(255,255,255,.07)" }}>
+            {GEAR.map((g, i) => (
+              <div key={g.label} data-reveal className="gear-row" style={{ display: "grid", gridTemplateColumns: "200px 1fr", gap: 28, padding: "22px 28px", borderBottom: "1px solid rgba(255,255,255,.07)", transitionDelay: `${i * 0.06}s` }}>
                 <span style={{ fontSize: 10.5, letterSpacing: ".2em", color: "rgba(255,255,255,.42)", paddingTop: 3 }}>{g.label}</span>
                 <div>
                   <div style={{ fontSize: 14.5, fontWeight: 500, marginBottom: 7 }}>{g.name}</div>
@@ -371,11 +377,11 @@ export default async function Home() {
 
       <section id="contact" style={{ borderTop: "1px solid rgba(255,255,255,.08)" }}>
         <div className="wrap" style={{ maxWidth: 1180, margin: "0 auto", padding: "88px 32px" }}>
-          <p style={{ fontSize: 10.5, letterSpacing: ".32em", color: "rgba(255,255,255,.42)", margin: "0 0 18px" }}>INQUIRY &amp; ACCESS</p>
-          <h2 className="h-sec" style={{ fontSize: 32, fontWeight: 700, margin: "0 0 14px", letterSpacing: "-.01em" }}>アクセス &amp; お問い合わせ</h2>
-          <p style={{ fontSize: 13.5, color: "rgba(255,255,255,.55)", margin: "0 0 40px" }}>住所・最寄駅・お支払い方法からマルチアクセスが可能な立地です。</p>
+          <p data-reveal style={{ fontSize: 10.5, letterSpacing: ".32em", color: "rgba(255,255,255,.42)", margin: "0 0 18px" }}>INQUIRY &amp; ACCESS</p>
+          <h2 data-reveal className="h-sec" style={{ fontSize: 32, fontWeight: 700, margin: "0 0 14px", letterSpacing: "-.01em", transitionDelay: ".08s" }}>アクセス &amp; お問い合わせ</h2>
+          <p data-reveal style={{ fontSize: 13.5, color: "rgba(255,255,255,.55)", margin: "0 0 40px", transitionDelay: ".16s" }}>住所・最寄駅・お支払い方法からマルチアクセスが可能な立地です。</p>
           <div className="g2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "start" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 26 }}>
+            <div data-reveal style={{ display: "flex", flexDirection: "column", gap: 26, transitionDelay: ".22s" }}>
               <div>
                 <div style={{ fontSize: 11, letterSpacing: ".2em", color: "rgba(255,255,255,.4)", marginBottom: 12 }}>所在地・最寄り駅</div>
                 <div style={{ fontSize: 14.5, fontWeight: 500, marginBottom: 14 }}>東京都練馬区豊玉北</div>
@@ -413,7 +419,7 @@ export default async function Home() {
                 </a>
               </div>
             </div>
-            <div style={{ background: "#111", border: "1px solid rgba(255,255,255,.09)", borderRadius: 14, padding: 28 }}>
+            <div data-reveal style={{ background: "#111", border: "1px solid rgba(255,255,255,.09)", borderRadius: 14, padding: 28, transitionDelay: ".3s" }}>
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 <div>
                   <div style={{ fontSize: 11, letterSpacing: ".16em", color: "rgba(255,255,255,.45)", marginBottom: 8 }}>お問い合わせ種別</div>

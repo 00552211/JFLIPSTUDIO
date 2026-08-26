@@ -82,8 +82,8 @@ export function AvailabilityCalendar() {
       <div className="wrap" style={{ maxWidth: 1180, margin: "0 auto", padding: "88px 32px" }}>
         <div className="works-hd" style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 12 }}>
           <div>
-            <p style={{ fontSize: 10.5, letterSpacing: ".32em", color: "rgba(255,255,255,.42)", margin: "0 0 18px" }}>AVAILABILITY</p>
-            <h2 className="h-sec" style={{ fontSize: 32, fontWeight: 700, margin: 0, letterSpacing: "-.01em" }}>予約状況カレンダー</h2>
+            <p data-reveal style={{ fontSize: 10.5, letterSpacing: ".32em", color: "rgba(255,255,255,.42)", margin: "0 0 18px" }}>AVAILABILITY</p>
+            <h2 data-reveal className="h-sec" style={{ fontSize: 32, fontWeight: 700, margin: 0, letterSpacing: "-.01em", transitionDelay: ".08s" }}>予約状況カレンダー</h2>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <button className="hover-outline-sm" style={navBtn} onClick={() => setOffset((o) => Math.max(0, o - 1))} aria-label="前の月">‹</button>
@@ -100,11 +100,11 @@ export function AvailabilityCalendar() {
             </button>
           </div>
         </div>
-        <p style={{ fontSize: 13.5, color: "rgba(255,255,255,.55)", margin: "0 0 26px" }}>
+        <p data-reveal style={{ fontSize: 13.5, color: "rgba(255,255,255,.55)", margin: "0 0 26px", transitionDelay: ".16s" }}>
           空き状況の目安です。日付を選ぶと、その日の予約ページが開きます。
         </p>
 
-        <div style={{ background: "#111", border: "1px solid rgba(255,255,255,.09)", borderRadius: 14, padding: "22px 20px" }}>
+        <div data-reveal style={{ background: "#111", border: "1px solid rgba(255,255,255,.09)", borderRadius: 14, padding: "22px 20px", transitionDelay: ".22s" }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 6, marginBottom: 8 }}>
             {WD.map((label, i) => (
               <div key={label} style={{ textAlign: "center", fontSize: 10, letterSpacing: ".14em", paddingBottom: 6, color: i === 6 ? "rgba(255,255,255,.3)" : i === 5 ? "rgba(255,255,255,.5)" : "rgba(255,255,255,.42)" }}>{label}</div>
