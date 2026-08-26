@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireAdminPage } from "@/lib/auth/require-admin";
 import { createClient } from "@/lib/supabase/server";
-import { deleteGalleryImage, setGalleryImagePublished } from "./_actions/save-image";
+import { deleteGalleryImage, importStaticGallery, setGalleryImagePublished } from "./_actions/save-image";
 import { signOut } from "../_actions/sign-out";
 
 export default async function AdminGalleryPage() {
@@ -70,7 +70,21 @@ export default async function AdminGalleryPage() {
           </div>
         ))}
         {withUrls.length === 0 && (
-          <p className="text-sm text-neutral-500">まだ登録がありません。</p>
+          <div className="rounded-lg border border-dashed border-white/15 px-4 py-6 text-center">
+            <p className="mb-3 text-sm text-neutral-500">まだ登録がありません。</p>
+            <p className="mb-4 text-xs text-neutral-500">
+              現在トップページに表示されている「スタジオ風景 &amp; GALLERY」の8枚は、
+              まだこの管理画面には取り込まれていません（静的な画像のままです）。
+            </p>
+            <form action={importStaticGallery}>
+              <button
+                type="submit"
+                className="rounded-full bg-white px-4 py-2 text-xs font-bold text-black hover:bg-neutral-200"
+              >
+                既存の8枚をこの管理画面に取り込む
+              </button>
+            </form>
+          </div>
         )}
       </div>
     </div>
