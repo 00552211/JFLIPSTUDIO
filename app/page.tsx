@@ -148,11 +148,30 @@ export default async function Home() {
         </div>
       </header>
 
-      <section id="top" className="wrap-hero" style={{ maxWidth: 1180, margin: "0 auto", padding: "96px 32px 88px" }}>
-        <p data-reveal style={{ fontSize: 10.5, letterSpacing: ".32em", color: "rgba(255,255,255,.42)", margin: "0 0 26px" }}>
-          RECORDING &amp; MIXING STUDIO / NERIMA TOKYO
-        </p>
-        <div className="hero-grid" style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 56, alignItems: "start" }}>
+      <section id="top" style={{ position: "relative", overflow: "hidden" }}>
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: "url(/assets/hero-bg.jpg)",
+            backgroundSize: "cover",
+            backgroundPosition: "center 42%",
+          }}
+        />
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "linear-gradient(180deg, rgba(10,10,10,.5) 0%, rgba(10,10,10,.78) 58%, #0a0a0a 100%)",
+          }}
+        />
+        <div className="wrap-hero" style={{ position: "relative", maxWidth: 1180, margin: "0 auto", padding: "96px 32px 88px" }}>
+          <p data-reveal style={{ fontSize: 10.5, letterSpacing: ".32em", color: "rgba(255,255,255,.42)", margin: "0 0 26px" }}>
+            RECORDING &amp; MIXING STUDIO / NERIMA TOKYO
+          </p>
+          <div className="hero-grid" style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 56, alignItems: "start" }}>
           <div>
             <h1 data-reveal className="h-hero" style={{ fontSize: 52, lineHeight: 1.24, fontWeight: 700, letterSpacing: "-.01em", margin: "0 0 26px", transitionDelay: ".08s" }}>
               録音からMIX・マスタリングまで、
@@ -198,6 +217,7 @@ export default async function Home() {
                 レコーディングからMIX・マスタリングまで、その場で一緒に方向性を決めながら仕上げます。
               </p>
             </div>
+          </div>
           </div>
         </div>
       </section>
