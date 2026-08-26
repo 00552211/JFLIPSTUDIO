@@ -27,6 +27,11 @@ export async function fetchAvailability(
     throw new Error("Square の環境変数が未設定です");
   }
 
+  // Square は過去日を start_at に指定すると拒否するため、今月表示など startAt が
+  // 過去になるケースは現在時刻を起点にする（出力の日付ループ側は startAt のまま）。
+  const queryStart = startAt < new Date() ? new Date() : startAt;
+  if (queryStart > endAt) return {};
+
   const res = await fetch(`${SQUARE_API}/v2/bookings/availability/search`, {
     method: "POST",
     headers: {
@@ -37,7 +42,7 @@ export async function fetchAvailability(
     body: JSON.stringify({
       query: {
         filter: {
-          start_at_range: { start_at: startAt.toISOString(), end_at: endAt.toISOString() },
+          start_at_range: { start_at: queryStart.toISOString(), end_at: endAt.toISOString() },
           location_id: locationId,
           segment_filters: [{ service_variation_id: serviceVariationId }],
         },
