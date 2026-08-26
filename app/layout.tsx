@@ -10,19 +10,35 @@ const notoSansJP = Noto_Sans_JP({
 });
 
 export const metadata: Metadata = {
-  title: "JFLIPSTUDIO | 練馬区の立ち合い型レコーディング・MIXスタジオ",
+  metadataBase: new URL("https://jflipstudio.com"),
+  title: "JFLIPSTUDIO｜東京・練馬のレコーディングスタジオ｜MIX・マスタリング立ち合い対応",
   description:
-    "JFLIPSTUDIOは、録音からMIX・マスタリングまでその場で立ち合い完結する東京・練馬区のレコーディングスタジオです。10hパックなら1時間あたり¥4,000から。",
+    "東京都練馬区豊玉北のレコーディングスタジオ JFLIPSTUDIO。新江古田駅から徒歩8分。録音からMIX・マスタリングまで立ち合いで完結、1時間あたり4,000円から。オンラインMIXは7,000円から、リテイク無制限。",
+  robots: { index: true, follow: true },
+  verification: { google: "kcBIytu0cweTyBHVrGY1GgFZ49w9GHtyEIu-dU973-8" },
+  icons: { icon: "/assets/jflip-logo-white.png", apple: "/assets/jflip-logo-white.png" },
+  openGraph: {
+    type: "website",
+    title: "JFLIPSTUDIO｜東京・練馬のレコーディングスタジオ",
+    description: "録音からMIX・マスタリングまで立ち合いで完結。新江古田駅から徒歩8分、1時間あたり4,000円から。",
+    images: ["/assets/photo-01.jpg"],
+  },
+  twitter: { card: "summary_large_image" },
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ja" className={notoSansJP.variable}>
-      <body>{children}</body>
+      <body>
+        {/* ローディング画面：CSSのみで1.5秒後にフェードアウト（JSブロックなし） */}
+        <div id="boot">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="mark" src="/assets/jflip-logo-white.png" alt="" />
+          <div className="bar"><i /></div>
+          <div className="label">JFLIPSTUDIO</div>
+        </div>
+        {children}
+      </body>
     </html>
   );
 }

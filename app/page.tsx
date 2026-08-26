@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { PricingToggle } from "./pricing-toggle";
+import { AvailabilityCalendar } from "./availability-calendar";
 
 type WorkLink = { label: string; url: string };
 type WorkItem = {
@@ -84,13 +85,14 @@ export default async function Home() {
           borderBottom: "1px solid rgba(255,255,255,.08)",
         }}
       >
-        <div style={{ maxWidth: 1180, margin: "0 auto", padding: "14px 32px", display: "flex", alignItems: "center", gap: 24, flexWrap: "nowrap" }}>
+        <div className="hdr-in" style={{ maxWidth: 1180, margin: "0 auto", padding: "14px 32px", display: "flex", alignItems: "center", gap: 24, flexWrap: "nowrap" }}>
           <a href="#top" style={{ display: "flex", alignItems: "center", gap: 10, flex: "none", whiteSpace: "nowrap" }}>
             <img src="/assets/jflip-logo-white.png" alt="JFLIPSTUDIO" style={{ width: 26, height: 26, objectFit: "contain" }} />
             <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: ".16em" }}>JFLIPSTUDIO</span>
           </a>
           <nav className="hdr-nav" style={{ display: "flex", gap: 20, fontSize: 11, letterSpacing: ".14em", color: "rgba(255,255,255,.55)", flex: "none" }}>
             <a href="#pricing" className="hover-link" style={{ color: "inherit", flex: "none", whiteSpace: "nowrap" }}>HOURS &amp; PRICE</a>
+            <a href="#availability" className="hover-link" style={{ color: "inherit", flex: "none", whiteSpace: "nowrap" }}>CALENDAR</a>
             <a href="#gallery" className="hover-link" style={{ color: "inherit", flex: "none", whiteSpace: "nowrap" }}>GALLERY</a>
             <a href="#about" className="hover-link" style={{ color: "inherit", flex: "none", whiteSpace: "nowrap" }}>ABOUT</a>
             <a href="#works" className="hover-link" style={{ color: "inherit", flex: "none", whiteSpace: "nowrap" }}>WORKS</a>
@@ -112,15 +114,20 @@ export default async function Home() {
             </a>
           </div>
         </div>
+        <div className="hdr-mobnav" style={{ display: "none", gap: 18, overflowX: "auto", padding: "0 20px 11px", fontSize: 11, letterSpacing: ".12em", color: "rgba(255,255,255,.55)", scrollbarWidth: "none" }}>
+          {[["#pricing", "HOURS & PRICE"], ["#availability", "CALENDAR"], ["#gallery", "GALLERY"], ["#about", "ABOUT"], ["#works", "WORKS"], ["#gear", "EQUIPMENT"], ["#contact", "CONTACT"]].map(([href, label]) => (
+            <a key={href} href={href} style={{ color: "inherit", whiteSpace: "nowrap", flex: "none" }}>{label}</a>
+          ))}
+        </div>
       </header>
 
-      <section id="top" style={{ maxWidth: 1180, margin: "0 auto", padding: "96px 32px 88px" }}>
+      <section id="top" className="wrap-hero" style={{ maxWidth: 1180, margin: "0 auto", padding: "96px 32px 88px" }}>
         <p style={{ fontSize: 10.5, letterSpacing: ".32em", color: "rgba(255,255,255,.42)", margin: "0 0 26px" }}>
           RECORDING &amp; MIXING STUDIO / NERIMA TOKYO
         </p>
-        <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 56, alignItems: "start" }}>
+        <div className="hero-grid" style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 56, alignItems: "start" }}>
           <div>
-            <h1 style={{ fontSize: 52, lineHeight: 1.24, fontWeight: 700, letterSpacing: "-.01em", margin: "0 0 26px" }}>
+            <h1 className="h-hero" style={{ fontSize: 52, lineHeight: 1.24, fontWeight: 700, letterSpacing: "-.01em", margin: "0 0 26px" }}>
               録音からMIX・マスタリングまで、
               <br />
               その場で立ち合い完結。
@@ -136,7 +143,7 @@ export default async function Home() {
                 @jfliponthegame
               </a>
             </div>
-            <div style={{ display: "flex", gap: 44, marginTop: 56, paddingTop: 30, borderTop: "1px solid rgba(255,255,255,.1)" }}>
+            <div className="hero-stats" style={{ display: "flex", gap: 44, marginTop: 56, paddingTop: 30, borderTop: "1px solid rgba(255,255,255,.1)" }}>
               <div>
                 <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-.01em" }}>1時間 ¥4,000〜</div>
                 <div style={{ fontSize: 11, letterSpacing: ".14em", color: "rgba(255,255,255,.42)", marginTop: 7 }}>10hパック利用時 / エンジニア込み</div>
@@ -151,7 +158,7 @@ export default async function Home() {
               </div>
             </div>
           </div>
-          <div style={{ background: "#111", border: "1px solid rgba(255,255,255,.09)", borderRadius: 14, padding: "34px 30px", display: "flex", flexDirection: "column", alignItems: "center", gap: 22 }}>
+          <div className="hero-card" style={{ background: "#111", border: "1px solid rgba(255,255,255,.09)", borderRadius: 14, padding: "34px 30px", display: "flex", flexDirection: "column", alignItems: "center", gap: 22 }}>
             <span style={{ fontSize: 9.5, letterSpacing: ".26em", color: "rgba(255,255,255,.4)", border: "1px solid rgba(255,255,255,.14)", borderRadius: 999, padding: "6px 14px" }}>
               RECORDING &amp; SOUND DESIGN
             </span>
@@ -169,14 +176,14 @@ export default async function Home() {
       </section>
 
       <section id="pricing" style={{ borderTop: "1px solid rgba(255,255,255,.08)", background: "#0d0d0d" }}>
-        <div style={{ maxWidth: 1180, margin: "0 auto", padding: "88px 32px" }}>
+        <div className="wrap" style={{ maxWidth: 1180, margin: "0 auto", padding: "88px 32px" }}>
           <p style={{ fontSize: 10.5, letterSpacing: ".32em", color: "rgba(255,255,255,.42)", margin: "0 0 18px" }}>HOURS &amp; PRICE</p>
-          <h2 style={{ fontSize: 32, fontWeight: 700, margin: "0 0 14px", letterSpacing: "-.01em" }}>営業時間 &amp; 料金案内</h2>
+          <h2 className="h-sec" style={{ fontSize: 32, fontWeight: 700, margin: "0 0 14px", letterSpacing: "-.01em" }}>営業時間 &amp; 料金案内</h2>
           <p style={{ fontSize: 13.5, color: "rgba(255,255,255,.55)", margin: "0 0 38px" }}>
             シンプルでわかりやすいパック料金制。WEB予約ページより即時予約が可能です。
           </p>
 
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#141414", border: "1px solid rgba(255,255,255,.09)", borderRadius: 14, padding: "26px 30px", marginBottom: 26 }}>
+          <div className="hours-box" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#141414", border: "1px solid rgba(255,255,255,.09)", borderRadius: 14, padding: "26px 30px", marginBottom: 26 }}>
             <div>
               <div style={{ fontSize: 10.5, letterSpacing: ".26em", color: "rgba(255,255,255,.4)", marginBottom: 10 }}>BUSINESS HOURS</div>
               <div style={{ fontSize: 34, fontWeight: 700, letterSpacing: "-.01em" }}>13:00 – 23:00</div>
@@ -191,45 +198,45 @@ export default async function Home() {
         </div>
       </section>
 
+      <AvailabilityCalendar />
+
       <section id="gallery" style={{ borderTop: "1px solid rgba(255,255,255,.08)" }}>
-        <div style={{ maxWidth: 1180, margin: "0 auto", padding: "88px 32px" }}>
+        <div className="wrap" style={{ maxWidth: 1180, margin: "0 auto", padding: "88px 32px" }}>
           <p style={{ fontSize: 10.5, letterSpacing: ".32em", color: "rgba(255,255,255,.42)", margin: "0 0 18px" }}>STUDIO ATMOSPHERE</p>
-          <h2 style={{ fontSize: 32, fontWeight: 700, margin: "0 0 14px", letterSpacing: "-.01em" }}>スタジオ風景 &amp; GALLERY</h2>
+          <h2 className="h-sec" style={{ fontSize: 32, fontWeight: 700, margin: "0 0 14px", letterSpacing: "-.01em" }}>スタジオ風景 &amp; GALLERY</h2>
           <p style={{ fontSize: 13.5, color: "rgba(255,255,255,.55)", margin: "0 0 34px" }}>
-            クリエイティブに集中できる録音ブースとコントロールルーム。写真は差し替え枠です。
+            実際のスタジオの様子です。
           </p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14 }}>
-            {[1, 2, 3, 4, 5, 6].map((n) => (
-              <div
+          <div className="gal" style={{ display: "grid", gridTemplateColumns: "repeat(12,1fr)", gap: 14 }}>
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
                 key={n}
+                src={`/assets/photo-${String(n).padStart(2, "0")}.jpg`}
+                alt=""
+                loading="lazy"
                 style={{
-                  aspectRatio: "4/3",
-                  border: "1px dashed rgba(255,255,255,.16)",
+                  gridColumn: n <= 2 ? "span 6" : "span 4",
+                  aspectRatio: n <= 2 ? "3/2" : "4/3",
+                  width: "100%",
                   borderRadius: 12,
-                  background: "#111",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 11,
-                  letterSpacing: ".14em",
-                  color: "rgba(255,255,255,.32)",
+                  objectFit: "cover",
+                  filter: "saturate(.92)",
                 }}
-              >
-                写真 {String(n).padStart(2, "0")}
-              </div>
+              />
             ))}
           </div>
         </div>
       </section>
 
       <section id="about" style={{ borderTop: "1px solid rgba(255,255,255,.08)", background: "#0d0d0d" }}>
-        <div style={{ maxWidth: 1180, margin: "0 auto", padding: "88px 32px" }}>
+        <div className="wrap" style={{ maxWidth: 1180, margin: "0 auto", padding: "88px 32px" }}>
           <div style={{ textAlign: "center", marginBottom: 44 }}>
             <p style={{ fontSize: 10.5, letterSpacing: ".32em", color: "rgba(255,255,255,.42)", margin: "0 0 18px" }}>WHY JFLIPSTUDIO</p>
-            <h2 style={{ fontSize: 32, fontWeight: 700, margin: "0 0 14px", letterSpacing: "-.01em" }}>スタジオの3つの強み</h2>
+            <h2 className="h-sec" style={{ fontSize: 32, fontWeight: 700, margin: "0 0 14px", letterSpacing: "-.01em" }}>スタジオの3つの強み</h2>
             <p style={{ fontSize: 13.5, color: "rgba(255,255,255,.55)", margin: 0 }}>理想の音像をスピーディーかつ確実に出せる環境を整えています。</p>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16 }}>
+          <div className="g3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16 }}>
             <div style={{ background: "#141414", border: "1px solid rgba(255,255,255,.09)", borderRadius: 14, padding: "30px 26px" }}>
               <div style={{ width: 44, height: 44, border: "1px solid rgba(255,255,255,.16)", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20, background: "rgba(255,255,255,.04)" }}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={1.6} strokeLinecap="round">
@@ -276,21 +283,18 @@ export default async function Home() {
       </section>
 
       <section id="works" style={{ borderTop: "1px solid rgba(255,255,255,.08)" }}>
-        <div style={{ maxWidth: 1180, margin: "0 auto", padding: "88px 32px" }}>
-          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 12 }}>
+        <div className="wrap" style={{ maxWidth: 1180, margin: "0 auto", padding: "88px 32px" }}>
+          <div className="works-hd" style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 12 }}>
             <div>
               <p style={{ fontSize: 10.5, letterSpacing: ".32em", color: "rgba(255,255,255,.42)", margin: "0 0 18px" }}>DISCOGRAPHY &amp; PORTFOLIO</p>
-              <h2 style={{ fontSize: 32, fontWeight: 700, margin: 0, letterSpacing: "-.01em" }}>制作実績 &amp; WORKS</h2>
+              <h2 className="h-sec" style={{ fontSize: 32, fontWeight: 700, margin: 0, letterSpacing: "-.01em" }}>制作実績 &amp; WORKS</h2>
             </div>
-            <span style={{ fontSize: 10.5, letterSpacing: ".16em", color: "rgba(255,255,255,.4)", border: "1px solid rgba(255,255,255,.14)", borderRadius: 999, padding: "7px 14px", whiteSpace: "nowrap" }}>
-              /admin から編集 · 公開分のみ表示
-            </span>
           </div>
           <p style={{ fontSize: 13.5, color: "rgba(255,255,255,.55)", margin: "0 0 34px" }}>
             JFLIPSTUDIOが手がけたレコーディング / MIX / マスタリングの実例です。
           </p>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 16 }}>
+          <div className="g2" style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 16 }}>
             {works.map((w) => (
               <div key={w.id} style={{ background: "#111", border: "1px solid rgba(255,255,255,.09)", borderRadius: 14, padding: 20 }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
@@ -334,22 +338,22 @@ export default async function Home() {
                 </div>
               </div>
             ))}
-            <div style={{ border: "1px dashed rgba(255,255,255,.14)", borderRadius: 14, padding: 20, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, minHeight: 180 }}>
+            <div style={{ gridColumn: works.length === 0 ? "1 / -1" : undefined, border: "1px dashed rgba(255,255,255,.14)", borderRadius: 14, padding: 20, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, minHeight: 180 }}>
               <div style={{ fontSize: 13, letterSpacing: ".16em", color: "rgba(255,255,255,.45)" }}>MORE WORKS COMING SOON</div>
-              <div style={{ fontSize: 11.5, color: "rgba(255,255,255,.3)" }}>管理画面で追加すると自動でここに並びます</div>
+              <div style={{ fontSize: 11.5, color: "rgba(255,255,255,.3)", textAlign: "center", maxWidth: "36em" }}>現在準備中です。公開できる制作実績が揃いしだい、こちらに掲載していきます。</div>
             </div>
           </div>
         </div>
       </section>
 
       <section id="gear" style={{ borderTop: "1px solid rgba(255,255,255,.08)", background: "#0d0d0d" }}>
-        <div style={{ maxWidth: 1180, margin: "0 auto", padding: "88px 32px" }}>
+        <div className="wrap" style={{ maxWidth: 1180, margin: "0 auto", padding: "88px 32px" }}>
           <p style={{ fontSize: 10.5, letterSpacing: ".32em", color: "rgba(255,255,255,.42)", margin: "0 0 18px" }}>STUDIO GEAR &amp; ENVIRONMENT</p>
-          <h2 style={{ fontSize: 32, fontWeight: 700, margin: "0 0 14px", letterSpacing: "-.01em" }}>機材・スタジオスペック</h2>
+          <h2 className="h-sec" style={{ fontSize: 32, fontWeight: 700, margin: "0 0 14px", letterSpacing: "-.01em" }}>機材・スタジオスペック</h2>
           <p style={{ fontSize: 13.5, color: "rgba(255,255,255,.55)", margin: "0 0 34px" }}>選び抜いた機材構成で、高解像なリスニング環境と安定した動作を実現します。</p>
           <div style={{ background: "#141414", border: "1px solid rgba(255,255,255,.09)", borderRadius: 14, overflow: "hidden" }}>
             {GEAR.map((g) => (
-              <div key={g.label} style={{ display: "grid", gridTemplateColumns: "200px 1fr", gap: 28, padding: "22px 28px", borderBottom: "1px solid rgba(255,255,255,.07)" }}>
+              <div key={g.label} className="gear-row" style={{ display: "grid", gridTemplateColumns: "200px 1fr", gap: 28, padding: "22px 28px", borderBottom: "1px solid rgba(255,255,255,.07)" }}>
                 <span style={{ fontSize: 10.5, letterSpacing: ".2em", color: "rgba(255,255,255,.42)", paddingTop: 3 }}>{g.label}</span>
                 <div>
                   <div style={{ fontSize: 14.5, fontWeight: 500, marginBottom: 7 }}>{g.name}</div>
@@ -362,15 +366,16 @@ export default async function Home() {
       </section>
 
       <section id="contact" style={{ borderTop: "1px solid rgba(255,255,255,.08)" }}>
-        <div style={{ maxWidth: 1180, margin: "0 auto", padding: "88px 32px" }}>
+        <div className="wrap" style={{ maxWidth: 1180, margin: "0 auto", padding: "88px 32px" }}>
           <p style={{ fontSize: 10.5, letterSpacing: ".32em", color: "rgba(255,255,255,.42)", margin: "0 0 18px" }}>INQUIRY &amp; ACCESS</p>
-          <h2 style={{ fontSize: 32, fontWeight: 700, margin: "0 0 14px", letterSpacing: "-.01em" }}>アクセス &amp; お問い合わせ</h2>
+          <h2 className="h-sec" style={{ fontSize: 32, fontWeight: 700, margin: "0 0 14px", letterSpacing: "-.01em" }}>アクセス &amp; お問い合わせ</h2>
           <p style={{ fontSize: 13.5, color: "rgba(255,255,255,.55)", margin: "0 0 40px" }}>住所・最寄駅・お支払い方法からマルチアクセスが可能な立地です。</p>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "start" }}>
+          <div className="g2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "start" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 26 }}>
               <div>
                 <div style={{ fontSize: 11, letterSpacing: ".2em", color: "rgba(255,255,255,.4)", marginBottom: 12 }}>所在地・最寄り駅</div>
-                <div style={{ fontSize: 14.5, fontWeight: 500, marginBottom: 14 }}>東京都練馬区（詳細はご予約時にご案内）</div>
+                <div style={{ fontSize: 14.5, fontWeight: 500, marginBottom: 14 }}>東京都練馬区豊玉北</div>
+                <div style={{ fontSize: 12, color: "rgba(255,255,255,.45)", marginBottom: 14 }}>以降の詳細住所はご予約確定メールにてご案内します。</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   <div style={{ border: "1px solid rgba(255,255,255,.1)", borderRadius: 10, padding: "12px 16px", fontSize: 12.5, color: "rgba(255,255,255,.65)" }}>
                     都営大江戸線「新江古田」駅 徒歩8分
@@ -442,7 +447,7 @@ export default async function Home() {
       </section>
 
       <footer style={{ borderTop: "1px solid rgba(255,255,255,.08)", background: "#0d0d0d" }}>
-        <div style={{ maxWidth: 1180, margin: "0 auto", padding: "64px 32px 34px", display: "grid", gridTemplateColumns: "1.6fr 1fr 1fr 1fr", gap: 40 }}>
+        <div className="ft-grid" style={{ maxWidth: 1180, margin: "0 auto", padding: "64px 32px 34px", display: "grid", gridTemplateColumns: "1.6fr 1fr 1fr 1fr", gap: 40 }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
               <img src="/assets/jflip-logo-white.png" alt="JFLIPSTUDIO" style={{ width: 24, height: 24, objectFit: "contain" }} />
@@ -483,7 +488,7 @@ export default async function Home() {
             </div>
           </div>
         </div>
-        <div style={{ maxWidth: 1180, margin: "0 auto", padding: "0 32px 40px", display: "flex", justifyContent: "space-between", fontSize: 11, color: "rgba(255,255,255,.3)" }}>
+        <div className="ft-btm" style={{ maxWidth: 1180, margin: "0 auto", padding: "0 32px 40px", display: "flex", justifyContent: "space-between", fontSize: 11, color: "rgba(255,255,255,.3)" }}>
           <span>© 2026 JFLIPSTUDIO. All rights reserved.</span>
           <span>13:00–23:00 / 日曜定休</span>
         </div>

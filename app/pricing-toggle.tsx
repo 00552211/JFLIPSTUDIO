@@ -105,6 +105,7 @@ export function PricingToggle() {
         {plans.map((p) => (
           <div
             key={p.name}
+            className="plan-row"
             style={{
               display: "flex",
               alignItems: "center",
