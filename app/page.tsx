@@ -12,6 +12,8 @@ type WorkItem = {
   credits: string;
   jacketUrl: string | null;
   spotifyTrackId: string | null;
+  /** spotify_url に含まれる /track/ か /album/ から判定。埋め込みURLの種別に必要 */
+  spotifyEmbedKind: "track" | "album";
   links: WorkLink[];
 };
 
@@ -48,6 +50,7 @@ async function getWorks(): Promise<WorkItem[]> {
         ? supabase.storage.from("works").getPublicUrl(w.jacket_path as string).data.publicUrl
         : null,
       spotifyTrackId: (w.spotify_track_id as string | null) ?? null,
+      spotifyEmbedKind: typeof w.spotify_url === "string" && w.spotify_url.includes("/album/") ? "album" : "track",
       // Spotify は埋め込みプレイヤーで直接聴けるので、リンクバッジからは外す
       links: Array.isArray(w.links)
         ? (w.links as { platform: string; url: string }[])
@@ -316,7 +319,7 @@ export default async function Home() {
                   <>
                     <iframe
                       title={`${w.title} / ${w.artist}`}
-                      src={`https://open.spotify.com/embed/track/${w.spotifyTrackId}?utm_source=generator&theme=0`}
+                      src={`https://open.spotify.com/embed/${w.spotifyEmbedKind}/${w.spotifyTrackId}?utm_source=generator&theme=0`}
                       width="100%"
                       height="152"
                       style={{ borderRadius: 12, border: "none", display: "block" }}
