@@ -7,7 +7,7 @@ import { parseSpotifyRef, canonicalSpotifyUrl } from "@/lib/spotify/parse-url";
 import { fetchSpotifyMetaByRef, SpotifyFetchError } from "@/lib/spotify/client";
 import { saveJacketFromUrl } from "@/lib/spotify/jacket";
 
-export const spotifyPrefillSchema = z.object({
+const spotifyPrefillSchema = z.object({
   spotifyTrackId: z.string(),
   spotifyUrl: z.string().url(),
   title: z.string().min(1),
@@ -18,9 +18,9 @@ export const spotifyPrefillSchema = z.object({
   jacketPreviewUrl: z.string().url().nullable(),
 });
 
-export type SpotifyPrefill = z.infer<typeof spotifyPrefillSchema>;
+type SpotifyPrefill = z.infer<typeof spotifyPrefillSchema>;
 
-export type FetchSpotifyMetaResult =
+type FetchSpotifyMetaResult =
   | { ok: true; data: SpotifyPrefill }
   | { ok: false; code: "invalid_url" | "not_found" | "rate_limited" | "duplicate" | "unknown";
       message: string; existingWorkId?: string };
