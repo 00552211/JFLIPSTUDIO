@@ -61,7 +61,7 @@ export async function fetchAvailability(
   const out: Record<string, DayStatus> = {};
   for (const d = new Date(startAt); d <= endAt; d.setDate(d.getDate() + 1)) {
     const key = jstKey(d);
-    if (d.getDay() === CLOSED_WEEKDAY) { out[key] = "closed"; continue; }
+    if (weekdayOf(key) === CLOSED_WEEKDAY) { out[key] = "closed"; continue; }
     if (allDay.has(key)) { out[key] = "full"; continue; }
 
     const free = BUSINESS_HOURS - (busyHours[key] ?? 0);
@@ -74,4 +74,14 @@ export async function fetchAvailability(
 /** JSTの YYYY-MM-DD */
 function jstKey(d: Date) {
   return d.toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
+}
+
+/**
+ * "YYYY-MM-DD"(JSTの暦日)の曜日を返す。d.getDay() はサーバーのタイムゾーン
+ * (Vercelは基本UTC)で評価されるため、JST基準の日付とズレる場合がある
+ * (例: JST 8/3 0:00 は UTC では 8/2 15:00 になり getDay() が前日の曜日を返す)。
+ * "YYYY-MM-DD"をUTC 0時として解釈し直せばタイムゾーンに依存せず判定できる。
+ */
+function weekdayOf(jstDateKey: string): number {
+  return new Date(`${jstDateKey}T00:00:00Z`).getUTCDay();
 }

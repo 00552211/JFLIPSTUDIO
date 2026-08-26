@@ -234,21 +234,48 @@ export default async function Home() {
           </p>
           <div className="gal" style={{ display: "grid", gridTemplateColumns: "repeat(12,1fr)", gap: 14 }}>
             {galleryItems.map((item, i) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <div
                 key={item.id}
-                src={item.url}
-                alt={item.alt}
-                loading="lazy"
                 style={{
+                  position: "relative",
                   gridColumn: i < 2 ? "span 6" : "span 4",
                   aspectRatio: i < 2 ? "3/2" : "4/3",
-                  width: "100%",
                   borderRadius: 12,
-                  objectFit: "cover",
-                  filter: "saturate(.92)",
+                  overflow: "hidden",
                 }}
-              />
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={item.url}
+                  alt={item.alt}
+                  loading="lazy"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    display: "block",
+                    objectFit: "cover",
+                    filter: "saturate(.92)",
+                  }}
+                />
+                {item.alt && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      padding: "26px 14px 10px",
+                      background: "linear-gradient(to top, rgba(0,0,0,.75), transparent)",
+                      fontSize: 12,
+                      lineHeight: 1.5,
+                      color: "rgba(255,255,255,.94)",
+                      pointerEvents: "none",
+                    }}
+                  >
+                    {item.alt}
+                  </div>
+                )}
+              </div>
             ))}
           </div>
         </div>

@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { requireAdminPage } from "@/lib/auth/require-admin";
 import { createClient } from "@/lib/supabase/server";
-import { deleteGalleryImage, importStaticGallery, setGalleryImagePublished } from "./_actions/save-image";
 import { signOut } from "../_actions/sign-out";
+import { GalleryList } from "./gallery-list";
 
 export default async function AdminGalleryPage() {
   await requireAdminPage();
@@ -41,52 +41,10 @@ export default async function AdminGalleryPage() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-2">
-        {withUrls.map((img) => (
-          <div
-            key={img.id}
-            className="flex flex-wrap items-center gap-3 rounded-lg border border-white/10 px-4 py-3"
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={img.url} alt={img.alt} className="size-14 rounded object-cover" />
-            <span className="flex-1 text-sm text-neutral-300">{img.alt || "（altテキストなし）"}</span>
-            <span
-              className={`rounded-full px-2 py-0.5 text-xs ${
-                img.is_published ? "bg-emerald-600/80" : "bg-neutral-700"
-              }`}
-            >
-              {img.is_published ? "公開中" : "下書き"}
-            </span>
-            <form action={setGalleryImagePublished.bind(null, img.id, !img.is_published)}>
-              <button type="submit" className="text-xs text-neutral-300 hover:text-white">
-                {img.is_published ? "非公開にする" : "公開する"}
-              </button>
-            </form>
-            <form action={deleteGalleryImage.bind(null, img.id, img.image_path)}>
-              <button type="submit" className="text-xs text-red-400 hover:text-red-300">
-                削除
-              </button>
-            </form>
-          </div>
-        ))}
-        {withUrls.length === 0 && (
-          <div className="rounded-lg border border-dashed border-white/15 px-4 py-6 text-center">
-            <p className="mb-3 text-sm text-neutral-500">まだ登録がありません。</p>
-            <p className="mb-4 text-xs text-neutral-500">
-              現在トップページに表示されている「スタジオ風景 &amp; GALLERY」の8枚は、
-              まだこの管理画面には取り込まれていません（静的な画像のままです）。
-            </p>
-            <form action={importStaticGallery}>
-              <button
-                type="submit"
-                className="rounded-full bg-white px-4 py-2 text-xs font-bold text-black hover:bg-neutral-200"
-              >
-                既存の8枚をこの管理画面に取り込む
-              </button>
-            </form>
-          </div>
-        )}
-      </div>
+      <p className="mb-4 text-xs text-neutral-500">
+        説明文はホームページのギャラリーにもキャプションとして表示されます。
+      </p>
+      <GalleryList initialImages={withUrls} />
     </div>
   );
 }
