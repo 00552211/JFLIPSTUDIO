@@ -142,3 +142,18 @@ export async function setWorkPublished(id: string, isPublished: boolean) {
   revalidatePath("/admin/works");
   revalidatePath("/");
 }
+
+/** ドラッグ&ドロップ後の並び順を保存する。orderedIds は表示順(先頭が一番上)。 */
+export async function reorderWorks(orderedIds: string[]) {
+  await requireAdmin();
+  const supabase = await createClient();
+
+  const results = await Promise.all(
+    orderedIds.map((id, i) => supabase.from("works").update({ sort_order: (i + 1) * 10 }).eq("id", id)),
+  );
+  const failed = results.find((r) => r.error);
+  if (failed?.error) throw new Error(failed.error.message);
+
+  revalidatePath("/admin/works");
+  revalidatePath("/");
+}

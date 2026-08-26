@@ -1,21 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { PricingToggle } from "./pricing-toggle";
 import { AvailabilityCalendar } from "./availability-calendar";
-
-type WorkLink = { label: string; url: string };
-type WorkItem = {
-  id: string;
-  title: string;
-  artist: string;
-  year: string;
-  roles: string[];
-  credits: string;
-  jacketUrl: string | null;
-  spotifyTrackId: string | null;
-  /** spotify_url に含まれる /track/ か /album/ から判定。埋め込みURLの種別に必要 */
-  spotifyEmbedKind: "track" | "album";
-  links: WorkLink[];
-};
+import { WorksGrid, type WorkItem } from "./works-grid";
 
 const PLATFORM_LABEL: Record<string, string> = {
   spotify: "Spotify",
@@ -302,92 +288,7 @@ export default async function Home() {
             JFLIPSTUDIOが手がけたレコーディング / MIX / マスタリングの実例です。
           </p>
 
-          <div className="g2" style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 16 }}>
-            {works.map((w) => (
-              <div key={w.id} style={{ background: "#111", border: "1px solid rgba(255,255,255,.09)", borderRadius: 14, padding: 20 }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-                  <div style={{ display: "flex", gap: 6 }}>
-                    {w.roles.map((r) => (
-                      <span key={r} style={{ fontSize: 9.5, letterSpacing: ".16em", color: "rgba(255,255,255,.62)", border: "1px solid rgba(255,255,255,.18)", borderRadius: 999, padding: "4px 10px" }}>
-                        {r}
-                      </span>
-                    ))}
-                  </div>
-                  <span style={{ fontSize: 10.5, letterSpacing: ".14em", color: "rgba(255,255,255,.34)" }}>{w.year}</span>
-                </div>
-                {w.spotifyTrackId ? (
-                  <>
-                    <iframe
-                      title={`${w.title} / ${w.artist}`}
-                      src={`https://open.spotify.com/embed/${w.spotifyEmbedKind}/${w.spotifyTrackId}?utm_source=generator&theme=0`}
-                      width="100%"
-                      height="152"
-                      style={{ borderRadius: 12, border: "none", display: "block" }}
-                      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                      loading="lazy"
-                    />
-                    {(w.credits || w.links.length > 0) && (
-                      <div style={{ marginTop: 14 }}>
-                        {w.credits && (
-                          <div style={{ fontSize: 11.5, lineHeight: 1.85, color: "rgba(255,255,255,.4)", marginBottom: w.links.length ? 10 : 0 }}>{w.credits}</div>
-                        )}
-                        {w.links.length > 0 && (
-                          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                            {w.links.map((l) => (
-                              <a
-                                key={l.url}
-                                href={l.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="hover-outline-sm"
-                                style={{ fontSize: 11, letterSpacing: ".06em", color: "rgba(255,255,255,.72)", border: "1px solid rgba(255,255,255,.16)", borderRadius: 999, padding: "6px 13px" }}
-                              >
-                                {l.label} ↗
-                              </a>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <div style={{ display: "flex", gap: 18, alignItems: "flex-start" }}>
-                    {w.jacketUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={w.jacketUrl} alt="" style={{ width: 96, height: 96, flex: "none", borderRadius: 8, objectFit: "cover" }} />
-                    ) : (
-                      <div style={{ width: 96, height: 96, flex: "none", borderRadius: 8, background: "#1a1a1a", border: "1px dashed rgba(255,255,255,.16)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9.5, letterSpacing: ".12em", color: "rgba(255,255,255,.3)" }}>
-                        JACKET
-                      </div>
-                    )}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 6, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{w.title}</div>
-                      <div style={{ fontSize: 12.5, color: "rgba(255,255,255,.55)", marginBottom: 12 }}>{w.artist}</div>
-                      <div style={{ fontSize: 11.5, lineHeight: 1.85, color: "rgba(255,255,255,.4)", marginBottom: 14 }}>{w.credits}</div>
-                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                        {w.links.map((l) => (
-                          <a
-                            key={l.url}
-                            href={l.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="hover-outline-sm"
-                            style={{ fontSize: 11, letterSpacing: ".06em", color: "rgba(255,255,255,.72)", border: "1px solid rgba(255,255,255,.16)", borderRadius: 999, padding: "6px 13px" }}
-                          >
-                            {l.label} ↗
-                          </a>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-            <div style={{ gridColumn: works.length === 0 ? "1 / -1" : undefined, border: "1px dashed rgba(255,255,255,.14)", borderRadius: 14, padding: 20, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, minHeight: 180 }}>
-              <div style={{ fontSize: 13, letterSpacing: ".16em", color: "rgba(255,255,255,.45)" }}>MORE WORKS COMING SOON</div>
-              <div style={{ fontSize: 11.5, color: "rgba(255,255,255,.3)", textAlign: "center", maxWidth: "36em" }}>現在準備中です。公開できる制作実績が揃いしだい、こちらに掲載していきます。</div>
-            </div>
-          </div>
+          <WorksGrid works={works} />
         </div>
       </section>
 
