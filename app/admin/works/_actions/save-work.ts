@@ -19,7 +19,7 @@ const linkSchema = z.object({
 const workSchema = z.object({
   title: z.string().min(1),
   artist: z.string().min(1),
-  roles: z.array(z.enum(["REC", "MIX", "MASTER"])).min(1, "役割を1つ以上選択してください"),
+  roles: z.array(z.enum(["REC", "MIX", "MASTER", "PRODUCE"])).min(1, "役割を1つ以上選択してください"),
   releaseDate: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/)

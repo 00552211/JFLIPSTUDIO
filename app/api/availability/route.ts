@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { fetchAvailability } from "@/lib/square/availability";
+import { fetchAvailability } from "@/lib/google/availability";
 
 export const revalidate = 300;
 

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { WorkFormValues } from "./_actions/save-work";
 
-const ROLE_OPTIONS = ["REC", "MIX", "MASTER"] as const;
+const ROLE_OPTIONS = ["REC", "MIX", "MASTER", "PRODUCE"] as const;
 const PLATFORM_OPTIONS = ["spotify", "apple_music", "youtube", "x", "other"] as const;
 
 type Props = {
