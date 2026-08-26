@@ -36,6 +36,23 @@ const workSchema = z.object({
 
 export type WorkFormValues = z.infer<typeof workSchema>;
 
+/** フォームで「+ 追加」しただけで未入力のまま残った行は保存対象から除外する。 */
+function parseFormValues(values: WorkFormValues): WorkFormValues {
+  const sanitized: WorkFormValues = {
+    ...values,
+    credits: values.credits.filter((c) => c.role.trim() && c.name.trim()),
+    links: values.links.filter((l) => l.url.trim()),
+  };
+  try {
+    return workSchema.parse(sanitized);
+  } catch (e) {
+    if (e instanceof z.ZodError) {
+      throw new Error(e.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join(" / "));
+    }
+    throw e;
+  }
+}
+
 async function replaceChildren(
   supabase: Awaited<ReturnType<typeof createClient>>,
   workId: string,
@@ -73,7 +90,7 @@ function toWorkRow(data: WorkFormValues) {
 
 export async function createWork(values: WorkFormValues) {
   await requireAdmin();
-  const data = workSchema.parse(values);
+  const data = parseFormValues(values);
   const supabase = await createClient();
 
   const { data: work, error } = await supabase
@@ -93,7 +110,7 @@ export async function createWork(values: WorkFormValues) {
 
 export async function updateWork(id: string, values: WorkFormValues) {
   await requireAdmin();
-  const data = workSchema.parse(values);
+  const data = parseFormValues(values);
   const supabase = await createClient();
 
   const { error } = await supabase.from("works").update(toWorkRow(data)).eq("id", id);
