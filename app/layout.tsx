@@ -21,9 +21,9 @@ export const metadata: Metadata = {
     type: "website",
     title: "JFLIPSTUDIO｜東京・練馬のレコーディングスタジオ",
     description: "録音からMIX・マスタリングまで立ち合いで完結。新江古田駅から徒歩8分、1時間あたり4,000円から。",
-    images: ["/assets/photo-01.jpg"],
+    images: ["/assets/og-logo.png"],
   },
-  twitter: { card: "summary_large_image" },
+  twitter: { card: "summary_large_image", images: ["/assets/og-logo.png"] },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
