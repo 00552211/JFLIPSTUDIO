@@ -37,6 +37,15 @@ export async function fetchAvailability(
   const json = (await res.json()) as EventsResponse;
   if (!res.ok) throw new Error(json.error?.message ?? `Calendar API ${res.status}`);
 
+  // TEMP DEBUG: 実際の予定の時刻がどう解釈されているか確認するため一時的に出力
+  console.log("[availability-debug]", JSON.stringify({
+    calendarId,
+    timeMin: startAt.toISOString(),
+    timeMax: endAt.toISOString(),
+    eventCount: (json.items ?? []).length,
+    events: (json.items ?? []).map((ev) => ({ start: ev.start, end: ev.end })),
+  }));
+
   // 日付ごとの「埋まっている時間数」を積算
   const busyHours: Record<string, number> = {};
   const allDay = new Set<string>();
