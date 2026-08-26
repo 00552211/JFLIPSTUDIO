@@ -88,7 +88,9 @@ export function WorksGrid({ works }: { works: WorkItem[] }) {
                   title={`${w.title} / ${w.artist}`}
                   src={`https://open.spotify.com/embed/${w.spotifyEmbedKind}/${w.spotifyTrackId}?utm_source=generator&theme=0`}
                   width="100%"
-                  height="152"
+                  // アルバムはトラックリストが入るため、トラック単体より高さを大きく取る
+                  // （152だと一覧が途中で見切れてしまう）
+                  height={w.spotifyEmbedKind === "album" ? 352 : 152}
                   style={{ borderRadius: 12, border: "none", display: "block" }}
                   allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
                   loading="lazy"

@@ -106,8 +106,24 @@ a:hover {
 .hover-outline:active {
   transform: translateY(0) scale(.97);
 }
+.hover-link {
+  position: relative;
+}
 .hover-link:hover {
   color: #fff;
+}
+.hover-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 100%;
+  bottom: -6px;
+  height: 1px;
+  background: currentColor;
+  transition: right .25s cubic-bezier(.22,.7,.3,1);
+}
+.hover-link:hover::after {
+  right: 0;
 }
 
 .hover-outline-sm {
@@ -135,7 +151,8 @@ a:hover {
 }
 
 /* 2. 横スクロール防止 */
-html, body { max-width: 100%; overflow-x: hidden; }
+/* overflow-x: hidden はヘッダーの position: sticky を壊すため clip を使う */
+html, body { max-width: 100%; overflow-x: clip; }
 img, iframe { max-width: 100%; }
 .hdr-mobnav::-webkit-scrollbar { display: none; }
 
