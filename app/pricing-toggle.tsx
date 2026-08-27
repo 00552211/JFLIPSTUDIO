@@ -10,6 +10,7 @@ type Plan = { name: string; detail: string; hourly: string; price: string };
 const REC: Plan[] = [
   { name: "通常利用", detail: "2時間", hourly: "1h ¥4,500", price: "¥9,000" },
   { name: "3hパック", detail: "3時間", hourly: "1h ¥4,333", price: "¥13,000" },
+  { name: "4hパック", detail: "4時間", hourly: "1h ¥4,325", price: "¥17,300" },
   { name: "5hパック", detail: "5時間", hourly: "1h ¥4,300", price: "¥21,500" },
   { name: "6hパック", detail: "6時間", hourly: "1h ¥4,250", price: "¥25,500" },
   { name: "10hパック", detail: "10時間", hourly: "1h ¥4,000 ★", price: "¥40,000" },
@@ -140,7 +141,7 @@ export function PricingToggle() {
             {isRec ? "EXTENSION（延長料金）" : "RETAKE（リテイク）"}
           </span>
           <span style={{ fontSize: 13, color: "rgba(255,255,255,.75)" }}>
-            {isRec ? "10分 ¥1,200 / 30分 ¥2,300" : "無制限（追加料金なし）"}
+            {isRec ? "15分 ¥1,200 / 30分 ¥2,300" : "無制限（追加料金なし）"}
           </span>
         </div>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 28px" }}>
