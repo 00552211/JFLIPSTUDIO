@@ -102,6 +102,21 @@ export default async function Home() {
   return (
     <div style={{ background: "#0a0a0a", minHeight: "100vh" }}>
       <ScrollReveal />
+      <a
+        href="/campaign"
+        style={{
+          display: "block",
+          textAlign: "center",
+          background: "#fff",
+          color: "#0a0a0a",
+          fontSize: 12.5,
+          fontWeight: 700,
+          letterSpacing: ".04em",
+          padding: "10px 16px",
+        }}
+      >
+        🎁 お友達紹介キャンペーン実施中｜紹介した方・された方 1時間無料 →
+      </a>
       <header
         style={{
           position: "sticky",
@@ -495,6 +510,7 @@ export default async function Home() {
               <a href="#gallery" style={{ color: "inherit" }}>GALLERY</a>
               <a href="#works" style={{ color: "inherit" }}>WORKS</a>
               <a href="#gear" style={{ color: "inherit" }}>EQUIPMENT</a>
+              <a href="/campaign" style={{ color: "inherit" }}>紹介キャンペーン</a>
             </div>
           </div>
           <div>
