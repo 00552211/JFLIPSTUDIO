@@ -16,7 +16,6 @@ export const metadata: Metadata = {
     "東京都練馬区豊玉北のレコーディングスタジオ JFLIPSTUDIO。新江古田駅から徒歩8分。録音からMIX・マスタリングまで立ち合いで完結、1時間あたり4,000円から。オンラインMIXは7,000円から、リテイク無制限。",
   robots: { index: true, follow: true },
   verification: { google: "kcBIytu0cweTyBHVrGY1GgFZ49w9GHtyEIu-dU973-8" },
-  icons: { icon: "/assets/jflip-logo-white.png", apple: "/assets/jflip-logo-white.png" },
   openGraph: {
     type: "website",
     title: "JFLIPSTUDIO｜東京・練馬のレコーディングスタジオ",
