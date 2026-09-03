@@ -194,7 +194,7 @@ export default async function Home() {
               その場で立ち合い完結。
             </h1>
             <p data-reveal style={{ fontSize: 14.5, lineHeight: 2, color: "rgba(255,255,255,.6)", maxWidth: "44em", margin: "0 0 34px", transitionDelay: ".16s" }}>
-              JFLIPSTUDIO は、アーティストの理想のサウンドをその場で創り上げる立ち合い型スタジオ。ボーカル録音からMIX・マスタリングまでを一貫して行い、納品までの時間とワークフローを最短化します。10hパックなら1時間あたり¥4,000から。
+              JFLIPSTUDIO は、アーティストの理想のサウンドをその場で創り上げる立ち合い型スタジオ。ボーカル録音からMIX・マスタリングまでを一貫して行い、納品までの時間とワークフローを最短化します。10hパックなら1時間あたり¥4,600から。
             </p>
             <div data-reveal style={{ display: "flex", gap: 12, flexWrap: "wrap", transitionDelay: ".24s" }}>
               <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer" className="hover-lift" style={{ background: "#fff", color: "#0a0a0a", fontSize: 13, fontWeight: 700, padding: "14px 26px", borderRadius: 999 }}>
@@ -206,7 +206,7 @@ export default async function Home() {
             </div>
             <div data-reveal className="hero-stats" style={{ display: "flex", gap: 44, marginTop: 56, paddingTop: 30, borderTop: "1px solid rgba(255,255,255,.1)", transitionDelay: ".32s" }}>
               <div>
-                <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-.01em" }}>1時間 ¥4,000〜</div>
+                <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-.01em" }}>1時間 ¥4,600〜</div>
                 <div style={{ fontSize: 11, letterSpacing: ".14em", color: "rgba(255,255,255,.42)", marginTop: 7 }}>10hパック利用時 / エンジニア込み</div>
               </div>
               <div>

@@ -8,11 +8,11 @@ const CAMPAIGN_END = "2026年10月31日";
 export const metadata: Metadata = {
   title: "お友達紹介キャンペーン｜JFLIPSTUDIO",
   description:
-    "JFLIPSTUDIOのお友達紹介キャンペーン。紹介した方・された方どちらも1時間（4,500円）無料。2026年10月31日まで実施中。",
+    "JFLIPSTUDIOのお友達紹介キャンペーン。紹介した方・された方どちらも1時間（5,500円）無料。2026年10月31日まで実施中。",
   openGraph: {
     type: "website",
     title: "お友達紹介キャンペーン｜JFLIPSTUDIO",
-    description: "紹介した方もされた方も、1時間（4,500円）無料。2026年10月31日まで。",
+    description: "紹介した方もされた方も、1時間（5,500円）無料。2026年10月31日まで。",
     images: ["/assets/og-logo.png"],
   },
   twitter: { card: "summary_large_image", images: ["/assets/og-logo.png"] },
@@ -32,12 +32,12 @@ const STEPS = [
   {
     n: "03",
     title: "当日の会計時にその場で割引",
-    body: "ご来店当日、会計時にスタッフが備考欄を確認し、紹介した方・された方それぞれの利用料金から4,500円を割引します。",
+    body: "ご来店当日、会計時にスタッフが備考欄を確認し、紹介した方・された方それぞれの利用料金から5,500円を割引します。",
   },
 ];
 
 const CONDITIONS = [
-  "特典の対象は「紹介した方」「紹介された方」の双方です（1時間＝4,500円分をそれぞれ無料）。",
+  "特典の対象は「紹介した方」「紹介された方」の双方です（1時間＝5,500円分をそれぞれ無料）。",
   "紹介された方は、JFLIPSTUDIOのご利用が初めての方に限ります。",
   "特典を使う回のご利用は、合計2時間以上のご予約が条件です（2時間パック以上の中から1時間分が無料になります）。",
   "予約時にSquare備考欄への紹介者名の記入がない場合、特典は適用できません。",
@@ -89,10 +89,10 @@ export default function CampaignPage() {
             お互いに1時間無料。
           </h1>
           <p data-reveal style={{ fontSize: 14.5, lineHeight: 2, color: "rgba(255,255,255,.6)", maxWidth: "36em", margin: "0 auto 36px", transitionDelay: ".16s" }}>
-            JFLIPSTUDIOをすでにご利用いただいた方が、初めてのお友達をご紹介すると、紹介した方・された方どちらも1時間分（4,500円）が無料になります。
+            JFLIPSTUDIOをすでにご利用いただいた方が、初めてのお友達をご紹介すると、紹介した方・された方どちらも1時間分（5,500円）が無料になります。
           </p>
           <div data-reveal style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "18px 36px", border: "1px solid rgba(255,255,255,.16)", borderRadius: 14, marginBottom: 36, transitionDelay: ".2s" }}>
-            <span style={{ fontSize: 30, fontWeight: 700 }}>¥4,500 OFF</span>
+            <span style={{ fontSize: 30, fontWeight: 700 }}>¥5,500 OFF</span>
             <span style={{ fontSize: 11.5, letterSpacing: ".08em", color: "rgba(255,255,255,.45)" }}>× お二人分 / 最低2時間利用が条件</span>
           </div>
           <div data-reveal style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", transitionDelay: ".26s" }}>

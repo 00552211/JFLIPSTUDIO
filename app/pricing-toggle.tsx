@@ -8,12 +8,12 @@ const PILL =
 type Plan = { name: string; detail: string; hourly: string; price: string };
 
 const REC: Plan[] = [
-  { name: "通常利用", detail: "2時間", hourly: "1h ¥4,500", price: "¥9,000" },
-  { name: "3hパック", detail: "3時間", hourly: "1h ¥4,333", price: "¥13,000" },
-  { name: "4hパック", detail: "4時間", hourly: "1h ¥4,325", price: "¥17,300" },
-  { name: "5hパック", detail: "5時間", hourly: "1h ¥4,300", price: "¥21,500" },
-  { name: "6hパック", detail: "6時間", hourly: "1h ¥4,250", price: "¥25,500" },
-  { name: "10hパック", detail: "10時間", hourly: "1h ¥4,000 ★", price: "¥40,000" },
+  { name: "通常利用", detail: "2時間", hourly: "1h ¥5,500", price: "¥11,000" },
+  { name: "3hパック", detail: "3時間", hourly: "1h ¥5,300", price: "¥15,900" },
+  { name: "4hパック", detail: "4時間", hourly: "1h ¥5,150", price: "¥20,600" },
+  { name: "5hパック", detail: "5時間", hourly: "1h ¥5,000", price: "¥25,000" },
+  { name: "6hパック", detail: "6時間", hourly: "1h ¥4,850", price: "¥29,100" },
+  { name: "10hパック", detail: "10時間", hourly: "1h ¥4,600 ★", price: "¥46,000" },
 ];
 
 const MIX: Plan[] = [
@@ -74,9 +74,9 @@ export function PricingToggle() {
           >
             BEST VALUE
           </div>
-          <div style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-.02em" }}>1時間あたり ¥4,000</div>
+          <div style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-.02em" }}>1時間あたり ¥4,600</div>
           <div style={{ fontSize: 12.5, lineHeight: 1.7, color: "rgba(10,10,10,.62)", flex: 1, minWidth: 220 }}>
-            10hパック（¥40,000）ご利用時。エンジニア立ち合い込みで、この地域では最安水準の時間単価です。
+            10hパック（¥46,000）ご利用時。エンジニア立ち合い込みで、この地域では最安水準の時間単価です。
           </div>
         </div>
       )}
@@ -141,7 +141,7 @@ export function PricingToggle() {
             {isRec ? "EXTENSION（延長料金）" : "RETAKE（リテイク）"}
           </span>
           <span style={{ fontSize: 13, color: "rgba(255,255,255,.75)" }}>
-            {isRec ? "15分 ¥1,200 / 30分 ¥2,300" : "無制限（追加料金なし）"}
+            {isRec ? "15分 ¥1,400 / 30分 ¥2,700" : "無制限（追加料金なし）"}
           </span>
         </div>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 28px" }}>
