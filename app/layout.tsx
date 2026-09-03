@@ -14,13 +14,13 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://jflipstudio.com"),
   title: "JFLIPSTUDIO｜東京・練馬のレコーディングスタジオ｜MIX・マスタリング立ち合い対応",
   description:
-    "東京都練馬区豊玉北のレコーディングスタジオ JFLIPSTUDIO。新江古田駅から徒歩8分。録音からMIX・マスタリングまで立ち合いで完結、1時間あたり4,000円から。オンラインMIXは7,000円から、リテイク無制限。",
+    "東京都練馬区豊玉北のレコーディングスタジオ JFLIPSTUDIO。新江古田駅から徒歩8分。録音からMIX・マスタリングまで立ち合いで完結、1時間あたり4,600円から。オンラインMIXは7,000円から、リテイク無制限。",
   robots: { index: true, follow: true },
   verification: { google: "kcBIytu0cweTyBHVrGY1GgFZ49w9GHtyEIu-dU973-8" },
   openGraph: {
     type: "website",
     title: "JFLIPSTUDIO｜東京・練馬のレコーディングスタジオ",
-    description: "録音からMIX・マスタリングまで立ち合いで完結。新江古田駅から徒歩8分、1時間あたり4,000円から。",
+    description: "録音からMIX・マスタリングまで立ち合いで完結。新江古田駅から徒歩8分、1時間あたり4,600円から。",
     images: ["/assets/og-logo.png"],
   },
   twitter: { card: "summary_large_image", images: ["/assets/og-logo.png"] },
