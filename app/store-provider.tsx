@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
-import { STORES, type Store, type StoreId } from "@/lib/stores";
+import { STORE2_ENABLED, STORES, type Store, type StoreId } from "@/lib/stores";
 
 const Ctx = createContext<{ store: Store; setStoreId: (id: StoreId) => void }>({
   store: STORES["1"],
@@ -19,7 +19,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [id, setId] = useState<StoreId>("1");
 
   useEffect(() => {
-    if (new URLSearchParams(window.location.search).get("store") === "2") setId("2");
+    if (STORE2_ENABLED && new URLSearchParams(window.location.search).get("store") === "2") setId("2");
   }, []);
 
   const setStoreId = useCallback((next: StoreId) => {
@@ -39,13 +39,27 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function StoreSwitch() {
+/**
+ * 店舗の切り替えボタン。
+ * - row: PC用。ヘッダーの下に1段で出す
+ * - compact: タブレット用。ヘッダー1段目に収める
+ * - phone: スマホ(520px以下)用。2段目のメニューの左端に置き、1段目はロゴと予約ボタンに使う
+ * どれを見せるかは globals.css（.sw-row / .sw-compact / .sw-phone）で幅に応じて切り替える。
+ */
+export function StoreSwitch({ variant = "row" }: { variant?: "row" | "compact" | "phone" }) {
+  const compact = variant !== "row";
   const { store, setStoreId } = useStore();
+  if (!STORE2_ENABLED) return null; // 2号店が未公開の間は切り替えボタン自体を出さない
   return (
     <div
       role="group"
       aria-label="店舗を選ぶ"
-      style={{ display: "flex", justifyContent: "center", gap: 8, padding: "0 20px 12px" }}
+      className={variant === "phone" ? "sw-phone" : compact ? "sw-compact" : "sw-row"}
+      style={
+        compact
+          ? { gap: 4, padding: 3, borderRadius: 999, border: "1px solid rgba(255,255,255,.18)", flex: "none" }
+          : { display: "flex", justifyContent: "center", gap: 8, padding: "0 20px 12px" }
+      }
     >
       {Object.values(STORES).map((s) => {
         const active = s.id === store.id;
@@ -55,19 +69,22 @@ export function StoreSwitch() {
             type="button"
             onClick={() => setStoreId(s.id)}
             aria-pressed={active}
+            aria-label={s.label}
             style={{
-              fontSize: 12,
+              fontSize: compact ? 12 : 12,
               fontWeight: 700,
-              letterSpacing: ".08em",
-              padding: "8px 18px",
+              letterSpacing: compact ? ".02em" : ".08em",
+              padding: compact ? "7px 12px" : "8px 18px",
+              minHeight: compact ? 34 : undefined,
               borderRadius: 999,
               cursor: "pointer",
+              whiteSpace: "nowrap",
               background: active ? "#fff" : "transparent",
-              color: active ? "#0a0a0a" : "rgba(255,255,255,.6)",
-              border: active ? "1px solid #fff" : "1px solid rgba(255,255,255,.18)",
+              color: active ? "#0a0a0a" : "rgba(255,255,255,.7)",
+              border: compact ? "none" : active ? "1px solid #fff" : "1px solid rgba(255,255,255,.18)",
             }}
           >
-            {s.label}
+            {compact ? `${s.id}号店` : s.label}
           </button>
         );
       })}

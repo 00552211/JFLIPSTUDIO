@@ -248,3 +248,34 @@ img, iframe { max-width: 100%; }
 /* 店舗切り替え（StoreProvider が data-store を付ける）。選ばれていない店舗の表示を隠す */
 [data-store="1"] .only-s2 { display: none !important; }
 [data-store="2"] .only-s1 { display: none !important; }
+
+/* 店舗切り替え: PCはヘッダー下の1段、スマホ(900px以下)はヘッダー1段目に収める */
+.sw-compact { display: none !important; }
+@media (max-width: 900px) {
+  .sw-compact { display: flex !important; }
+  .sw-row { display: none !important; }
+  .hdr-in { gap: 10px !important; }
+}
+.sw-phone { display: none !important; }
+
+/* ===== スマホのみ（520px以下） =====
+   ・1段目: ロゴ（アイコン＋文字）と予約ボタン
+   ・2段目: 店舗切り替え＋メニュー（横スクロール）
+   ・最初の画面は余白を広げ、ボタンは押しやすい大きさにする */
+@media (max-width: 520px) {
+  .sw-compact { display: none !important; }
+  .sw-phone { display: flex !important; position: sticky; left: 0; z-index: 1; background: #0a0a0a; margin-right: 4px; }
+  .hdr-in { padding: 14px 20px 10px !important; }
+  .hdr-logo { gap: 12px !important; }
+  .hdr-logo-mark { width: 30px !important; height: 30px !important; }
+  .hdr-logo-text { font-size: 15px !important; letter-spacing: .16em !important; }
+  .hdr-mobnav { align-items: center !important; gap: 18px !important; padding-bottom: 12px !important; }
+
+  .wrap-hero { padding: 80px 24px 104px !important; }
+  .hero-eyebrow { margin-bottom: 36px !important; line-height: 2 !important; }
+  .h-hero { margin-bottom: 36px !important; line-height: 1.45 !important; }
+  .hero-lead { font-size: 14px !important; line-height: 2.2 !important; margin-bottom: 48px !important; }
+  .hero-cta { flex-direction: column !important; gap: 14px !important; }
+  .hero-cta a { display: flex !important; justify-content: center !important; align-items: center !important; min-height: 54px !important; padding: 0 24px !important; }
+  .hero-stats { margin-top: 64px !important; padding-top: 40px !important; gap: 30px 36px !important; }
+}

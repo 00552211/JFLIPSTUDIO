@@ -151,9 +151,7 @@ export function PricingToggle() {
 
       <p style={{ fontSize: 11.5, lineHeight: 1.9, color: "rgba(255,255,255,.38)", margin: "18px 0 0", maxWidth: "64em", textWrap: "pretty" }}>
         {isRec
-          ? isStore1
-            ? "※ 表示価格は全て税込・エンジニア込みの価格です。法人のお客様は別途お問い合わせください。"
-            : "※ エンジニア（IKUTO）付き、REC・MIX・MASTER すべて込みの料金です。"
+          ? store.priceNote
           : "※ MIX / MASTERING はオンラインのみの対応です。上記は最低料金で、トラック数・楽曲の尺・納期によって変動します。正確なお見積りはメールまたはInstagramのDMからお問い合わせください。"}
       </p>
 

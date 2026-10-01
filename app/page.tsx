@@ -4,7 +4,8 @@ import { AvailabilityCalendar } from "./availability-calendar";
 import { WorksGrid, type WorkItem } from "./works-grid";
 import { ScrollReveal } from "./scroll-reveal";
 import { StoreProvider, StoreSwitch } from "./store-provider";
-import { STORES, STORE2_ENGINEER, STORE2_GEAR } from "@/lib/stores";
+import { STORE2_ENABLED } from "@/lib/stores";
+import { STORE_2 as S2, STORE2_ENGINEER, STORE2_GEAR } from "@/lib/store2";
 
 const PLATFORM_LABEL: Record<string, string> = {
   spotify: "Spotify",
@@ -94,8 +95,11 @@ const GEAR = [
   { label: "ENVIRONMENT", name: "防音レコーディングブース", note: "吸音施工済みブース。声のニュアンスをそのまま記録できます。" },
 ];
 
-const BOOKING_URL = STORES["1"].bookingUrl;
-const S2 = STORES["2"];
+const BOOKING_URL = "https://book.squareup.com/appointments/atrhlg3x3adiil/location/LJFDVKXY7Y7PC/services";
+// 2号店の内容は NEXT_PUBLIC_STORE2_ENABLED=true のときだけ出す（オフならHTMLにも含めない）
+function S2Only({ children }: { children: React.ReactNode }) {
+  return STORE2_ENABLED ? <>{children}</> : null;
+}
 const INSTAGRAM_URL = "https://www.instagram.com/jfliponthegame/";
 
 export default async function Home() {
@@ -133,8 +137,9 @@ export default async function Home() {
         <div className="hdr-in" style={{ maxWidth: 1180, margin: "0 auto", padding: "14px 32px", display: "flex", alignItems: "center", gap: 24, flexWrap: "nowrap" }}>
           <a href="#top" className="hdr-logo" style={{ display: "flex", alignItems: "center", gap: 10, flex: "none", whiteSpace: "nowrap" }}>
             <img src="/assets/jflip-logo-white.png" alt="JFLIPSTUDIO" className="hdr-logo-mark" style={{ width: 26, height: 26, objectFit: "contain" }} />
-            <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: ".16em" }}>JFLIPSTUDIO</span>
+            <span className="hdr-logo-text" style={{ fontSize: 13, fontWeight: 700, letterSpacing: ".16em" }}>JFLIPSTUDIO</span>
           </a>
+          <StoreSwitch variant="compact" />
           <nav className="hdr-nav" style={{ display: "flex", gap: 20, fontSize: 11, letterSpacing: ".14em", color: "rgba(255,255,255,.55)", flex: "none" }}>
             <a href="#pricing" className="hover-link" style={{ color: "inherit", flex: "none", whiteSpace: "nowrap" }}>HOURS &amp; PRICE</a>
             <a href="#availability" className="hover-link" style={{ color: "inherit", flex: "none", whiteSpace: "nowrap" }}>CALENDAR</a>
@@ -148,9 +153,9 @@ export default async function Home() {
             <span className="hdr-hours only-s1" style={{ fontSize: 11, letterSpacing: ".1em", color: "rgba(255,255,255,.45)", whiteSpace: "nowrap" }}>
               13:00–23:00 / 日曜定休
             </span>
-            <span className="hdr-hours only-s2" style={{ fontSize: 11, letterSpacing: ".1em", color: "rgba(255,255,255,.45)", whiteSpace: "nowrap" }}>
+            <S2Only><span className="hdr-hours only-s2" style={{ fontSize: 11, letterSpacing: ".1em", color: "rgba(255,255,255,.45)", whiteSpace: "nowrap" }}>
               10:00–23:00
-            </span>
+            </span></S2Only>
             <a
               href={BOOKING_URL}
               target="_blank"
@@ -160,7 +165,7 @@ export default async function Home() {
             >
               WEB予約
             </a>
-            <a
+            <S2Only><a
               href={S2.bookingUrl}
               target="_blank"
               rel="noopener noreferrer"
@@ -168,11 +173,12 @@ export default async function Home() {
               style={{ background: "#fff", color: "#0a0a0a", fontSize: 11.5, fontWeight: 700, letterSpacing: ".08em", padding: "9px 18px", borderRadius: 999, whiteSpace: "nowrap", flex: "none" }}
             >
               {S2.bookingLabel === "WEBで予約する" ? "WEB予約" : "DMで予約"}
-            </a>
+            </a></S2Only>
           </div>
         </div>
         <StoreSwitch />
         <div className="hdr-mobnav" style={{ display: "none", gap: 18, overflowX: "auto", padding: "0 20px 11px", fontSize: 11, letterSpacing: ".12em", color: "rgba(255,255,255,.55)", scrollbarWidth: "none" }}>
+          <StoreSwitch variant="phone" />
           {[["#pricing", "HOURS & PRICE"], ["#availability", "CALENDAR"], ["#gallery", "GALLERY"], ["#about", "ABOUT"], ["#works", "WORKS"], ["#gear", "EQUIPMENT"], ["#contact", "CONTACT"]].map(([href, label]) => (
             <a key={href} href={href} style={{ color: "inherit", whiteSpace: "nowrap", flex: "none" }}>{label}</a>
           ))}
@@ -199,8 +205,8 @@ export default async function Home() {
           }}
         />
         <div className="wrap-hero" style={{ position: "relative", maxWidth: 1180, margin: "0 auto", padding: "96px 32px 88px" }}>
-          <p data-reveal style={{ fontSize: 10.5, letterSpacing: ".32em", color: "rgba(255,255,255,.42)", margin: "0 0 26px" }}>
-            RECORDING &amp; MIXING STUDIO / <span className="only-s1">NERIMA</span><span className="only-s2">TOSHIMA</span> TOKYO
+          <p data-reveal className="hero-eyebrow" style={{ fontSize: 10.5, letterSpacing: ".32em", color: "rgba(255,255,255,.42)", margin: "0 0 26px" }}>
+            RECORDING &amp; MIXING STUDIO / <span className="only-s1">NERIMA</span><S2Only><span className="only-s2">TOSHIMA</span></S2Only> TOKYO
           </p>
           <div className="hero-grid" style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 56, alignItems: "start" }}>
           <div>
@@ -209,16 +215,16 @@ export default async function Home() {
               <br />
               その場で立ち合い完結。
             </h1>
-            <p data-reveal style={{ fontSize: 14.5, lineHeight: 2, color: "rgba(255,255,255,.6)", maxWidth: "44em", margin: "0 0 34px", transitionDelay: ".16s" }}>
-              JFLIPSTUDIO は、アーティストの理想のサウンドをその場で創り上げる立ち合い型スタジオ。ボーカル録音からMIX・マスタリングまでを一貫して行い、納品までの時間とワークフローを最短化します。<span className="only-s1">10hパックなら1時間あたり¥4,600から。</span><span className="only-s2">2号店はエンジニア（IKUTO）付きで、3時間以上なら1時間あたり¥4,000から。</span>
+            <p data-reveal className="hero-lead" style={{ fontSize: 14.5, lineHeight: 2, color: "rgba(255,255,255,.6)", maxWidth: "44em", margin: "0 0 34px", transitionDelay: ".16s" }}>
+              JFLIPSTUDIO は、アーティストの理想のサウンドをその場で創り上げる立ち合い型スタジオ。ボーカル録音からMIX・マスタリングまでを一貫して行い、納品までの時間とワークフローを最短化します。<span className="only-s1">10hパックなら1時間あたり¥4,600から。</span><S2Only><span className="only-s2">2号店はエンジニア（IKUTO）付きで、3時間以上なら1時間あたり¥4,000から。</span></S2Only>
             </p>
-            <div data-reveal style={{ display: "flex", gap: 12, flexWrap: "wrap", transitionDelay: ".24s" }}>
+            <div data-reveal className="hero-cta" style={{ display: "flex", gap: 12, flexWrap: "wrap", transitionDelay: ".24s" }}>
               <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer" className="hover-lift only-s1" style={{ background: "#fff", color: "#0a0a0a", fontSize: 13, fontWeight: 700, padding: "14px 26px", borderRadius: 999 }}>
                 WEBで予約する
               </a>
-              <a href={S2.bookingUrl} target="_blank" rel="noopener noreferrer" className="hover-lift only-s2" style={{ background: "#fff", color: "#0a0a0a", fontSize: 13, fontWeight: 700, padding: "14px 26px", borderRadius: 999 }}>
+              <S2Only><a href={S2.bookingUrl} target="_blank" rel="noopener noreferrer" className="hover-lift only-s2" style={{ background: "#fff", color: "#0a0a0a", fontSize: 13, fontWeight: 700, padding: "14px 26px", borderRadius: 999 }}>
                 {S2.bookingLabel}
-              </a>
+              </a></S2Only>
               <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="hover-outline" style={{ border: "1px solid rgba(255,255,255,.22)", fontSize: 13, padding: "14px 26px", borderRadius: 999, color: "rgba(255,255,255,.82)" }}>
                 @jfliponthegame
               </a>
@@ -236,18 +242,18 @@ export default async function Home() {
                 <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-.01em" }}>新江古田 徒歩8分</div>
                 <div style={{ fontSize: 11, letterSpacing: ".14em", color: "rgba(255,255,255,.42)", marginTop: 7 }}>江古田駅からは徒歩10分</div>
               </div>
-              <div className="only-s2">
+              <S2Only><div className="only-s2">
                 <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-.01em" }}>1時間 ¥4,000〜</div>
                 <div style={{ fontSize: 11, letterSpacing: ".14em", color: "rgba(255,255,255,.42)", marginTop: 7 }}>3時間以上 / エンジニア込み</div>
-              </div>
-              <div className="only-s2">
+              </div></S2Only>
+              <S2Only><div className="only-s2">
                 <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-.01em" }}>10:00–23:00</div>
                 <div style={{ fontSize: 11, letterSpacing: ".14em", color: "rgba(255,255,255,.42)", marginTop: 7 }}>営業時間（2号店）</div>
-              </div>
-              <div className="only-s2">
+              </div></S2Only>
+              <S2Only><div className="only-s2">
                 <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-.01em" }}>豊島区 東長崎</div>
                 <div style={{ fontSize: 11, letterSpacing: ".14em", color: "rgba(255,255,255,.42)", marginTop: 7 }}>2号店</div>
-              </div>
+              </div></S2Only>
             </div>
           </div>
           <div data-reveal className="hero-card" style={{ background: "#111", border: "1px solid rgba(255,255,255,.09)", borderRadius: 14, padding: "34px 30px", display: "flex", flexDirection: "column", alignItems: "center", gap: 22, transitionDelay: ".2s" }}>
@@ -279,15 +285,15 @@ export default async function Home() {
           <div data-reveal className="hours-box" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#141414", border: "1px solid rgba(255,255,255,.09)", borderRadius: 14, padding: "26px 30px", marginBottom: 26, transitionDelay: ".22s" }}>
             <div>
               <div style={{ fontSize: 10.5, letterSpacing: ".26em", color: "rgba(255,255,255,.4)", marginBottom: 10 }}>BUSINESS HOURS</div>
-              <div style={{ fontSize: 34, fontWeight: 700, letterSpacing: "-.01em" }}><span className="only-s1">13:00 – 23:00</span><span className="only-s2">10:00 – 23:00</span></div>
+              <div style={{ fontSize: 34, fontWeight: 700, letterSpacing: "-.01em" }}><span className="only-s1">13:00 – 23:00</span><S2Only><span className="only-s2">10:00 – 23:00</span></S2Only></div>
             </div>
             <div className="only-s1" style={{ textAlign: "right" }}>
               <div style={{ fontSize: 17, fontWeight: 700 }}>日曜定休</div>
               <div style={{ fontSize: 11, letterSpacing: ".1em", color: "rgba(255,255,255,.42)", marginTop: 7 }}>年末年始は別途ご案内</div>
             </div>
-            <div className="only-s2" style={{ textAlign: "right" }}>
+            <S2Only><div className="only-s2" style={{ textAlign: "right" }}>
               <div style={{ fontSize: 13, color: "rgba(255,255,255,.6)" }}>営業日は予約カレンダーで<br />ご確認ください</div>
-            </div>
+            </div></S2Only>
           </div>
 
           <div data-reveal style={{ transitionDelay: ".28s" }}>
@@ -405,7 +411,7 @@ export default async function Home() {
                 新江古田駅から徒歩8分、江古田駅から徒歩10分。大江戸線／西武池袋線からアクセスしやすい練馬区のスタジオです。
               </p>
             </div>
-            <div data-reveal className="only-s2" style={{ background: "#141414", border: "1px solid rgba(255,255,255,.09)", borderRadius: 14, padding: "30px 26px", transitionDelay: ".2s" }}>
+            <S2Only><div data-reveal className="only-s2" style={{ background: "#141414", border: "1px solid rgba(255,255,255,.09)", borderRadius: 14, padding: "30px 26px", transitionDelay: ".2s" }}>
               <div style={{ width: 44, height: 44, border: "1px solid rgba(255,255,255,.16)", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20, background: "rgba(255,255,255,.04)" }}>
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12 21.5s7-6.1 7-11.1A7 7 0 0 0 5 10.4c0 5 7 11.1 7 11.1Z" />
@@ -416,7 +422,7 @@ export default async function Home() {
               <p style={{ fontSize: 12.5, lineHeight: 2, color: "rgba(255,255,255,.52)", margin: 0 }}>
                 東京都豊島区東長崎の2号店です。エンジニア（IKUTO）付きで、録音からMIX・マスタリングまで込みで対応します。
               </p>
-            </div>
+            </div></S2Only>
           </div>
         </div>
       </section>
@@ -442,7 +448,7 @@ export default async function Home() {
           <p data-reveal style={{ fontSize: 10.5, letterSpacing: ".32em", color: "rgba(255,255,255,.42)", margin: "0 0 18px" }}>STUDIO GEAR &amp; ENVIRONMENT</p>
           <h2 data-reveal className="h-sec" style={{ fontSize: 32, fontWeight: 700, margin: "0 0 14px", letterSpacing: "-.01em", transitionDelay: ".08s" }}>機材・スタジオスペック</h2>
           <p data-reveal style={{ fontSize: 13.5, color: "rgba(255,255,255,.55)", margin: "0 0 34px", transitionDelay: ".16s" }}>選び抜いた機材構成で、高解像なリスニング環境と安定した動作を実現します。</p>
-          <div className="only-s2" style={{ background: "#141414", border: "1px solid rgba(255,255,255,.09)", borderRadius: 14, overflow: "hidden" }}>
+          <S2Only><div className="only-s2" style={{ background: "#141414", border: "1px solid rgba(255,255,255,.09)", borderRadius: 14, overflow: "hidden" }}>
             <div className="gear-row" style={{ display: "grid", gridTemplateColumns: "200px 1fr", gap: 28, padding: "22px 28px", borderBottom: "1px solid rgba(255,255,255,.07)" }}>
               <span style={{ fontSize: 10.5, letterSpacing: ".2em", color: "rgba(255,255,255,.42)", paddingTop: 3 }}>ENGINEER</span>
               <div>
@@ -456,7 +462,7 @@ export default async function Home() {
                 <div style={{ fontSize: 14.5, fontWeight: 500 }}>{g.name}</div>
               </div>
             ))}
-          </div>
+          </div></S2Only>
           <div className="only-s1" style={{ background: "#141414", border: "1px solid rgba(255,255,255,.09)", borderRadius: 14, overflow: "hidden" }}>
             {GEAR.map((g, i) => (
               <div key={g.label} data-reveal className="gear-row" style={{ display: "grid", gridTemplateColumns: "200px 1fr", gap: 28, padding: "22px 28px", borderBottom: "1px solid rgba(255,255,255,.07)", transitionDelay: `${i * 0.06}s` }}>
@@ -478,10 +484,10 @@ export default async function Home() {
           <p data-reveal style={{ fontSize: 13.5, color: "rgba(255,255,255,.55)", margin: "0 0 40px", transitionDelay: ".16s" }}>住所・最寄駅・お支払い方法からマルチアクセスが可能な立地です。</p>
           <div className="g2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "start" }}>
             <div data-reveal style={{ display: "flex", flexDirection: "column", gap: 26, transitionDelay: ".22s" }}>
-              <div className="only-s2">
+              <S2Only><div className="only-s2">
                 <div style={{ fontSize: 11, letterSpacing: ".2em", color: "rgba(255,255,255,.4)", marginBottom: 12 }}>所在地</div>
                 <div style={{ fontSize: 14.5, fontWeight: 500, marginBottom: 14 }}>{S2.address}</div>
-              </div>
+              </div></S2Only>
               <div className="only-s1">
                 <div style={{ fontSize: 11, letterSpacing: ".2em", color: "rgba(255,255,255,.4)", marginBottom: 12 }}>所在地・最寄り駅</div>
                 <div style={{ fontSize: 14.5, fontWeight: 500, marginBottom: 14 }}>東京都練馬区豊玉北</div>
@@ -502,12 +508,12 @@ export default async function Home() {
                   WEB予約ページを開く ↗
                 </a>
               </div>
-              <div className="only-s2">
+              <S2Only><div className="only-s2">
                 <div style={{ fontSize: 11, letterSpacing: ".2em", color: "rgba(255,255,255,.4)", marginBottom: 10 }}>スタジオのご予約</div>
                 <a href={S2.bookingUrl} target="_blank" rel="noopener noreferrer" className="hover-lift" style={{ display: "inline-block", background: "#fff", color: "#0a0a0a", fontSize: 12.5, fontWeight: 700, padding: "12px 24px", borderRadius: 999 }}>
                   {S2.bookingLabel} ↗
                 </a>
-              </div>
+              </div></S2Only>
               <div className="only-s1">
                 <div style={{ fontSize: 11, letterSpacing: ".2em", color: "rgba(255,255,255,.4)", marginBottom: 10 }}>お支払い方法</div>
                 <div style={{ fontSize: 13.5, color: "rgba(255,255,255,.7)" }}>現金 / クレジットカード（タッチ決済対応）</div>
@@ -570,7 +576,7 @@ export default async function Home() {
               <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: ".16em" }}>JFLIPSTUDIO</span>
             </div>
             <p style={{ fontSize: 12, lineHeight: 2, color: "rgba(255,255,255,.42)", margin: 0 }}>
-              録音からMIX・マスタリングまで立ち合いで完結。東京・<span className="only-s1">練馬区</span><span className="only-s2">豊島区</span>の防音レコーディングスタジオ。
+              録音からMIX・マスタリングまで立ち合いで完結。東京・<span className="only-s1">練馬区</span><S2Only><span className="only-s2">豊島区</span></S2Only>の防音レコーディングスタジオ。
             </p>
           </div>
           <div>
@@ -590,13 +596,13 @@ export default async function Home() {
               <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer" className="hover-link only-s1" style={{ color: "inherit" }}>
                 WEB予約ページ ↗
               </a>
-              <a href={S2.bookingUrl} target="_blank" rel="noopener noreferrer" className="hover-link only-s2" style={{ color: "inherit" }}>
+              <S2Only><a href={S2.bookingUrl} target="_blank" rel="noopener noreferrer" className="hover-link only-s2" style={{ color: "inherit" }}>
                 {S2.bookingLabel} ↗
-              </a>
+              </a></S2Only>
               <span className="only-s1">営業時間 13:00–23:00</span>
               <span className="only-s1">2h / 3h / 5h / 6h / 10h パック</span>
-              <span className="only-s2">営業時間 10:00–23:00</span>
-              <span className="only-s2">1h〜6h（30分刻み）</span>
+              <S2Only><span className="only-s2">営業時間 10:00–23:00</span></S2Only>
+              <S2Only><span className="only-s2">1h〜6h（30分刻み）</span></S2Only>
             </div>
           </div>
           <div>
@@ -607,14 +613,14 @@ export default async function Home() {
               </a>
               <span className="only-s1">新江古田 徒歩8分 / 江古田 徒歩10分</span>
               <span className="only-s1">東京都練馬区</span>
-              <span className="only-s2">東京都豊島区東長崎</span>
+              <S2Only><span className="only-s2">東京都豊島区東長崎</span></S2Only>
             </div>
           </div>
         </div>
         <div className="ft-btm" style={{ maxWidth: 1180, margin: "0 auto", padding: "0 32px 40px", display: "flex", justifyContent: "space-between", fontSize: 11, color: "rgba(255,255,255,.3)" }}>
           <span>© 2026 JFLIPSTUDIO. All rights reserved.</span>
           <span className="only-s1">13:00–23:00 / 日曜定休</span>
-          <span className="only-s2">10:00–23:00</span>
+          <S2Only><span className="only-s2">10:00–23:00</span></S2Only>
         </div>
       </footer>
     </StoreProvider>

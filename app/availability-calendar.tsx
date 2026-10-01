@@ -30,7 +30,7 @@ const STYLES: Record<DayStatus | "past" | "blank", React.CSSProperties> = {
   blank: { ...CELL, border: "1px solid transparent", pointerEvents: "none" },
 };
 
-const MARK: Record<string, string> = { unknown: "確認", open: "◎", few: "△", full: "×", closed: "定休", past: "", blank: "" };
+const MARK: Record<string, string> = { unknown: "–", open: "◎", few: "△", full: "×", closed: "定休", past: "", blank: "" };
 
 const navBtn: React.CSSProperties = {
   width: 38, height: 38, border: "1px solid rgba(255,255,255,.16)", borderRadius: 10,
@@ -106,12 +106,12 @@ export function AvailabilityCalendar() {
         </p>
 
         <div data-reveal style={{ background: "#111", border: "1px solid rgba(255,255,255,.09)", borderRadius: 14, padding: "22px 20px", transitionDelay: ".22s" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 6, marginBottom: 8 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(7,minmax(0,1fr))", gap: 6, marginBottom: 8 }}>
             {WD.map((label, i) => (
               <div key={label} style={{ textAlign: "center", fontSize: 10, letterSpacing: ".14em", paddingBottom: 6, color: i === 6 ? "rgba(255,255,255,.3)" : i === 5 ? "rgba(255,255,255,.5)" : "rgba(255,255,255,.42)" }}>{label}</div>
             ))}
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 6 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(7,minmax(0,1fr))", gap: 6 }}>
             {cells.map((c) => {
               const clickable = c.kind === "open" || c.kind === "few" || c.kind === "unknown";
               const inner = (
@@ -130,7 +130,7 @@ export function AvailabilityCalendar() {
         </div>
 
         <div className="cal-legend" style={{ display: "flex", alignItems: "center", gap: 22, flexWrap: "wrap", marginTop: 18 }}>
-          {([["open", "空きあり"], ["few", "残りわずか"], ["full", "満席・定休"]] as const).map(([k, label]) => (
+          {(store.id === "2" && !live ? [] : ([["open", "空きあり"], ["few", "残りわずか"], ["full", "満席・定休"]] as const)).map(([k, label]) => (
             <div key={k} style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <span style={{ ...STYLES[k], width: 22, height: 22, aspectRatio: "auto", borderRadius: 6, fontSize: 9.5 }}>{MARK[k]}</span>
               <span style={{ fontSize: 12, color: "rgba(255,255,255,.6)" }}>{label}</span>
