@@ -1,13 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-
-const BOOKING =
-  "https://book.squareup.com/appointments/atrhlg3x3adiil/location/LJFDVKXY7Y7PC/services";
-const INSTAGRAM_URL = "https://www.instagram.com/jfliponthegame/";
+import { INSTAGRAM_URL } from "@/lib/stores";
+import { useStore } from "./store-provider";
 const WD = ["月", "火", "水", "木", "金", "土", "日"];
 
-type DayStatus = "open" | "few" | "full" | "closed";
+type DayStatus = "open" | "few" | "full" | "closed" | "unknown";
 
 /** APIが使えないときのみのフォールバック（目安表示） */
 function fallbackFor(date: Date): DayStatus {
@@ -23,6 +21,7 @@ const CELL: React.CSSProperties = {
 };
 
 const STYLES: Record<DayStatus | "past" | "blank", React.CSSProperties> = {
+  unknown: { ...CELL, border: "1px solid rgba(255,255,255,.14)", color: "rgba(255,255,255,.6)", cursor: "pointer" },
   open: { ...CELL, background: "rgba(255,255,255,.1)", border: "1px solid rgba(255,255,255,.28)", color: "#fff", cursor: "pointer" },
   few: { ...CELL, border: "1px solid rgba(255,255,255,.14)", color: "rgba(255,255,255,.6)", cursor: "pointer" },
   full: { ...CELL, border: "1px solid rgba(255,255,255,.07)", color: "rgba(255,255,255,.22)", pointerEvents: "none" },
@@ -31,7 +30,7 @@ const STYLES: Record<DayStatus | "past" | "blank", React.CSSProperties> = {
   blank: { ...CELL, border: "1px solid transparent", pointerEvents: "none" },
 };
 
-const MARK: Record<string, string> = { open: "◎", few: "△", full: "×", closed: "定休", past: "", blank: "" };
+const MARK: Record<string, string> = { unknown: "確認", open: "◎", few: "△", full: "×", closed: "定休", past: "", blank: "" };
 
 const navBtn: React.CSSProperties = {
   width: 38, height: 38, border: "1px solid rgba(255,255,255,.16)", borderRadius: 10,
@@ -45,6 +44,8 @@ const MAX_OFFSET = 1;
 export function AvailabilityCalendar() {
   const [offset, setOffset] = useState(0);
   const [live, setLive] = useState<Record<string, DayStatus> | null>(null);
+  const { store } = useStore();
+  const BOOKING = store.bookingUrl;
   const atMax = offset >= MAX_OFFSET;
 
   const now = new Date();
@@ -53,9 +54,9 @@ export function AvailabilityCalendar() {
   const m = base.getMonth();
   const month = `${y}-${String(m + 1).padStart(2, "0")}`;
 
-  const load = useCallback(async (monthKey: string) => {
+  const load = useCallback(async (monthKey: string, storeId: string) => {
     try {
-      const res = await fetch(`/api/availability?month=${monthKey}`);
+      const res = await fetch(`/api/availability?month=${monthKey}&store=${storeId}`);
       const json = await res.json();
       setLive(json.ok ? (json.days as Record<string, DayStatus>) : null);
     } catch {
@@ -63,7 +64,7 @@ export function AvailabilityCalendar() {
     }
   }, []);
 
-  useEffect(() => { setLive(null); void load(month); }, [month, load]);
+  useEffect(() => { setLive(null); void load(month, store.id); }, [month, store.id, load]);
 
   const firstCol = (new Date(y, m, 1).getDay() + 6) % 7; // 月曜始まり
   const total = new Date(y, m + 1, 0).getDate();
@@ -74,7 +75,7 @@ export function AvailabilityCalendar() {
   for (let d = 1; d <= total; d++) {
     const date = new Date(y, m, d);
     const key = `${month}-${String(d).padStart(2, "0")}`;
-    cells.push({ key, num: String(d), kind: date < today ? "past" : live?.[key] ?? fallbackFor(date) });
+    cells.push({ key, num: String(d), kind: date < today ? "past" : live?.[key] ?? (store.id === "1" ? fallbackFor(date) : "unknown") });
   }
 
   return (
@@ -112,7 +113,7 @@ export function AvailabilityCalendar() {
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 6 }}>
             {cells.map((c) => {
-              const clickable = c.kind === "open" || c.kind === "few";
+              const clickable = c.kind === "open" || c.kind === "few" || c.kind === "unknown";
               const inner = (
                 <>
                   <span style={{ fontSize: 13.5, fontWeight: 500 }}>{c.num}</span>
@@ -138,7 +139,7 @@ export function AvailabilityCalendar() {
           <a className="hover-lift" href={BOOKING} target="_blank" rel="noopener noreferrer" style={{ marginLeft: "auto", background: "#fff", color: "#0a0a0a", fontSize: 12.5, fontWeight: 700, padding: "12px 24px", borderRadius: 999 }}>今すぐ予約する</a>
         </div>
         <p style={{ fontSize: 11.5, lineHeight: 1.9, color: "rgba(255,255,255,.34)", margin: "16px 0 0" }}>
-          ※ {live ? "Googleカレンダーの予定から自動反映しています。" : "現在は目安表示です。確定した空き枠は予約ページでご確認ください。"}　日曜は定休日です。
+          ※ {live ? (store.id === "1" ? "Googleカレンダーの予定から自動反映しています。" : "Squareの空き枠から自動反映しています。") : store.id === "1" ? "現在は目安表示です。確定した空き枠は予約ページでご確認ください。" : "空き状況は予約ページでご確認ください。"}{store.closed ? `　${store.closed}です。` : ""}
         </p>
         <p style={{ fontSize: 12, lineHeight: 1.9, color: "rgba(255,255,255,.5)", margin: "10px 0 0" }}>
           再来月以降のご予約・空き状況は、

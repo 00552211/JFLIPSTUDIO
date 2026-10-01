@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { fetchAvailability } from "@/lib/google/availability";
+import { fetchStore2Availability } from "@/lib/square/availability";
 
 export const revalidate = 300;
 
@@ -8,7 +9,9 @@ export const revalidate = 300;
  * 予約者情報やトークンは一切クライアントに出さない。
  */
 export async function GET(request: Request) {
-  const monthParam = new URL(request.url).searchParams.get("month"); // YYYY-MM
+  const params = new URL(request.url).searchParams;
+  const monthParam = params.get("month"); // YYYY-MM
+  const store = params.get("store") === "2" ? "2" : "1"; // 1号店=Googleカレンダー / 2号店=Square
   const match = monthParam?.match(/^(\d{4})-(\d{2})$/);
 
   // サーバーのタイムゾーン(Vercelは基本UTC)で年月を取り出すと、JST基準の月初と
@@ -35,10 +38,10 @@ export async function GET(request: Request) {
   const end = new Date(new Date(`${nextYear}-${String(nextMonth).padStart(2, "0")}-01T00:00:00+09:00`).getTime() - 1);
 
   try {
-    const days = await fetchAvailability(start, end);
+    const days = store === "2" ? await fetchStore2Availability(start, end) : await fetchAvailability(start, end);
     return NextResponse.json({ ok: true, days });
   } catch (e) {
-    console.error("[availability]", e);
+    console.error(`[availability store${store}]`, e);
     // 失敗時はサイト側で「目安表示」にフォールバックさせる
     return NextResponse.json({ ok: false, days: {} }, { status: 200 });
   }

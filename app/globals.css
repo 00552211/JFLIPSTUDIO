@@ -244,3 +244,7 @@ img, iframe { max-width: 100%; }
   .gal > div { aspect-ratio: 3/2 !important; }
   .ft-grid { grid-template-columns: 1fr !important; }
 }
+
+/* 店舗切り替え（StoreProvider が data-store を付ける）。選ばれていない店舗の表示を隠す */
+[data-store="1"] .only-s2 { display: none !important; }
+[data-store="2"] .only-s1 { display: none !important; }

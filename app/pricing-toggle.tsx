@@ -1,20 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useStore } from "./store-provider";
 
 const PILL =
   "font-size:13px;font-weight:700;padding:12px 24px;border-radius:999px;cursor:pointer;user-select:none;transition:all .18s";
 
 type Plan = { name: string; detail: string; hourly: string; price: string };
-
-const REC: Plan[] = [
-  { name: "通常利用", detail: "2時間", hourly: "1h ¥5,500", price: "¥11,000" },
-  { name: "3hパック", detail: "3時間", hourly: "1h ¥5,300", price: "¥15,900" },
-  { name: "4hパック", detail: "4時間", hourly: "1h ¥5,150", price: "¥20,600" },
-  { name: "5hパック", detail: "5時間", hourly: "1h ¥5,000", price: "¥25,000" },
-  { name: "6hパック", detail: "6時間", hourly: "1h ¥4,850", price: "¥29,100" },
-  { name: "10hパック", detail: "10時間", hourly: "1h ¥4,600 ★", price: "¥46,000" },
-];
 
 const MIX: Plan[] = [
   { name: "MIX / MASTERING（2mix納品）", detail: "オンライン / 1曲", hourly: "一律", price: "¥7,000〜" },
@@ -23,13 +15,16 @@ const MIX: Plan[] = [
 ];
 
 export function PricingToggle() {
+  const { store } = useStore();
   const [tab, setTab] = useState<"rec" | "mix">("rec");
-  const isRec = tab === "rec";
-  const plans = isRec ? REC : MIX;
+  const isStore1 = store.id === "1";
+  // MIX / MASTERING（オンライン納品）の料金表は1号店のみ。2号店はREC・MIX・MASTER込みの料金
+  const isRec = !isStore1 || tab === "rec";
+  const plans = isRec ? store.rec : MIX;
 
   return (
     <div>
-      <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
+      {isStore1 && <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
         <div
           onClick={() => setTab("rec")}
           style={parseInlineStyle(
@@ -46,9 +41,9 @@ export function PricingToggle() {
         >
           MIX / MASTERING
         </div>
-      </div>
+      </div>}
 
-      {isRec && (
+      {isRec && store.bestValue && (
         <div
           style={{
             display: "flex",
@@ -74,9 +69,9 @@ export function PricingToggle() {
           >
             BEST VALUE
           </div>
-          <div style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-.02em" }}>1時間あたり ¥4,600</div>
+          <div style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-.02em" }}>{store.bestValue.headline}</div>
           <div style={{ fontSize: 12.5, lineHeight: 1.7, color: "rgba(10,10,10,.62)", flex: 1, minWidth: 220 }}>
-            10hパック（¥46,000）ご利用時。エンジニア立ち合い込みで、この地域では最安水準の時間単価です。
+            {store.bestValue.note}
           </div>
         </div>
       )}
@@ -141,35 +136,37 @@ export function PricingToggle() {
             {isRec ? "EXTENSION（延長料金）" : "RETAKE（リテイク）"}
           </span>
           <span style={{ fontSize: 13, color: "rgba(255,255,255,.75)" }}>
-            {isRec ? "15分 ¥1,400 / 30分 ¥2,700" : "無制限（追加料金なし）"}
+            {isRec ? store.extension : "無制限（追加料金なし）"}
           </span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 28px" }}>
+        {(isStore1 || !isRec) && <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 28px" }}>
           <span style={{ fontSize: 11, letterSpacing: ".2em", color: "rgba(255,255,255,.5)" }}>
             {isRec ? "PAYMENT（お支払い方法）" : "DELIVERY（納品形式）"}
           </span>
           <span style={{ fontSize: 13, color: "rgba(255,255,255,.75)" }}>
             {isRec ? "現金 / クレジットカード（タッチ決済対応）" : "オンライン対応 / WAV・MP3でデータ納品"}
           </span>
-        </div>
+        </div>}
       </div>
 
       <p style={{ fontSize: 11.5, lineHeight: 1.9, color: "rgba(255,255,255,.38)", margin: "18px 0 0", maxWidth: "64em", textWrap: "pretty" }}>
         {isRec
-          ? "※ 表示価格は全て税込・エンジニア込みの価格です。法人のお客様は別途お問い合わせください。"
+          ? isStore1
+            ? "※ 表示価格は全て税込・エンジニア込みの価格です。法人のお客様は別途お問い合わせください。"
+            : "※ エンジニア（IKUTO）付き、REC・MIX・MASTER すべて込みの料金です。"
           : "※ MIX / MASTERING はオンラインのみの対応です。上記は最低料金で、トラック数・楽曲の尺・納期によって変動します。正確なお見積りはメールまたはInstagramのDMからお問い合わせください。"}
       </p>
 
       {isRec && (
         <div style={{ display: "flex", justifyContent: "center", marginTop: 34 }}>
           <a
-            href="https://book.squareup.com/appointments/atrhlg3x3adiil/location/LJFDVKXY7Y7PC/services"
+            href={store.bookingUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="hover-lift"
             style={{ background: "#fff", color: "#0a0a0a", fontSize: 13, fontWeight: 700, padding: "15px 40px", borderRadius: 999 }}
           >
-            WEBで予約する
+            {store.bookingLabel}
           </a>
         </div>
       )}
