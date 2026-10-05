@@ -1,154 +1,85 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { INSTAGRAM_URL } from "@/lib/stores";
-import { useStore } from "./store-provider";
-const WD = ["月", "火", "水", "木", "金", "土", "日"];
+import { useEffect, useState } from "react";
 
-type DayStatus = "open" | "few" | "full" | "closed" | "unknown";
+type DayStatus = "open" | "few" | "full" | "closed";
+type MonthData = Record<string, DayStatus>;
 
-/** APIが使えないときのみのフォールバック（目安表示） */
-function fallbackFor(date: Date): DayStatus {
-  if (date.getDay() === 0) return "closed";
-  const seed = (date.getDate() * 7 + date.getMonth() * 3) % 10;
-  return seed < 5 ? "open" : seed < 8 ? "few" : "full";
-}
-
-const CELL: React.CSSProperties = {
-  display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-  aspectRatio: "1/1", borderRadius: 8, textDecoration: "none",
-  transition: "transform .2s cubic-bezier(.22,.7,.3,1), background-color .2s ease, border-color .2s ease",
+const W = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+const MARK: Record<DayStatus | "na", { m: string; cls: string; aria: string }> = {
+  open: { m: "○", cls: "ok", aria: "空きあり" },
+  few: { m: "△", cls: "few", aria: "残りわずか" },
+  full: { m: "×", cls: "full", aria: "空きなし" },
+  closed: { m: "定休", cls: "closed", aria: "定休日" },
+  na: { m: "—", cls: "na", aria: "予約ページで確認" },
 };
+/** カレンダーに出すのは今月・来月まで。それ以降はDM/メールに誘導する */
+const MONTHS = 2;
+const pad = (n: number) => String(n).padStart(2, "0");
 
-const STYLES: Record<DayStatus | "past" | "blank", React.CSSProperties> = {
-  unknown: { ...CELL, border: "1px solid rgba(255,255,255,.14)", color: "rgba(255,255,255,.6)", cursor: "pointer" },
-  open: { ...CELL, background: "rgba(255,255,255,.1)", border: "1px solid rgba(255,255,255,.28)", color: "#fff", cursor: "pointer" },
-  few: { ...CELL, border: "1px solid rgba(255,255,255,.14)", color: "rgba(255,255,255,.6)", cursor: "pointer" },
-  full: { ...CELL, border: "1px solid rgba(255,255,255,.07)", color: "rgba(255,255,255,.22)", pointerEvents: "none" },
-  closed: { ...CELL, border: "1px solid rgba(255,255,255,.07)", color: "rgba(255,255,255,.22)", pointerEvents: "none" },
-  past: { ...CELL, border: "1px solid rgba(255,255,255,.05)", color: "rgba(255,255,255,.16)", pointerEvents: "none" },
-  blank: { ...CELL, border: "1px solid transparent", pointerEvents: "none" },
-};
+/** 1号店の空き状況（/api/availability がGoogleカレンダーから ○△× を返す）を2ヶ月分並べる */
+export function AvailabilityCalendar({ bookingUrl }: { bookingUrl: string }) {
+  const [today, setToday] = useState<Date | null>(null);
+  const [data, setData] = useState<MonthData | null>(null);
+  const [state, setState] = useState<"loading" | "live" | "error">("loading");
+  const [updated, setUpdated] = useState("");
 
-const MARK: Record<string, string> = { unknown: "–", open: "◎", few: "△", full: "×", closed: "定休", past: "", blank: "" };
-
-const navBtn: React.CSSProperties = {
-  width: 38, height: 38, border: "1px solid rgba(255,255,255,.16)", borderRadius: 10,
-  display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
-  fontSize: 14, color: "rgba(255,255,255,.7)", userSelect: "none", background: "transparent",
-};
-
-/** カレンダーに表示するのは今月・来月まで。それ以降はDM/メールに誘導する。 */
-const MAX_OFFSET = 1;
-
-export function AvailabilityCalendar() {
-  const [offset, setOffset] = useState(0);
-  const [live, setLive] = useState<Record<string, DayStatus> | null>(null);
-  const { store } = useStore();
-  const BOOKING = store.bookingUrl;
-  const atMax = offset >= MAX_OFFSET;
-
-  const now = new Date();
-  const base = new Date(now.getFullYear(), now.getMonth() + offset, 1);
-  const y = base.getFullYear();
-  const m = base.getMonth();
-  const month = `${y}-${String(m + 1).padStart(2, "0")}`;
-
-  const load = useCallback(async (monthKey: string, storeId: string) => {
-    try {
-      const res = await fetch(`/api/availability?month=${monthKey}&store=${storeId}`);
-      const json = await res.json();
-      setLive(json.ok ? (json.days as Record<string, DayStatus>) : null);
-    } catch {
-      setLive(null);
-    }
+  useEffect(() => {
+    const t = new Date();
+    t.setHours(0, 0, 0, 0);
+    setToday(t);
+    const keys = Array.from({ length: MONTHS }, (_, m) => {
+      const d = new Date(t.getFullYear(), t.getMonth() + m, 1);
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}`;
+    });
+    Promise.all(keys.map((k) => fetch(`/api/availability?month=${k}`).then((r) => r.json())))
+      .then((res: { ok: boolean; days: MonthData }[]) => {
+        if (!res.every((r) => r.ok)) throw new Error("unavailable");
+        setData(Object.assign({}, ...res.map((r) => r.days)));
+        setState("live");
+        setUpdated(new Date().toLocaleString("ja-JP", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" }));
+      })
+      .catch(() => setState("error"));
   }, []);
 
-  useEffect(() => { setLive(null); void load(month, store.id); }, [month, store.id, load]);
-
-  const firstCol = (new Date(y, m, 1).getDay() + 6) % 7; // 月曜始まり
-  const total = new Date(y, m + 1, 0).getDate();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-  const cells: { key: string; num: string; kind: keyof typeof STYLES }[] = [];
-  for (let i = 0; i < firstCol; i++) cells.push({ key: `b${i}`, num: "", kind: "blank" });
-  for (let d = 1; d <= total; d++) {
-    const date = new Date(y, m, d);
-    const key = `${month}-${String(d).padStart(2, "0")}`;
-    cells.push({ key, num: String(d), kind: date < today ? "past" : live?.[key] ?? (store.id === "1" ? fallbackFor(date) : "unknown") });
-  }
+  if (!today) return <div className="avmonths" style={{ minHeight: 360 }} />;
 
   return (
-    <section id="availability" style={{ borderTop: "1px solid rgba(255,255,255,.08)" }}>
-      <div className="wrap" style={{ maxWidth: 1180, margin: "0 auto", padding: "88px 32px" }}>
-        <div className="works-hd" style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 12 }}>
-          <div>
-            <p data-reveal style={{ fontSize: 10.5, letterSpacing: ".32em", color: "rgba(255,255,255,.42)", margin: "0 0 18px" }}>AVAILABILITY</p>
-            <h2 data-reveal className="h-sec" style={{ fontSize: 32, fontWeight: 700, margin: 0, letterSpacing: "-.01em", transitionDelay: ".08s" }}>予約状況カレンダー</h2>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <button className="hover-outline-sm" style={navBtn} onClick={() => setOffset((o) => Math.max(0, o - 1))} aria-label="前の月">‹</button>
-            <div style={{ fontSize: 15, fontWeight: 700, minWidth: 118, textAlign: "center" }}>{y}年 {m + 1}月</div>
-            <button
-              className="hover-outline-sm"
-              style={atMax ? { ...navBtn, opacity: 0.3, cursor: "not-allowed" } : navBtn}
-              onClick={() => setOffset((o) => Math.min(MAX_OFFSET, o + 1))}
-              aria-label="次の月"
-              aria-disabled={atMax}
-              disabled={atMax}
-            >
-              ›
-            </button>
-          </div>
-        </div>
-        <p data-reveal style={{ fontSize: 13.5, color: "rgba(255,255,255,.55)", margin: "0 0 26px", transitionDelay: ".16s" }}>
-          空き状況の目安です。日付を選ぶと、その日の予約ページが開きます。
-        </p>
-
-        <div data-reveal style={{ background: "#111", border: "1px solid rgba(255,255,255,.09)", borderRadius: 14, padding: "22px 20px", transitionDelay: ".22s" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(7,minmax(0,1fr))", gap: 6, marginBottom: 8 }}>
-            {WD.map((label, i) => (
-              <div key={label} style={{ textAlign: "center", fontSize: 10, letterSpacing: ".14em", paddingBottom: 6, color: i === 6 ? "rgba(255,255,255,.3)" : i === 5 ? "rgba(255,255,255,.5)" : "rgba(255,255,255,.42)" }}>{label}</div>
-            ))}
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(7,minmax(0,1fr))", gap: 6 }}>
-            {cells.map((c) => {
-              const clickable = c.kind === "open" || c.kind === "few" || c.kind === "unknown";
-              const inner = (
-                <>
-                  <span style={{ fontSize: 13.5, fontWeight: 500 }}>{c.num}</span>
-                  <span style={{ fontSize: 9.5, letterSpacing: ".06em", marginTop: 3 }}>{MARK[c.kind]}</span>
-                </>
-              );
-              return clickable ? (
-                <a key={c.key} href={BOOKING} target="_blank" rel="noopener noreferrer" style={STYLES[c.kind]}>{inner}</a>
-              ) : (
-                <div key={c.key} style={STYLES[c.kind]}>{inner}</div>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="cal-legend" style={{ display: "flex", alignItems: "center", gap: 22, flexWrap: "wrap", marginTop: 18 }}>
-          {(store.id === "2" && !live ? [] : ([["open", "空きあり"], ["few", "残りわずか"], ["full", "満席・定休"]] as const)).map(([k, label]) => (
-            <div key={k} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ ...STYLES[k], width: 22, height: 22, aspectRatio: "auto", borderRadius: 6, fontSize: 9.5 }}>{MARK[k]}</span>
-              <span style={{ fontSize: 12, color: "rgba(255,255,255,.6)" }}>{label}</span>
+    <>
+      <div className="avmonths">
+        {Array.from({ length: MONTHS }, (_, m) => {
+          const first = new Date(today.getFullYear(), today.getMonth() + m, 1);
+          const last = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
+          return (
+            <div key={m}>
+              <div className="avm-t">{first.getMonth() + 1}月 <span>{first.getFullYear()}</span></div>
+              <div className="avgrid">
+                {W.map((w, i) => <div key={w} className={`avw s${i}`}>{w[0]}</div>)}
+                {Array.from({ length: first.getDay() }, (_, i) => <div key={`p${i}`} className="avd pad" />)}
+                {Array.from({ length: last }, (_, k) => {
+                  const d = k + 1;
+                  const date = new Date(first.getFullYear(), first.getMonth(), d);
+                  const past = date < today;
+                  const key = `${first.getFullYear()}-${pad(first.getMonth() + 1)}-${pad(d)}`;
+                  const st = MARK[data?.[key] ?? (date.getDay() === 0 ? "closed" : "na")];
+                  const inner = <><span className="d">{d}</span><span className="m">{past ? "" : st.m}</span></>;
+                  if (past) return <div key={d} className="avd past">{inner}</div>;
+                  const label = `${first.getMonth() + 1}月${d}日 ${st.aria}`;
+                  return st.cls === "full" || st.cls === "closed"
+                    ? <div key={d} className={`avd ${st.cls}`} aria-label={label}>{inner}</div>
+                    : <a key={d} className={`avd ${st.cls}`} href={bookingUrl} target="_blank" rel="noopener noreferrer" aria-label={label}>{inner}</a>;
+                })}
+              </div>
             </div>
-          ))}
-          <a className="hover-lift" href={BOOKING} target="_blank" rel="noopener noreferrer" style={{ marginLeft: "auto", background: "#fff", color: "#0a0a0a", fontSize: 12.5, fontWeight: 700, padding: "12px 24px", borderRadius: 999 }}>今すぐ予約する</a>
-        </div>
-        <p style={{ fontSize: 11.5, lineHeight: 1.9, color: "rgba(255,255,255,.34)", margin: "16px 0 0" }}>
-          ※ {live ? (store.id === "1" ? "Googleカレンダーの予定から自動反映しています。" : "Squareの空き枠から自動反映しています。") : store.id === "1" ? "現在は目安表示です。確定した空き枠は予約ページでご確認ください。" : "空き状況は予約ページでご確認ください。"}{store.closed ? `　${store.closed}です。` : ""}
-        </p>
-        <p style={{ fontSize: 12, lineHeight: 1.9, color: "rgba(255,255,255,.5)", margin: "10px 0 0" }}>
-          再来月以降のご予約・空き状況は、
-          <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="hover-link" style={{ color: "inherit", textDecoration: "underline" }}>Instagram DM</a>
-          または
-          <a href="mailto:jfliponthegame@gmail.com" className="hover-link" style={{ color: "inherit", textDecoration: "underline" }}>メール（jfliponthegame@gmail.com）</a>
-          にてお問い合わせください。
-        </p>
+          );
+        })}
       </div>
-    </section>
+      <div className="av-note">
+        日付をタップすると予約ページへ移動します。
+        <span>{state === "live" ? `（${updated} 時点・Googleカレンダーから自動反映）` : state === "error" ? "（最新の空き状況は予約ページでご確認ください）" : ""}</span>
+        <br />
+        再来月以降のご予約は <a href="https://www.instagram.com/jfliponthegame/" target="_blank" rel="noopener noreferrer">Instagram DM</a> または <a href="mailto:jfliponthegame@gmail.com">メール</a> でお問い合わせください。
+      </div>
+    </>
   );
 }
