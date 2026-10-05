@@ -216,7 +216,7 @@ export default async function Home() {
               その場で立ち合い完結。
             </h1>
             <p data-reveal className="hero-lead" style={{ fontSize: 14.5, lineHeight: 2, color: "rgba(255,255,255,.6)", maxWidth: "44em", margin: "0 0 34px", transitionDelay: ".16s" }}>
-              JFLIPSTUDIO は、アーティストの理想のサウンドをその場で創り上げる立ち合い型スタジオ。ボーカル録音からMIX・マスタリングまでを一貫して行い、納品までの時間とワークフローを最短化します。<span className="only-s1">10hパックなら1時間あたり¥4,600から。</span><S2Only><span className="only-s2">2号店はエンジニア（IKUTO）付きで、3時間以上なら1時間あたり¥4,000から。</span></S2Only>
+              JFLIPSTUDIO は、アーティストの理想のサウンドをその場で創り上げる立ち合い型スタジオ。ボーカル録音からMIX・マスタリングまでを一貫して行い、納品までの時間とワークフローを最短化します。<span className="only-s1">3時間以上なら1時間あたり¥5,000から（30分単位）。</span><S2Only><span className="only-s2">2号店はエンジニア（IKUTO）付きで、3時間以上なら1時間あたり¥4,000から。</span></S2Only>
             </p>
             <div data-reveal className="hero-cta" style={{ display: "flex", gap: 12, flexWrap: "wrap", transitionDelay: ".24s" }}>
               <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer" className="hover-lift only-s1" style={{ background: "#fff", color: "#0a0a0a", fontSize: 13, fontWeight: 700, padding: "14px 26px", borderRadius: 999 }}>
@@ -231,8 +231,8 @@ export default async function Home() {
             </div>
             <div data-reveal className="hero-stats" style={{ display: "flex", gap: 44, marginTop: 56, paddingTop: 30, borderTop: "1px solid rgba(255,255,255,.1)", transitionDelay: ".32s" }}>
               <div className="only-s1">
-                <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-.01em" }}>1時間 ¥4,600〜</div>
-                <div style={{ fontSize: 11, letterSpacing: ".14em", color: "rgba(255,255,255,.42)", marginTop: 7 }}>10hパック利用時 / エンジニア込み</div>
+                <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-.01em" }}>1時間 ¥5,000〜</div>
+                <div style={{ fontSize: 11, letterSpacing: ".14em", color: "rgba(255,255,255,.42)", marginTop: 7 }}>3時間以上 / エンジニア込み</div>
               </div>
               <div className="only-s1">
                 <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-.01em" }}>13:00–23:00</div>
@@ -279,7 +279,7 @@ export default async function Home() {
           <p data-reveal style={{ fontSize: 10.5, letterSpacing: ".32em", color: "rgba(255,255,255,.42)", margin: "0 0 18px" }}>HOURS &amp; PRICE</p>
           <h2 data-reveal className="h-sec" style={{ fontSize: 32, fontWeight: 700, margin: "0 0 14px", letterSpacing: "-.01em", transitionDelay: ".08s" }}>営業時間 &amp; 料金案内</h2>
           <p data-reveal style={{ fontSize: 13.5, color: "rgba(255,255,255,.55)", margin: "0 0 38px", transitionDelay: ".16s" }}>
-            シンプルでわかりやすいパック料金制。WEB予約ページより即時予約が可能です。
+            シンプルでわかりやすい料金体系。WEB予約ページより即時予約が可能です。
           </p>
 
           <div data-reveal className="hours-box" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#141414", border: "1px solid rgba(255,255,255,.09)", borderRadius: 14, padding: "26px 30px", marginBottom: 26, transitionDelay: ".22s" }}>
@@ -600,7 +600,7 @@ export default async function Home() {
                 {S2.bookingLabel} ↗
               </a></S2Only>
               <span className="only-s1">営業時間 13:00–23:00</span>
-              <span className="only-s1">2h / 3h / 5h / 6h / 10h パック</span>
+              <span className="only-s1">1h〜5h（30分単位）</span>
               <S2Only><span className="only-s2">営業時間 10:00–23:00</span></S2Only>
               <S2Only><span className="only-s2">1h〜6h（30分刻み）</span></S2Only>
             </div>
