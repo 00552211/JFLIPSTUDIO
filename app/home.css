@@ -1,6 +1,6 @@
-/* トップページ専用。2号店サイト（CONNECT Studio）と同じ構成・動きで、アクセントだけ JFLIP の赤LEDに合わせている */
+/* トップページ専用。2号店サイト（CONNECT Studio）と同じ構成・動きで、アクセントだけ JFLIP のLEDの紫に合わせている */
 .jf {
-  --black: #0D0E10; --white: #EFEFEA; --paper: #F6F6F2; --accent: #FF3D50; --accent-d: #E62A3E; --accent-rgb: 255, 61, 80;
+  --black: #0D0E10; --white: #EFEFEA; --paper: #F6F6F2; --accent: #B57BFF; --accent-d: #9D5CF5; --accent-rgb: 181, 123, 255;
   --gray: #6F7278; --gray-l: #A9ABB0; --line: #DCDCD6; --line-d: #2A2C30; --card-d: #16181C;
   --ease: cubic-bezier(.2,.8,.2,1); --ease2: cubic-bezier(.76,0,.24,1);
   --ja: var(--font-zen), "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif;
