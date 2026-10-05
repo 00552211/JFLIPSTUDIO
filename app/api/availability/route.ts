@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { fetchAvailability } from "@/lib/google/availability";
 import { fetchStore2Availability } from "@/lib/square/availability";
-import { STORE2_ENABLED } from "@/lib/stores";
 
 export const revalidate = 300;
 
@@ -12,7 +11,9 @@ export const revalidate = 300;
 export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
   const monthParam = params.get("month"); // YYYY-MM
-  const store = STORE2_ENABLED && params.get("store") === "2" ? "2" : "1"; // 1号店=Googleカレンダー / 2号店=Square
+  // 練馬店（旧1号店）= Googleカレンダー / 池袋店（旧2号店）= Square。旧パラメータ store=2 も池袋店として扱う
+  const storeParam = params.get("store");
+  const store = storeParam === "ikebukuro" || storeParam === "2" ? "2" : "1";
   const match = monthParam?.match(/^(\d{4})-(\d{2})$/);
 
   // サーバーのタイムゾーン(Vercelは基本UTC)で年月を取り出すと、JST基準の月初と

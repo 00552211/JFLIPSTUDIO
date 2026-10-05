@@ -1,31 +1,21 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { Studio } from "@/lib/studios";
 
-/** レコーディング料金（税込・エンジニア込み）。Square の「レコーディング（REC/MIX/MASTER込み）」と揃える */
-export const REC_PLANS = [
-  { h: 1, price: 5500 },
-  { h: 1.5, price: 8250 },
-  { h: 2, price: 11000, note: "ボーカルRecやピッチ修正、サクッと利用に" },
-  { h: 2.5, price: 13750 },
-  { h: 3, price: 15000, note: "1曲を丁寧にレコーディングしたい方向け" },
-  { h: 3.5, price: 17500 },
-  { h: 4, price: 20000, note: "複数テイクの録音やハモり・コーラスまでじっくり録りたい方向け" },
-  { h: 4.5, price: 22500 },
-];
-
-const DEFAULT_INDEX = 4; // 3h
-const isHot = (h: number) => h >= 3; // 3時間以上は1時間あたり ¥5,000
 const fmt = (n: number) => `¥${n.toLocaleString("ja-JP")}`;
 const Check = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
 );
 
-export function PriceSlider() {
-  const [i, setI] = useState(DEFAULT_INDEX);
+/** レコーディング料金（税込・エンジニア込み）のスライダー。料金は lib/studios.ts の店舗データから受け取る */
+export function PriceSlider({ price }: { price: Studio["price"] }) {
+  const { plans, hotFrom } = price;
+  const [i, setI] = useState(price.defaultIndex);
   const priceRef = useRef<HTMLDivElement>(null);
-  const plan = REC_PLANS[i];
-  const last = REC_PLANS.length - 1;
+  const plan = plans[i];
+  const last = plans.length - 1;
+  const isHot = (h: number) => h >= hotFrom;
 
   // 値が変わるたびに金額を少し弾ませる
   useEffect(() => {
@@ -62,14 +52,21 @@ export function PriceSlider() {
           style={{ "--p": `${(i / last) * 100}%` } as React.CSSProperties}
         />
         <div className="ticks">
-          {REC_PLANS.map((p) => <span key={p.h} className={isHot(p.h) ? "hot" : ""}>{p.h}h</span>)}
+          {/* 目盛りはスライダーのつまみと同じ位置に置く（整数の時間と最後のプラン） */}
+          {plans.map((p, k) => (Number.isInteger(p.h) || k === last) && (
+            <span
+              key={p.h}
+              className={isHot(p.h) ? "hot" : ""}
+              style={{ left: `${(k / last) * 100}%`, transform: `translateX(${k === 0 ? 0 : k === last ? -100 : -50}%)` }}
+            >
+              {p.h}h
+            </span>
+          ))}
         </div>
       </div>
-      <div className="psub"><span className="pb"><b>3h〜</b>¥5,000 / h</span>3時間以上は1時間あたり ¥5,000。長く録るほどおトクです。</div>
+      <div className="psub"><span className="pb"><b>{hotFrom}h〜</b>{price.perHour}</span>{price.perHourText}</div>
       <div className="pnote">
-        <div><Check />30分単位で選べます</div>
-        <div><Check />エンジニア立ち合い込み</div>
-        <div><Check />表示はすべて税込</div>
+        {price.checks.map((c) => <div key={c}><Check />{c}</div>)}
       </div>
       <details className="all">
         <summary>
@@ -77,7 +74,7 @@ export function PriceSlider() {
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
         </summary>
         <div className="pgrid">
-          {REC_PLANS.map((p) => (
+          {plans.map((p) => (
             <div key={p.h} className={isHot(p.h) ? "hot" : ""}><span>{p.h}h</span><b>{fmt(p.price)}</b></div>
           ))}
         </div>

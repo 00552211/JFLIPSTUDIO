@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import Lenis from "lenis";
 
 /**
- * トップページの演出（2号店サイト CONNECT Studio と同じ動き）。
+ * CONNECT Studio の演出（トップページ・店舗ページ共通）。
  * オープニング → ページが拡大して表示 / 慣性スクロール / カーソル / パララックス /
  * セクション番号 / 見出しの1文字ずつ表示 / ホバー時の文字スクランブル / スマホメニュー / FAQ / 写真スライド。
  * 対象の要素はサーバー側で描画済みの静的なマークアップなので、DOMを直接扱う。
@@ -181,40 +181,41 @@ export function HomeEffects() {
     cleanups.push(() => { io.disconnect(); mo.disconnect(); });
 
     // ---------- cursor ----------
-    const cur = document.getElementById("cursor")!;
+    const cur = document.getElementById("cursor");
     let mx = -100, my = -100, cx = -100, cy = -100;
     on("mousemove", (e) => { mx = e.clientX; my = e.clientY; });
     const tickCursor = () => {
       cx += (mx - cx) * 0.18;
       cy += (my - cy) * 0.18;
-      cur.style.transform = `translate(${cx}px, ${cy}px) translate(-50%, -50%)`;
+      if (cur) cur.style.transform = `translate(${cx}px, ${cy}px) translate(-50%, -50%)`;
       raf(tickCursor);
     };
     raf(tickCursor);
-    const hoverIn = (e: Event) => { if ((e.target as Element).closest?.("a, button, summary, input, select, textarea, .range")) cur.classList.add("is-hover"); };
-    const hoverOut = (e: Event) => { if ((e.target as Element).closest?.("a, button, summary, input, select, textarea, .range")) cur.classList.remove("is-hover"); };
+    const hoverIn = (e: Event) => { if ((e.target as Element).closest?.("a, button, summary, input, select, textarea, .range")) cur?.classList.add("is-hover"); };
+    const hoverOut = (e: Event) => { if ((e.target as Element).closest?.("a, button, summary, input, select, textarea, .range")) cur?.classList.remove("is-hover"); };
     document.addEventListener("mouseover", hoverIn);
     document.addEventListener("mouseout", hoverOut);
     cleanups.push(() => { document.removeEventListener("mouseover", hoverIn); document.removeEventListener("mouseout", hoverOut); });
 
     // ---------- parallax + hero + counter + 固定UIの色 ----------
-    const heroBg = document.getElementById("heroBg")!;
-    const hero = document.querySelector<HTMLElement>(".jf .hero")!;
+    // ページによって無い要素もある（トップページにはカウンター等が無い）
+    const heroBg = document.getElementById("heroBg");
+    const hero = document.querySelector<HTMLElement>(".jf .hero");
     const pxEls = [...document.querySelectorAll<HTMLElement>(".jf [data-px]")];
     const secs = [...document.querySelectorAll<HTMLElement>(".jf [data-sec]")];
-    const secNo = document.getElementById("secNo")!;
-    const pgbar = document.getElementById("pgbar")!;
-    const mcta = document.getElementById("mcta")!;
-    const counter = document.querySelector<HTMLElement>(".jf .counter")!;
-    const side = document.querySelector<HTMLElement>(".jf .side")!;
-    const up = document.getElementById("up")!;
-    const book = document.getElementById("book")!;
+    const secNo = document.getElementById("secNo");
+    const pgbar = document.getElementById("pgbar");
+    const mcta = document.getElementById("mcta");
+    const counter = document.querySelector<HTMLElement>(".jf .counter");
+    const side = document.querySelector<HTMLElement>(".jf .side");
+    const up = document.getElementById("up");
+    const book = document.getElementById("book");
     const blends = [...document.querySelectorAll<HTMLElement>(".jf .blend")];
     let vh = innerHeight;
     on("resize", () => { vh = innerHeight; });
     const onScroll = () => {
       const y = scrollY;
-      if (y < vh) {
+      if (y < vh && heroBg && hero) {
         heroBg.style.transform = `translateY(${y * 0.25}px) scale(${1 + (y / vh) * 0.06})`;
         hero.style.opacity = String(1 - (y / vh) * 0.6);
       }
@@ -226,13 +227,13 @@ export function HomeEffects() {
       }
       let idx = 0;
       for (let i = 0; i < secs.length; i++) if (secs[i].getBoundingClientRect().top < vh * 0.5) idx = i;
-      if (secs[idx]) secNo.textContent = secs[idx].dataset.sec ?? "";
+      if (secs[idx] && secNo) secNo.textContent = secs[idx].dataset.sec ?? "";
       const docH = document.documentElement.scrollHeight;
-      pgbar.style.setProperty("--pg", (y / Math.max(1, docH - vh)).toFixed(3));
-      mcta.classList.toggle("show", y > vh * 0.6);
-      counter.classList.toggle("hide", y + vh > docH - 420);
-      side.classList.toggle("hide", y < vh * 0.7);
-      up.classList.toggle("show", book.getBoundingClientRect().top < vh * 0.8);
+      pgbar?.style.setProperty("--pg", (y / Math.max(1, docH - vh)).toFixed(3));
+      mcta?.classList.toggle("show", y > vh * 0.6);
+      counter?.classList.toggle("hide", y + vh > docH - 420);
+      side?.classList.toggle("hide", y < vh * 0.7);
+      if (up && book) up.classList.toggle("show", book.getBoundingClientRect().top < vh * 0.8);
       // 真下のセクションが明るければ黒、暗ければ白
       for (const el of blends) {
         const r = el.getBoundingClientRect();
@@ -250,7 +251,7 @@ export function HomeEffects() {
     // ---------- opening (カウンター → 左上からページが拡大) ----------
     const op = document.getElementById("opening");
     if (op && body.classList.contains("booting")) {
-      try { sessionStorage.setItem("jf-open", "1"); } catch {}
+      try { sessionStorage.setItem("cs-open", "1"); } catch {}
       lenis?.stop();
       const cnt = document.getElementById("cnt")!;
       const bar = document.getElementById("bar")!;
@@ -281,8 +282,8 @@ export function HomeEffects() {
 
     // ---------- hero: 写真がゆっくり切り替わる + 粒子ノイズ ----------
     const sl = [...document.querySelectorAll<HTMLImageElement>("#slides .sl")];
-    const dots = document.getElementById("dots")!;
-    if (sl.length) {
+    const dots = document.getElementById("dots");
+    if (sl.length && dots) {
       dots.innerHTML = "";
       sl.forEach((_, i) => { const d = document.createElement("i"); if (!i) d.className = "on"; dots.appendChild(d); });
       const load = (im?: HTMLImageElement) => { if (im && !im.getAttribute("src") && im.dataset.src) im.src = im.dataset.src; };
@@ -317,11 +318,11 @@ export function HomeEffects() {
     }
 
     // ---------- mobile nav ----------
-    const mnav = document.getElementById("mnav")!;
-    const burger = document.getElementById("burger")!;
-    const bIcon = burger.querySelector("svg")!;
-    const bOpen = bIcon.innerHTML, bClose = '<path d="M6 6l12 12M18 6L6 18"/>';
-    setMenu = (o) => {
+    const mnav = document.getElementById("mnav");
+    const burger = document.getElementById("burger");
+    const bIcon = burger?.querySelector("svg");
+    const bOpen = bIcon?.innerHTML ?? "", bClose = '<path d="M6 6l12 12M18 6L6 18"/>';
+    if (mnav && burger && bIcon) setMenu = (o) => {
       mnav.classList.toggle("open", o);
       burger.classList.toggle("is-open", o);
       body.classList.toggle("menu-open", o);
@@ -329,9 +330,9 @@ export function HomeEffects() {
       burger.setAttribute("aria-expanded", String(o));
       if (lenis) { if (o) lenis.stop(); else lenis.start(); }
     };
-    const toggleMenu = () => setMenu(!mnav.classList.contains("open"));
-    burger.addEventListener("click", toggleMenu);
-    cleanups.push(() => burger.removeEventListener("click", toggleMenu));
+    const toggleMenu = () => setMenu(!mnav?.classList.contains("open"));
+    burger?.addEventListener("click", toggleMenu);
+    cleanups.push(() => burger?.removeEventListener("click", toggleMenu));
 
     // ---------- faq ----------
     document.querySelectorAll<HTMLButtonElement>(".jf .acc button").forEach((b) => {

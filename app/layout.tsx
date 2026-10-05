@@ -10,7 +10,7 @@ const notoSansJP = Noto_Sans_JP({
   display: "swap",
 });
 
-// トップページ（2号店サイトと同じデザイン）の和文・欧文
+// CONNECT Studio のページ（トップ・池袋店・練馬店）の和文・欧文
 const zenKaku = Zen_Kaku_Gothic_New({
   subsets: ["latin"],
   weight: ["400", "500", "700"],
@@ -27,18 +27,19 @@ const josefin = Josefin_Sans({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://jflipstudio.com"),
-  title: "JFLIPSTUDIO｜東京・練馬のレコーディングスタジオ｜MIX・マスタリング立ち合い対応",
+  title: "CONNECT Studio｜池袋・練馬のレコーディングスタジオ",
   description:
-    "東京都練馬区豊玉北のレコーディングスタジオ JFLIPSTUDIO。新江古田駅から徒歩8分。録音からMIX・マスタリングまで立ち合いで完結、1時間5,500円から（3時間以上は1時間あたり5,000円）。オンラインMIXは7,000円から、リテイク無制限。",
+    "池袋・練馬のレコーディングスタジオ CONNECT Studio。エンジニア付きで、RECからMIX / MASTERまでその場で完結。池袋店は池袋駅から2駅・徒歩6分、練馬店は新江古田駅から徒歩8分。",
   robots: { index: true, follow: true },
   verification: { google: "kcBIytu0cweTyBHVrGY1GgFZ49w9GHtyEIu-dU973-8" },
   openGraph: {
     type: "website",
-    title: "JFLIPSTUDIO｜東京・練馬のレコーディングスタジオ",
-    description: "録音からMIX・マスタリングまで立ち合いで完結。新江古田駅から徒歩8分、1時間5,500円から。",
-    images: ["/assets/og-logo.png"],
+    siteName: "CONNECT Studio",
+    title: "CONNECT Studio｜池袋・練馬のレコーディングスタジオ",
+    description: "エンジニア付き。RECからMIX / MASTERまで、その場で完結。池袋店・練馬店。",
+    images: ["/connect/og.jpg"],
   },
-  twitter: { card: "summary_large_image", images: ["/assets/og-logo.png"] },
+  twitter: { card: "summary_large_image", images: ["/connect/og.jpg"] },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

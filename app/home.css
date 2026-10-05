@@ -1,6 +1,6 @@
-/* トップページ専用。2号店サイト（CONNECT Studio）と同じ構成・動きで、アクセントだけ JFLIP のLEDの紫に合わせている */
+/* CONNECT Studio（トップページ・池袋店・練馬店）共通。アクセントはロゴのライム #9EFF35 */
 .jf {
-  --black: #0D0E10; --white: #EFEFEA; --paper: #F6F6F2; --accent: #B57BFF; --accent-d: #9D5CF5; --accent-rgb: 181, 123, 255;
+  --black: #0D0E10; --white: #EFEFEA; --paper: #F6F6F2; --accent: #9EFF35; --accent-d: #86E522; --accent-rgb: 158, 255, 53;
   --gray: #6F7278; --gray-l: #A9ABB0; --line: #DCDCD6; --line-d: #2A2C30; --card-d: #16181C;
   --ease: cubic-bezier(.2,.8,.2,1); --ease2: cubic-bezier(.76,0,.24,1);
   --ja: var(--font-zen), "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif;
@@ -28,7 +28,9 @@ body:has(.jf) { background: #0D0E10; overflow-x: hidden; }
 /* セクションのつなぎ方をそれぞれ変える */
 #price { clip-path: polygon(0 0, 100% 5vw, 100% 100%, 0 100%); margin-top: -5vw; padding-top: calc(128px + 5vw); }
 #flow { padding-bottom: calc(128px + 56px); }
-#works { border-radius: 56px 56px 0 0; margin-top: -56px; }
+#works, #engineer { border-radius: 56px 56px 0 0; margin-top: -56px; }
+#engineer { position: sticky; top: 0; z-index: 0; }
+#engineer ~ * { position: relative; z-index: 2; }
 #equipment { box-shadow: 0 -30px 60px rgba(13,14,16,.18); }
 #faq { clip-path: polygon(0 5vw, 100% 0, 100% 100%, 0 100%); margin-top: -5vw; padding-top: calc(128px + 5vw); border-radius: 0 0 56px 56px; margin-bottom: -56px; position: relative; z-index: 3; padding-bottom: calc(128px + 40px); }
 #access { padding-top: calc(128px + 56px); }
@@ -103,7 +105,7 @@ body.booting { overflow: hidden; }
 .jf .gh, .jf .gh .right { display: contents; }
 .jf .gh-bg { position: fixed; top: 0; left: 0; right: 0; height: 80px; z-index: 290; backdrop-filter: blur(16px) saturate(1.1); -webkit-backdrop-filter: blur(16px) saturate(1.1); -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent); mask-image: linear-gradient(to bottom, #000 70%, transparent); pointer-events: none; }
 .jf .logo { font-family: var(--en); font-size: 17px; font-weight: 700; letter-spacing: .14em; display: flex; align-items: center; gap: 12px; padding-top: .15em; }
-.jf .logo img { width: 30px; height: 30px; object-fit: contain; margin-top: -.15em; }
+.jf .logo .lg { height: 30px; width: auto; display: block; }
 .jf .gh .logo { position: fixed; top: 0; left: 40px; height: 80px; z-index: 300; }
 .jf .gh .logo, .jf .gnav { mix-blend-mode: difference; color: #fff !important; }
 .jf .gnav { position: fixed; top: 0; right: 214px; height: 80px; z-index: 300; display: flex; align-items: center; gap: 26px; font-family: var(--en); font-size: 13px; font-weight: 600; letter-spacing: .08em; padding-top: .2em; }
@@ -168,7 +170,8 @@ body.reveal .jf .hero .sub { opacity: 1; transform: none; transition-delay: 1.25
 #about .body { margin: 0; font-size: 16px; line-height: 2; color: var(--gray); }
 .jf .points { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 .jf .points .card { padding: 22px 20px; display: flex; flex-direction: column; gap: 8px; }
-.jf .points .k { font-family: var(--en); font-size: 11px; font-weight: 700; letter-spacing: .2em; color: var(--accent-d); padding-top: .15em; }
+.jf .points .k { font-family: var(--en); font-size: 11px; font-weight: 700; letter-spacing: .2em; color: var(--gray); padding-top: .15em; display: flex; align-items: center; gap: 8px; }
+.jf .points .k::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--accent-d); }
 .jf .points .v { font-size: 15px; font-weight: 700; line-height: 1.6; }
 .jf .points .s { font-size: 13px; line-height: 1.8; color: var(--gray); }
 .jf .photos3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
@@ -190,7 +193,8 @@ body.reveal .jf .hero .sub { opacity: 1; transform: none; transition-delay: 1.25
 .jf .range::-webkit-slider-thumb { -webkit-appearance: none; width: 28px; height: 28px; border-radius: 50%; background: var(--black); border: 3px solid var(--accent); box-shadow: 0 4px 14px rgba(var(--accent-rgb), .35); cursor: pointer; transition: transform .2s var(--ease); }
 .jf .range::-webkit-slider-thumb:hover { transform: scale(1.12); }
 .jf .range::-moz-range-thumb { width: 28px; height: 28px; border-radius: 50%; background: var(--black); border: 3px solid var(--accent); cursor: pointer; }
-.jf .ticks { display: flex; justify-content: space-between; font-family: var(--en); font-size: 12px; font-weight: 600; letter-spacing: .1em; color: var(--gray); padding-top: .2em; margin-top: 10px; }
+.jf .ticks { position: relative; height: 1.4em; font-family: var(--en); font-size: 12px; font-weight: 600; letter-spacing: .1em; color: var(--gray); padding-top: .2em; margin-top: 10px; }
+.jf .ticks span { position: absolute; top: .2em; white-space: nowrap; }
 .jf .ticks span.hot { color: var(--accent); }
 .jf .pnote { display: flex; gap: 24px; flex-wrap: wrap; font-size: 14px; color: var(--gray-l); border-top: 1.5px solid var(--line-d); padding-top: 22px; }
 .jf .pnote div { display: flex; align-items: center; gap: 8px; }
@@ -433,7 +437,7 @@ body.reveal .jf .hero .sub { opacity: 1; transform: none; transition-delay: 1.25
   .jf .gnav, .jf .gh .btn { display: none !important; }
   .jf .burger { display: flex; }
   .jf .gh .logo { left: 20px; height: 64px; font-size: 15px; }
-  .jf .gh .logo img { width: 26px; height: 26px; }
+  .jf .gh .logo .lg { height: 24px; }
   .jf .gh-bg { height: 64px; }
   .jf .side, .jf .counter { display: none; }
   .jf .hero .inner { padding: 0 20px 96px; }
@@ -463,7 +467,8 @@ body.reveal .jf .hero .sub { opacity: 1; transform: none; transition-delay: 1.25
   .jf .step { min-height: 160px; }
   #price { clip-path: polygon(0 0, 100% 8vw, 100% 100%, 0 100%); margin-top: -8vw; padding-top: calc(96px + 8vw); }
   #faq { clip-path: polygon(0 8vw, 100% 0, 100% 100%, 0 100%); margin-top: -8vw; padding-top: calc(96px + 8vw); border-radius: 0 0 32px 32px; margin-bottom: -32px; padding-bottom: calc(96px + 24px); }
-  #works { border-radius: 32px 32px 0 0; margin-top: -32px; }
+  #works, #engineer { border-radius: 32px 32px 0 0; margin-top: -32px; }
+  #engineer { position: relative; }
   #flow { padding-bottom: calc(96px + 32px); }
   #access { padding-top: calc(96px + 32px); }
   .jf .band .cap { left: 32px; right: 32px; bottom: 40px; flex-direction: column; align-items: flex-start; }
@@ -535,4 +540,93 @@ body.reveal .jf .hero .sub { opacity: 1; transform: none; transition-delay: 1.25
   .jf .up { display: none; }
   .jf .ft-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
   .jf .ft-cols .ft-col:last-child { grid-column: 1 / -1; }
+}
+
+/* ---------- 店舗切り替え（ヘッダー） ---------- */
+.jf .store-sw { position: fixed; top: 0; left: 210px; height: 80px; z-index: 300; display: flex; align-items: center; gap: 4px; mix-blend-mode: difference; color: #fff !important; font-size: 13px; font-weight: 700; }
+.jf .store-sw a { padding: 7px 12px; border-radius: 999px; border: 1px solid transparent; opacity: .55; transition: opacity .3s, border-color .3s; }
+.jf .store-sw a:hover { opacity: 1; }
+.jf .store-sw a[aria-current="page"] { opacity: 1; border-color: currentColor; }
+.jf .gnav.top { right: 230px; gap: 32px; }
+@media (max-width: 1380px) { .jf .gnav:not(.top) { gap: 18px; font-size: 12px; } }
+@media (max-width: 1240px) { .jf .gnav:not(.top) { display: none; } .jf .burger { display: flex; } .jf .gh .btn { right: 72px; } }
+@media (max-width: 1100px) { .jf .store-sw { left: 150px; height: 64px; font-size: 12px; } .jf .store-sw a { padding: 6px 10px; } }
+@media (max-width: 400px) { .jf .store-sw { left: 136px; } .jf .store-sw a { padding: 5px 8px; } }
+.jf .mstore { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 18px; }
+.jf .mnav .mstore a { font-family: var(--ja); font-size: 15px; font-weight: 700; letter-spacing: 0; justify-content: center; border: 1.5px solid var(--line); border-radius: 999px; padding: 12px 0; }
+.jf .mnav .mstore a[aria-current="page"] { background: var(--black); color: var(--white); border-color: var(--black); }
+
+/* ---------- engineer（池袋店） ---------- */
+#engineer .wrap { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 80px; align-items: center; }
+#engineer img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: 60% 30%; border-radius: 24px; }
+#engineer .name { display: flex; align-items: baseline; gap: 16px; }
+#engineer .name .h2 { font-size: 72px; }
+#engineer p { margin: 0; font-size: 15px; line-height: 2; color: var(--gray-l); }
+.jf .chips { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+.jf .chips div { border: 1px solid var(--line-d); border-radius: 999px; padding: 8px 16px 7px; font-size: 13px; font-weight: 500; }
+.jf .elinks { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 32px; margin-top: 16px; padding-top: 28px; border-top: 1.5px solid var(--line-d); }
+.jf .lk { display: flex; flex-direction: column; gap: 14px; }
+.jf .sns-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.jf .sns-row a { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px; border: 1px solid var(--line-d); border-radius: 999px; font-size: 13px; font-weight: 500; transition: border-color .3s, background .3s, color .3s; }
+.jf .sns-row a:hover { border-color: var(--accent); background: var(--accent); color: var(--black); }
+.jf .ewks { display: flex; flex-direction: column; }
+.jf .ewks .wk { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 14px 0; border-top: 1.5px solid var(--line-d); }
+.jf .ewks .wk:last-child { border-bottom: 1.5px solid var(--line-d); }
+.jf .ewks .n { font-size: 11px; letter-spacing: .14em; color: var(--gray); padding-top: .2em; }
+.jf .ewks .wt { font-size: 14px; font-weight: 700; }
+.jf .ewks .wd { font-size: 12px; color: var(--gray-l); line-height: 1.6; margin-top: 3px; }
+.jf .ewks .wl { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.jf .ewks .wl a { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border: 1px solid var(--line-d); border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; transition: border-color .3s, background .3s, color .3s; }
+.jf .ewks .wl a:hover { border-color: var(--accent); background: var(--accent); color: var(--black); }
+.jf .route .seg .ln:not(.walk) { background: repeating-linear-gradient(to bottom, var(--black) 0 6px, transparent 6px 11px); }
+.jf .acc-other { display: block; border-top: 1.5px solid var(--line); transition: color .3s; }
+.jf .acc-other:hover strong { text-decoration: underline; text-underline-offset: 4px; }
+
+/* ---------- book / footer ---------- */
+.jf .book .ready .lg-wrap { display: inline-flex; align-items: baseline; gap: .06em; color: var(--accent); }
+.jf .book .ready .lg-in { height: .72em; width: auto; display: inline-block; transform: translateY(.02em); }
+.jf .book-2 { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.jf .book .book-2 .btn { margin-top: 8px; }
+.jf .ft-sns { display: flex; gap: 8px; margin-top: 6px; }
+.jf .ft-sns a { width: 34px; height: 34px; padding: 0; border: 1px solid var(--line-d); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; transition: border-color .3s, background .3s, color .3s; }
+.jf .ft-sns a::after { display: none; }
+.jf .ft-sns a:hover { border-color: var(--accent); background: var(--accent); color: var(--black); }
+
+/* ---------- top（店舗を選ぶ） ---------- */
+.jf .btn-black, .jf .btn-black:hover { background: var(--black); color: var(--white); }
+.jf .btn-black:hover { background: #222; }
+.jf .top-hd { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; margin-bottom: 48px; }
+.jf .top-hd p { margin: 0; font-size: 15px; line-height: 1.9; color: var(--gray); }
+.jf .stores { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.jf .scard { overflow: hidden; display: flex; flex-direction: column; transition: transform .5s var(--ease), box-shadow .5s var(--ease); }
+.jf .scard:hover { transform: translateY(-4px); box-shadow: 0 24px 48px rgba(13,14,16,.1); }
+.jf .scard .im { position: relative; display: block; aspect-ratio: 16 / 10; overflow: hidden; }
+.jf .scard .im img { width: 100%; height: 100%; object-fit: cover; transition: transform 1s var(--ease); }
+.jf .scard:hover .im img { transform: scale(1.04); }
+.jf .scard .area { position: absolute; left: 20px; bottom: 16px; font-family: var(--en); font-weight: 700; font-size: clamp(32px, 4vw, 56px); letter-spacing: -.03em; line-height: 1; color: var(--white); text-shadow: 0 4px 24px rgba(0,0,0,.4); }
+.jf .scard .bd { padding: 28px; display: flex; flex-direction: column; gap: 18px; flex: 1; }
+.jf .scard .nm { font-family: var(--en); font-size: 15px; font-weight: 600; letter-spacing: .04em; color: var(--gray); }
+.jf .scard .nm b { font-family: var(--ja); font-size: 22px; color: var(--black); margin-left: 6px; }
+.jf .scard p { margin: 0; font-size: 14px; line-height: 1.9; color: var(--gray); }
+.jf .scard dl { margin: 0; display: flex; flex-direction: column; border-top: 1.5px solid var(--line); }
+.jf .scard dl div { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 12px; padding: 12px 0; border-bottom: 1.5px solid var(--line); font-size: 14px; }
+.jf .scard dt { font-family: var(--en); font-size: 11px; font-weight: 700; letter-spacing: .2em; color: var(--gray); padding-top: .35em; }
+.jf .scard dd { margin: 0; font-weight: 500; }
+.jf .scard .acts { display: flex; gap: 10px; flex-wrap: wrap; margin-top: auto; }
+.jf .scard .acts .btn { flex: 1 1 auto; }
+@media (max-width: 1100px) {
+  #engineer .wrap { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+  #engineer img { max-width: 240px; border-radius: 16px; }
+  .jf .stores { grid-template-columns: minmax(0, 1fr); }
+  .jf .gnav.top { display: none !important; }
+}
+@media (max-width: 640px) {
+  #engineer .name .h2 { font-size: 48px; }
+  #engineer img { max-width: 200px; }
+  .jf .elinks { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .jf .ewks .wk { grid-template-columns: 24px minmax(0, 1fr); } .jf .ewks .wl { grid-column: 2; justify-content: flex-start; }
+  .jf .scard .bd { padding: 20px; }
+  .jf .scard dl div { grid-template-columns: 80px minmax(0, 1fr); font-size: 13px; }
+  .jf .book-2 { width: 100%; flex-direction: column; }
+  .jf .book .book-2 .btn { width: 100%; }
 }

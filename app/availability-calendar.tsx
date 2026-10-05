@@ -17,8 +17,17 @@ const MARK: Record<DayStatus | "na", { m: string; cls: string; aria: string }> =
 const MONTHS = 2;
 const pad = (n: number) => String(n).padStart(2, "0");
 
-/** 1号店の空き状況（/api/availability がGoogleカレンダーから ○△× を返す）を2ヶ月分並べる */
-export function AvailabilityCalendar({ bookingUrl }: { bookingUrl: string }) {
+/**
+ * 空き状況（/api/availability が ○△× を返す）を2ヶ月分並べる。
+ * 練馬店は Googleカレンダー、池袋店は Square の空き枠から判定する。
+ */
+export function AvailabilityCalendar({ store, bookingUrl, closedWeekday, instagram, email }: {
+  store: "ikebukuro" | "nerima";
+  bookingUrl: string;
+  closedWeekday: number | null;
+  instagram: string;
+  email: string;
+}) {
   const [today, setToday] = useState<Date | null>(null);
   const [data, setData] = useState<MonthData | null>(null);
   const [state, setState] = useState<"loading" | "live" | "error">("loading");
@@ -32,7 +41,7 @@ export function AvailabilityCalendar({ bookingUrl }: { bookingUrl: string }) {
       const d = new Date(t.getFullYear(), t.getMonth() + m, 1);
       return `${d.getFullYear()}-${pad(d.getMonth() + 1)}`;
     });
-    Promise.all(keys.map((k) => fetch(`/api/availability?month=${k}`).then((r) => r.json())))
+    Promise.all(keys.map((k) => fetch(`/api/availability?month=${k}&store=${store}`).then((r) => r.json())))
       .then((res: { ok: boolean; days: MonthData }[]) => {
         if (!res.every((r) => r.ok)) throw new Error("unavailable");
         setData(Object.assign({}, ...res.map((r) => r.days)));
@@ -40,7 +49,7 @@ export function AvailabilityCalendar({ bookingUrl }: { bookingUrl: string }) {
         setUpdated(new Date().toLocaleString("ja-JP", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" }));
       })
       .catch(() => setState("error"));
-  }, []);
+  }, [store]);
 
   if (!today) return <div className="avmonths" style={{ minHeight: 360 }} />;
 
@@ -61,7 +70,7 @@ export function AvailabilityCalendar({ bookingUrl }: { bookingUrl: string }) {
                   const date = new Date(first.getFullYear(), first.getMonth(), d);
                   const past = date < today;
                   const key = `${first.getFullYear()}-${pad(first.getMonth() + 1)}-${pad(d)}`;
-                  const st = MARK[data?.[key] ?? (date.getDay() === 0 ? "closed" : "na")];
+                  const st = MARK[data?.[key] ?? (date.getDay() === closedWeekday ? "closed" : "na")];
                   const inner = <><span className="d">{d}</span><span className="m">{past ? "" : st.m}</span></>;
                   if (past) return <div key={d} className="avd past">{inner}</div>;
                   const label = `${first.getMonth() + 1}月${d}日 ${st.aria}`;
@@ -76,9 +85,9 @@ export function AvailabilityCalendar({ bookingUrl }: { bookingUrl: string }) {
       </div>
       <div className="av-note">
         日付をタップすると予約ページへ移動します。
-        <span>{state === "live" ? `（${updated} 時点・Googleカレンダーから自動反映）` : state === "error" ? "（最新の空き状況は予約ページでご確認ください）" : ""}</span>
+        <span>{state === "live" ? `（${updated} 時点）` : state === "error" ? "（最新の空き状況は予約ページでご確認ください）" : ""}</span>
         <br />
-        再来月以降のご予約は <a href="https://www.instagram.com/jfliponthegame/" target="_blank" rel="noopener noreferrer">Instagram DM</a> または <a href="mailto:jfliponthegame@gmail.com">メール</a> でお問い合わせください。
+        再来月以降のご予約は <a href={instagram} target="_blank" rel="noopener noreferrer">Instagram DM</a> または <a href={`mailto:${email}`}>メール</a> でお問い合わせください。
       </div>
     </>
   );

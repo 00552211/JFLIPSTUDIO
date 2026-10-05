@@ -12,11 +12,11 @@ type SearchAvailabilityResponse = {
   errors?: { detail?: string }[];
 };
 
-/** 2号店のSquareアカウント。トークン類はサーバー側の環境変数のみ（NEXT_PUBLIC_ を付けない） */
-const STORE2_CLOSED_WEEKDAY: number | null = null; // 2号店の定休日は未確定
+/** 池袋店（旧2号店）のSquare。トークン類はサーバー側の環境変数のみ（NEXT_PUBLIC_ を付けない） */
+const STORE2_CLOSED_WEEKDAY: number | null = null; // 池袋店は定休日なし（不定休）
 
 /**
- * 2号店のSquare Bookingsから空き枠を取得し、日付ごとに ◎ / △ / × へ集計する。
+ * 池袋店のSquare Bookingsから空き枠を取得し、日付ごとに ◎ / △ / × へ集計する。
  * 空き枠の検索には最短プラン（60分）のサービスバリエーションIDを使う。
  */
 export async function fetchStore2Availability(
@@ -27,7 +27,7 @@ export async function fetchStore2Availability(
   const locationId = process.env.SQUARE2_LOCATION_ID;
   const serviceVariationId = process.env.SQUARE2_SERVICE_VARIATION_ID;
   if (!token || !locationId || !serviceVariationId) {
-    throw new Error("2号店のSquare環境変数が未設定です");
+    throw new Error("池袋店のSquare環境変数が未設定です");
   }
 
   // Square は過去日を start_at に指定すると拒否するため、startAt が過去なら現在時刻を起点にする
