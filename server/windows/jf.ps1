@@ -7,9 +7,15 @@
 #   tasks                   scheduled task states
 #   setup-check             which setup phases are done (JSON)
 #   archive-dryrun          what archive-completed would do now
+#   disks                   physical disks + volumes (for choosing D:/E:)
+#   migration-progress      how much of the Dropbox data is already on E:
+#   open <page>             open a Windows settings page for the owner: windowsupdate | diskmgmt | taskschd | autologon
 # Changes something (Claude must ask the user first):
 #   run <task>              start a scheduled task now: backup-nightly | archive-completed | mixdown-to-complete
 #   mark-done <Client/Project>   create _DONE in a work project (it will be archived at the next archive run)
+#   rclone-login            connect rclone to Dropbox (opens the browser for the owner to log in)
+#   start-migration         start the Dropbox -> E: copy in its own window (keeps running after Claude stops)
+#   mac-kit                 put the Mac installer (with this server's IP filled in) on the share
 
 param([Parameter(Position = 0)][string]$Command = 'status',
       [Parameter(Position = 1)][string]$Arg1,
@@ -116,21 +122,69 @@ function Get-SetupCheck {
     $claude = Get-Command claude -ErrorAction SilentlyContinue
     [ordered]@{
         '1_windows'   = [ordered]@{ computerName = $env:COMPUTERNAME; edition = (Get-CimInstance Win32_OperatingSystem).Caption
-                          sleepDisabled = [bool]((powercfg /query SCHEME_CURRENT SUB_SLEEP STANDBYIDLE) -match 'AC.*0x00000000') }
+                          sleepDisabled = [bool]((powercfg /query SCHEME_CURRENT SUB_SLEEP STANDBYIDLE) -match 'AC.*0x00000000')
+                          autologon = ((Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon' -ErrorAction SilentlyContinue).AutoAdminLogon -eq '1')
+                          git = [bool](Get-Command git -ErrorAction SilentlyContinue)
+                          wired = [bool](Get-NetAdapter -Physical -ErrorAction SilentlyContinue | Where-Object { $_.Status -eq 'Up' -and $_.MediaType -notmatch '802\.11|Wireless' })
+                          ip = (Get-ServerIP) }
         '2_disks'     = [ordered]@{ D_ntfs = (& $vol 'D'); E_ntfs = (& $vol 'E') }
         '3_server'    = [ordered]@{ folders = (Test-Path $JF.Work) -and (Test-Path $JF.Archive) -and (Test-Path $JF.System)
                           shareUser = [bool](Get-LocalUser -Name 'jflipnas' -ErrorAction SilentlyContinue)
                           shares = @(@(Get-SmbShare -Name 'JFLIP*' -ErrorAction SilentlyContinue | ForEach-Object Name) +
                                      @((net share 2>$null) -match '^JFLIP' | ForEach-Object { ($_ -split '\s+')[0] }) | Sort-Object -Unique) }
-        '4_mac'       = [ordered]@{ macHasSynced = Test-Path (Join-Path $JF.System 'mac-last-sync.txt'); smbSessions = @(Get-SmbSession -ErrorAction SilentlyContinue).Count }
+        '4_mac'       = [ordered]@{ macKitReady = Test-Path (Join-Path $JF.System 'mac-setup\recsync.conf'); macHasSynced = Test-Path (Join-Path $JF.System 'mac-last-sync.txt'); smbSessions = @(Get-SmbSession -ErrorAction SilentlyContinue).Count }
         '5_migration' = [ordered]@{ rcloneExe = Test-Path $JF.RcloneExe; dropboxRemote = $remoteOk
-                          started = ($mig.Count -gt 0); allOk = [bool]($mig | Select-String -SimpleMatch 'ALL OK' -Quiet)
+                          running = [bool](Get-MigrationProcess); started = ($mig.Count -gt 0); allOk = [bool]($mig | Select-String -SimpleMatch 'ALL OK' -Quiet)
                           lastLines = @($mig | Select-Object -Last 4) }
         '6_dropboxApp' = [ordered]@{ running = [bool](Get-Process -Name Dropbox -ErrorAction SilentlyContinue); folder = $dbxPath
                           folderOnD = [bool]($dbxPath -like 'D:\*'); completeLocal = Test-Path $JF.CompleteDir
                           recordingSyncedLocally = [bool]($dbxPath -and (Test-Path (Join-Path $dbxPath 'Recording'))) }
         '8_tasks'     = @(Get-TaskInfoList)
         'claude'      = [ordered]@{ installed = [bool]$claude }
+    }
+}
+
+
+function Get-ServerIP {
+    (Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.PrefixOrigin -in 'Dhcp', 'Manual' -and $_.IPAddress -notlike '169.*' } |
+        Select-Object -First 1).IPAddress
+}
+
+function Get-MigrationProcess {
+    Get-CimInstance Win32_Process -Filter "Name = 'powershell.exe'" -ErrorAction SilentlyContinue |
+        Where-Object { $_.CommandLine -match 'migrate-dropbox\.ps1' }
+}
+
+function Get-MigrationProgress {
+    $cache = Join-Path $JF.Logs 'migrate-source-sizes.json'
+    $sources = @{ 'Recording' = $JF.Archive }
+    foreach ($f in 'Complete', 'Deliver', 'RecData', 'BackUp', 'Songs', 'R2M', 'Template', 'STUDIO BEAT', 'INM PARA') {
+        $sources[$f] = "E:\JFLIPSTUDIO\Archive\Dropbox\$f"
+    }
+    $sizes = @{}
+    if (Test-Path $cache) { (Get-Content $cache -Raw -Encoding UTF8 | ConvertFrom-Json).PSObject.Properties | ForEach-Object { $sizes[$_.Name] = $_.Value } }
+    else {
+        foreach ($k in $sources.Keys) {
+            $j = & $JF.RcloneExe --config $JF.RcloneConf size "dropbox:$k" --json 2>$null
+            if ($LASTEXITCODE -eq 0 -and $j) { $sizes[$k] = ($j | ConvertFrom-Json).bytes }
+        }
+        [System.IO.File]::WriteAllText($cache, ($sizes | ConvertTo-Json), $enc)
+    }
+    $rows = foreach ($k in ($sources.Keys | Sort-Object)) {
+        $local = (Get-JFFiles $sources[$k] | Measure-Object Length -Sum).Sum
+        if (-not $local) { $local = 0 }
+        $remote = $sizes[$k]
+        [pscustomobject]@{ folder = $k; dropboxGB = if ($remote) { [math]::Round($remote / 1GB, 1) } else { $null }
+            onEGB = [math]::Round($local / 1GB, 1); pct = if ($remote) { [math]::Min(100, [math]::Round(100 * $local / $remote)) } else { $null } }
+    }
+    $totR = ($rows | Measure-Object dropboxGB -Sum).Sum; $totL = ($rows | Measure-Object onEGB -Sum).Sum
+    [pscustomobject]@{
+        running = [bool](Get-MigrationProcess)
+        totalDropboxGB = $totR; totalOnEGB = $totL
+        totalPct = if ($totR) { [math]::Round(100 * $totL / $totR) } else { $null }
+        verified = [bool]((Get-LogTail 'migrate' 2000) | Select-String -SimpleMatch 'ALL OK' -Quiet)
+        folders = @($rows)
+        lastLog = @(Get-LogTail 'migrate' 5)
     }
 }
 
@@ -154,5 +208,57 @@ switch ($Command) {
         Write-JFLog 'archive' "MARK  $Arg1 marked done from the server"
         "marked done: $Arg1 (archived at the next archive-completed run, after $($JF.QuietMinutes) quiet minutes)"
     }
-    default { throw "unknown command: $Command  (status|setup-check|tasks|logs|archive-dryrun|run|mark-done)" }
+    'disks' {
+        try {
+            Get-Disk -ErrorAction Stop | Sort-Object Number | ForEach-Object {
+                $letters = (Get-Partition -DiskNumber $_.Number -ErrorAction SilentlyContinue | Where-Object DriveLetter | ForEach-Object { "$($_.DriveLetter):" }) -join ' '
+                '#{0}  {1,-38} {2,6:N0} GB  {3,-4} boot={4}  {5}' -f $_.Number, $_.FriendlyName, ($_.Size / 1GB), $_.PartitionStyle, $_.IsBoot, $letters
+            }
+        } catch {
+            'Get-Disk needs administrator rights here. Showing physical disks instead:'
+            Get-PhysicalDisk | Sort-Object DeviceId | ForEach-Object { '#{0}  {1,-38} {2,6:N0} GB  {3}  health={4}' -f $_.DeviceId, $_.FriendlyName, ($_.Size / 1GB), $_.MediaType, $_.HealthStatus }
+        }
+    }
+    'migration-progress' { Get-MigrationProgress | ConvertTo-Json -Depth 4 }
+    'open' {
+        $target = @{ windowsupdate = 'ms-settings:windowsupdate'; diskmgmt = 'diskmgmt.msc'; taskschd = 'taskschd.msc'
+                     autologon = 'Autologon64.exe'; about = 'ms-settings:about'; dropbox = 'Dropbox' }[$Arg1]
+        if (-not $target) { throw 'open: windowsupdate | diskmgmt | taskschd | autologon | about | dropbox' }
+        if ($Arg1 -eq 'autologon') {
+            $exe = Get-ChildItem "$env:LOCALAPPDATA\Microsoft\WinGet\Packages", "$env:ProgramFiles\WinGet\Packages" -Recurse -Filter 'Autologon64.exe' -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($exe) { $target = $exe.FullName }
+        }
+        Start-Process $target
+        "opened $Arg1"
+    }
+    'rclone-login' {
+        if (-not (Test-Path $JF.RcloneExe)) { throw "rclone not found at $($JF.RcloneExe) - run setup-windows.ps1 first" }
+        $has = (& $JF.RcloneExe --config $JF.RcloneConf listremotes 2>$null) -match '^dropbox:$'
+        if ($has) { & $JF.RcloneExe --config $JF.RcloneConf config reconnect dropbox: --auto-confirm }
+        else { & $JF.RcloneExe --config $JF.RcloneConf config create dropbox dropbox }
+        "check: " + ((& $JF.RcloneExe --config $JF.RcloneConf lsd dropbox: --max-depth 1 2>&1 | Select-Object -First 5) -join '; ')
+    }
+    'start-migration' {
+        if (Get-MigrationProcess) { 'migration is already running'; break }
+        if (-not (Test-Path 'E:\JFLIPSTUDIO\Archive')) { throw 'E:\JFLIPSTUDIO\Archive missing - run setup-server.ps1 first' }
+        Start-Process -FilePath "$env:WINDIR\System32\WindowsPowerShell\v1.0\powershell.exe" -WindowStyle Minimized `
+            -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$PSScriptRoot\migrate-dropbox.ps1`""
+        'migration started in its own (minimized) window. Do not close it. Progress: jf.ps1 migration-progress'
+    }
+    'mac-kit' {
+        $ip = Get-ServerIP
+        $kit = Join-Path $JF.System 'mac-setup'
+        [System.IO.Directory]::CreateDirectory($kit) | Out-Null
+        $macDir = Join-Path (Split-Path $PSScriptRoot -Parent) 'mac'
+        foreach ($f in 'install-mac.sh', 'jflip-recsync.sh', 'jflip-done.sh') {
+            $text = [System.IO.File]::ReadAllText((Join-Path $macDir $f), $enc) -replace "`r`n", "`n"
+            [System.IO.File]::WriteAllText((Join-Path $kit $f), $text, $enc)
+        }
+        [System.IO.File]::WriteAllText((Join-Path $kit 'recsync.conf'), "SERVER=`"$ip`"`n", $enc)
+        "Mac kit ready (server IP $ip). On the Mac:"
+        "  1. Finder > Go > Connect to Server > smb://$ip/JFLIPSTUDIO  (user jflipnas, save password in Keychain)"
+        "  2. brew install rsync"
+        "  3. bash /Volumes/JFLIPSTUDIO/_system/mac-setup/install-mac.sh"
+    }
+    default { throw "unknown command: $Command  (status|setup-check|tasks|logs|archive-dryrun|disks|migration-progress|open|run|mark-done|rclone-login|start-migration|mac-kit)" }
 }

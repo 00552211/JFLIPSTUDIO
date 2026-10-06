@@ -30,6 +30,11 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File windows/jf.ps1 <command>
 | `archive-dryrun` | 読み取り | 今 Archive を実行したら何が起きるか |
 | `run <task>` | **変更** | `backup-nightly` / `archive-completed` / `mixdown-to-complete` を今すぐ実行 |
 | `mark-done <顧客/案件>` | **変更** | 案件に `_DONE` を付ける（次回の Archive 対象になる） |
+| `disks` / `migration-progress` | 読み取り | ディスク一覧 / Dropbox→E: 移行の進み具合 |
+| `open <page>` | 画面を開く | `windowsupdate` `diskmgmt` `taskschd` `autologon` `about` `dropbox` |
+| `rclone-login` / `start-migration` / `mac-kit` | **変更** | 構築用（`/jf-setup` 参照） |
+
+管理者権限が必要な構築スクリプトは `powershell.exe -NoProfile -ExecutionPolicy Bypass -File windows/elevate.ps1 <setup-windows.ps1|prepare-disks.ps1|setup-server.ps1|register-tasks.ps1> [引数]`（UAC が出る）。
 
 ## 絶対のルール
 
@@ -37,7 +42,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File windows/jf.ps1 <command>
 2. **同期で消さない。** `rclone sync` / `move` / `delete` / `purge`、`robocopy /MIR` / `/PURGE` は使わない。rclone を使う場合は `copy` / `check` / `size` / `lsd` / `ls` のみ。
 3. **E: (Archive) と Dropbox 上の Recording / Complete は読むだけ。**
 4. **「変更」の操作は、何が起きるかを説明してオーナーの「OK」をもらってから。** `archive-completed` は先に `archive-dryrun` の結果を見せる。
-5. ディスクのフォーマット・初期化、パーティション操作、ユーザー/共有/ファイアウォールの変更は行わない。必要なら手順を示してオーナーに実行してもらう（`setup-server.ps1` はパスワード入力があるのでオーナーが実行する）。
+5. 管理者権限の作業（Windows 設定・ディスクの初期化・共有/ユーザー/ファイアウォール・タスク登録）は、**構築時に `/jf-setup` の手順で、`windows/elevate.ps1` 経由の決められたスクリプトだけ** を使う。その場で管理者コマンドを自作しない。ディスク番号は必ずオーナーと容量・モデル名で確認し、推測しない。パスワードはチャットで受け取らず、管理者ウィンドウやアプリにオーナーが直接入力する。
 6. スクリプト (`windows\*.ps1`, `mac\*.sh`) を書き換える必要があると思ったら、変更内容を説明して承認を得てから。Windows 用 .ps1 は ASCII のみで書く（PowerShell 5.1 の文字化け対策）。
 7. 推測で「大丈夫です」と言わない。ログや `status` で確認した事実だけを伝える。分からなければ分からないと言う。
 

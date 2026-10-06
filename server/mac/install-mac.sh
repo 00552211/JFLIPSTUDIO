@@ -11,6 +11,10 @@ LABEL="com.jflipstudio.recsync"
 
 mkdir -p "$BIN" "$HOME/JFLIPSTUDIO/logs" "$HOME/Music/JFLIPSTUDIO/Recording" "$HOME/Library/LaunchAgents"
 cp "$HERE/jflip-recsync.sh" "$HERE/jflip-done.sh" "$BIN/"
+# server IP written by the server's "jf.ps1 mac-kit"
+if [ -f "$HERE/recsync.conf" ] && [ ! -f "$HOME/JFLIPSTUDIO/recsync.conf" ]; then
+    cp "$HERE/recsync.conf" "$HOME/JFLIPSTUDIO/recsync.conf"
+fi
 chmod +x "$BIN/"*.sh
 
 [ -x /opt/homebrew/bin/rsync ] || [ -x /usr/local/bin/rsync ] || \

@@ -20,6 +20,30 @@ Windows PC を「JFLIPSTUDIO の自宅サーバー」(NAS / REC管理 / 自動�
 
 ---
 
+## ★ Claude に構築してもらう（おすすめ）
+
+以下の Phase 1〜8 は、Windows の **Claude デスクトップアプリ（Code）** がコマンドを実行して進められます。あなたがやるのは「OK」と、Windows の管理者確認（UAC）で「はい」、それとパスワード入力・BIOS・Mac での操作など人にしかできない部分だけです。
+
+1. PowerShell で Git を入れる（Claude Code が Windows で動くのに必要）→ Claude アプリを再起動:
+
+   ```powershell
+   winget install Git.Git
+   ```
+
+2. エクスプローラーで `C:\JFLIPSTUDIO` フォルダを作る → Claude アプリ → **Code** → フォルダに `C:\JFLIPSTUDIO` を選ぶ。
+3. 次の文をそのまま貼り付けて送る:
+
+   > GitHub の 00552211/jflipstudio リポジトリを、ブランチ ccr-a495d7e7-qzkz26 で C:\JFLIPSTUDIO\repo に git clone して（GitHub のログインが必要ならブラウザで私がやります）。終わったら repo の server フォルダを C:\JFLIPSTUDIO\server にコピーして、中身を一覧で見せて。
+
+4. コピーが終わったら、Code で **`C:\JFLIPSTUDIO\server` を開き直し**、`/jf-setup` と送る。
+   → Claude が今の状態を調べ、Windows 設定 → ディスク → 共有 → Mac → Dropbox 移行 → Dropbox アプリ → 自動タスク の順に、1ステップずつ実行・確認していきます。途中で再起動しても `/jf-setup` で続きから再開できます。
+
+権限モードは **「毎回確認」** のままにしてください（許可を全部スキップするモードは使わない）。ディスクの消去が必要な場合は、Claude ではなくあなたが管理者ウィンドウに `ERASE <番号>` と打たない限り何も消えません。
+
+以下の各 Phase は、Claude が裏でやっていることの説明（手動でやる場合の手順）です。
+
+---
+
 ## 0. 今の Dropbox の状況（確認済み）
 
 | Dropbox フォルダ | 容量 | 中身 |
@@ -436,6 +460,9 @@ HASS.Agent 側では「カスタムコマンド」として `schtasks /run /tn \
 | `windows/mixdown-to-complete.ps1` | タスク (10分ごと) | Mixdown → Dropbox/Complete |
 | `windows/backup-nightly.ps1` | タスク (02:00) | D: → E: と Dropbox |
 | `windows/archive-completed.ps1` | タスク (05:00) | `_DONE` 案件を検証付きで Archive |
+| `windows/elevate.ps1` | Claude | 構築用スクリプトを管理者として実行（UAC）し、結果を Claude に返す |
+| `windows/setup-windows.ps1` | 管理者 (1回) | PC 名・電源・Update 時間・Git/rclone/CrystalDiskInfo/Autologon 導入・LAN/ディスク/BitLocker 確認 |
+| `windows/prepare-disks.ps1` | 管理者 (1回) | 2TB SSD → D:, 3TB HDD → E:（Windows ディスクは拒否、既存データは ERASE 入力が必要） |
 | `windows/jf.ps1` | Claude / 人 | 状態取得・ログ・ドライラン・タスク即時実行・`_DONE` 付与の窓口 |
 | `windows/daily-report.ps1` + `daily-report-prompt.md` | タスク (08:00) | Claude による朝のレポート |
 | `CLAUDE.md` | Claude Code | サーバー管理のルール（削除禁止など） |

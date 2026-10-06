@@ -5,7 +5,9 @@
       "Bash(powershell.exe -NoProfile -ExecutionPolicy Bypass -File windows/jf.ps1 setup-check*)",
       "Bash(powershell.exe -NoProfile -ExecutionPolicy Bypass -File windows/jf.ps1 tasks*)",
       "Bash(powershell.exe -NoProfile -ExecutionPolicy Bypass -File windows/jf.ps1 logs *)",
-      "Bash(powershell.exe -NoProfile -ExecutionPolicy Bypass -File windows/jf.ps1 archive-dryrun*)"
+      "Bash(powershell.exe -NoProfile -ExecutionPolicy Bypass -File windows/jf.ps1 archive-dryrun*)",
+      "Bash(powershell.exe -NoProfile -ExecutionPolicy Bypass -File windows/jf.ps1 disks*)",
+      "Bash(powershell.exe -NoProfile -ExecutionPolicy Bypass -File windows/jf.ps1 migration-progress*)"
     ],
     "deny": [
       "Bash(*rclone* sync*)",
