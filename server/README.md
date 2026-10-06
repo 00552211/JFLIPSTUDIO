@@ -243,7 +243,7 @@ powershell -ExecutionPolicy Bypass -File C:\JFLIPSTUDIO\server\windows\register-
 | `mixdown-to-complete` | 10分ごと | `Work\Recording\<顧客>\<案件>\Mixdown\*.wav` → `D:\Dropbox\Complete\<顧客>\`。書き直された WAV は上書き（Dropbox の履歴に旧版が残る） |
 | `backup-nightly` | 毎日 02:00 | D: Work → E: Backup\Work（robocopy）、D: Work → Dropbox:/Recording（rclone）。`D:\JFLIPSTUDIO\_system\server-status.txt` に空き容量と「60日放置の案件」を書き出し |
 | `archive-completed` | 毎日 05:00 | `_DONE` のある案件だけ: E: Archive へコピー → SHA256 で全ファイル照合 → Dropbox へコピー＆照合 → 両方 OK なら D: と Backup\Work から削除し `archived.txt` に記録 |
-| `daily-report` | 毎日 08:00 | Claude が状態をまとめて Dropbox\JFLIPSTUDIO_Reports に保存（Phase 10.5） |
+| `daily-report` | 毎日 08:00 | Claude が状態をまとめて Dropbox\Server_Reports に保存（Phase 10.5） |
 
 動作テスト:
 
@@ -357,7 +357,40 @@ claude remote-control
 
 ### 毎朝のレポート
 
-`register-tasks.ps1` が 08:00 のタスク `daily-report` も登録します。Claude が状態を読んで `D:\Dropbox\JFLIPSTUDIO_Reports\YYYY-MM-DD.md` に書くので、**スマホの Dropbox アプリで毎朝確認**できます（Mac からは `JFLIPSTUDIO` 共有の `_system/daily-report.md`）。Claude が使えないときは生の状態データが書かれるので、レポートが来ない日はそれ自体が異常のサインです。
+`register-tasks.ps1` が 08:00 のタスク `daily-report` も登録します。Claude が状態を読んで `D:\Dropbox\Server_Reports\YYYY-MM-DD.md` に書くので、**スマホの Dropbox アプリで毎朝確認**できます（Mac からは `JFLIPSTUDIO` 共有の `_system/daily-report.md`）。Claude が使えないときは生の状態データが書かれるので、レポートが来ない日はそれ自体が異常のサインです。
+
+---
+
+## 2号店（HN・東長崎）
+
+2号店にはサーバーを置かず、**2号店の Mac から VPN（Tailscale）経由で本店のサーバーへ送る**構成です。光回線なので、録音後の送信は普通のセッションなら数分〜数十分で済みます。
+
+```
+ 2号店 Mac（録音は内蔵SSD）
+   │ 15分ごと・コピーのみ（本店と同じ同期スクリプト）
+   │ Tailscale（暗号化 VPN。ルーター設定不要・インターネットに共有を公開しない）
+   ▼
+ 本店サーバー D:\JFLIPSTUDIO\Work\Recording\<顧客>\<YYMMDD_HN番号>\
+   → 以降は本店と全く同じ（Mixdown → Complete、夜間バックアップ、_DONE で Archive）
+```
+
+**案件名のルール（重要）**: 2号店の案件は必ず `YYMMDD_HN<番号>`（例 `260924_HN1`）。本店の `260924_1` と同じ顧客フォルダに並んでも混ざりません。2号店の Mac は、名前に `_HN<番号>` が無い案件を **送らずに止め**、`~/Music/JFLIPSTUDIO/_NAME_CHECK.txt` に一覧を出します（フォルダ名を直せば次回から自動で送られる。Mac 上のデータには触らない）。
+
+**セットアップ**（本店サーバーが Phase 8 まで動いてから。`/jf-setup` の Step 4b で Claude が案内）:
+1. 本店サーバーに Tailscale を入れてログイン（`winget install -e --id Tailscale.Tailscale`）
+2. サーバーの Claude に「2号店の Mac キットを作って」→ `jf.ps1 mac-kit HN`（Tailscale の IP と店舗コードを書いたインストーラを共有に置く）
+3. 2号店の Mac: Tailscale（Mac App Store）を **同じアカウント** でログイン → Finder で `smb://100.x.x.x/JFLIPSTUDIO` に接続（`jflipnas`、キーチェーンに保存）→ `brew install rsync` → `bash /Volumes/JFLIPSTUDIO/_system/mac-setup-HN/install-mac.sh`
+4. 2号店の Studio One の保存先も `~/Music/JFLIPSTUDIO/Recording`
+
+**監視**: 朝のレポートとサーバーの状態に、店舗ごとの「Mac の最終同期」が出ます（`main` / `HN`）。2号店の Mac から本店サーバーに届かない日（Tailscale 切れ・回線障害）も、録音は Mac 内蔵 SSD に残っているので安全。つながった時点で自動で送られます。
+
+**将来**: 2号店の録音量が増えたら、2号店にも同じサーバーを置き（`config.ps1` だけ店舗用に変える）、お互いの Archive をコピーし合う構成に拡張できます（相互に「別の場所のバックアップ」になる）。
+
+## スタジオ名の変更（JFLIPSTUDIO → CONNECT Studio）
+
+名前が変わったら `windows\config.ps1` の `StudioName = 'JFLIPSTUDIO'` を `'CONNECT Studio'` に変えるだけで、朝のレポートや状態表示の名前が切り替わります。サーバーの Claude に「スタジオ名を CONNECT Studio に変えて」と頼めば、その1行を確認つきで変更します。
+
+フォルダ名・共有名・Mac 側のパス（`D:\JFLIPSTUDIO`、`\\SERVER\JFLIPSTUDIO`、`~/Music/JFLIPSTUDIO` など）は**内部の識別名なので変えません**。変えると、両店舗の Mac・自動タスク・保存済みデータの場所をすべて移し替える必要があり、その作業自体がデータ事故の原因になるためです。お客さんの目に触れるのは Dropbox の `Complete`（納品用）だけで、ここにはスタジオ名が入っていません。
 
 ---
 

@@ -1,6 +1,6 @@
 # JFLIPSTUDIO SERVER - morning report written by Claude (Task Scheduler, 08:00, runs as the logged-in user).
 # Claude gets NO tools here: it only reads the status JSON piped to it and writes a summary.
-# Output: <Dropbox>\JFLIPSTUDIO_Reports\YYYY-MM-DD.md (readable on the phone) and _system\daily-report.md (Mac).
+# Output: <Dropbox>\Server_Reports\YYYY-MM-DD.md (readable on the phone) and _system\daily-report.md (Mac).
 # If Claude is not installed or fails, a plain report is written instead, so a report always appears.
 
 $enc = New-Object System.Text.UTF8Encoding($false)
@@ -8,7 +8,7 @@ $enc = New-Object System.Text.UTF8Encoding($false)
 $OutputEncoding = $enc
 . "$PSScriptRoot\config.ps1"
 
-$reportDir = Join-Path (Split-Path $JF.CompleteDir -Parent) 'JFLIPSTUDIO_Reports'
+$reportDir = $JF.ReportsDir
 [System.IO.Directory]::CreateDirectory($reportDir) | Out-Null
 $today = Get-Date -Format 'yyyy-MM-dd'
 
@@ -27,7 +27,7 @@ if ($claude) {
     } catch { $report = $null }
 }
 if (-not $report) {
-    $report = "# JFLIPSTUDIO SERVER $today`n`n(Claude report unavailable - raw status below)`n`n${fence}json`n$json`n$fence"
+    $report = "# $($JF.StudioName) SERVER $today`n`n(Claude report unavailable - raw status below)`n`n${fence}json`n$json`n$fence"
     Write-JFLog 'daily-report' 'claude unavailable - wrote raw report'
 } else {
     Write-JFLog 'daily-report' 'report written'

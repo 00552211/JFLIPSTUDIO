@@ -3,6 +3,14 @@
 # Keep this file ASCII-only: Windows PowerShell 5.1 reads BOM-less .ps1 as Shift_JIS.
 
 $JF = @{
+    # Shown in reports and messages. The studio is being renamed: change this one line to
+    # 'CONNECT Studio' when it happens. Folder/share names (JFLIPSTUDIO) are internal IDs and stay.
+    StudioName   = 'JFLIPSTUDIO'
+
+    # Stores whose Macs sync into this server. '' = main store (project names as before, e.g. 260924_1).
+    # Other stores must put their code in every project name (e.g. 260924_HN1) so names never collide.
+    Stores       = @('', 'HN')
+
     # D: 2TB SSD - active projects (Mac -> here), shared to the Mac as \\SERVER\JFLIPSTUDIO
     Root         = 'D:\JFLIPSTUDIO'
     Work         = 'D:\JFLIPSTUDIO\Work\Recording'
@@ -14,6 +22,7 @@ $JF = @{
 
     # Dropbox desktop app folder (selective sync: Complete only, NOT Recording)
     CompleteDir  = 'D:\Dropbox\Complete'
+    ReportsDir   = 'D:\Dropbox\Server_Reports'   # Claude's morning reports (readable on the phone)
 
     # rclone (talks to Dropbox directly, independent of the desktop app)
     RcloneExe    = 'C:\JFLIPSTUDIO\bin\rclone.exe'

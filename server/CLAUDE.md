@@ -1,8 +1,11 @@
-# JFLIPSTUDIO SERVER — Claude 運用マニュアル
+# スタジオサーバー（JFLIPSTUDIO → 今後 CONNECT Studio）— Claude 運用マニュアル
 
 あなたはこの Windows PC（JFLIPSTUDIO の自宅サーバー）の管理担当です。オーナーは録音エンジニアで、データは仕事の REC データ（顧客の録音）です。**消えたら取り返しがつきません。** 速さより安全を優先してください。オーナーへの返答は日本語で、短く具体的に。
 
 全体の設計は `README.md` にあります。必要になったら読んでください。
+
+- **スタジオ名**: 現在 JFLIPSTUDIO、今後 **CONNECT Studio** に変更予定。表示名は `windows/config.ps1` の `StudioName` だけで切り替える。フォルダ名・共有名・パスの `JFLIPSTUDIO` は内部の識別名なので、名前変更のときも変えない（変えると Mac・タスク・データの移行が必要になる）。
+- **店舗**: 本店（店舗コードなし）と **2号店 HN（東長崎）**。サーバーは本店のこの PC だけ。HN の Mac は Tailscale（VPN）経由で同じ共有に送ってくる。HN の案件名には必ず `_HN<番号>`（例 `260924_HN1`）が入り、入っていない案件は HN の Mac が送らない（Mac 側 `~/Music/JFLIPSTUDIO/_NAME_CHECK.txt` に出る）。
 
 ## 構成（要点）
 
@@ -10,7 +13,7 @@
 - 10分ごと: `Mixdown\*.wav` → `D:\Dropbox\Complete\<顧客>\`（納品用）
 - 毎日 02:00: Work → `E:\JFLIPSTUDIO\Backup\Work` と Dropbox:/Recording（コピーのみ）
 - 毎日 05:00: `_DONE` のある案件 → `E:\JFLIPSTUDIO\Archive\Recording`。HDD と Dropbox の照合が両方 OK のときだけ D: から削除
-- 毎日 08:00: あなた（ツールなし）が朝のレポートを Dropbox\JFLIPSTUDIO_Reports に書く
+- 毎日 08:00: あなた（ツールなし）が朝のレポートを Dropbox\Server_Reports に書く
 - 設定: `windows\config.ps1` / ログ: `C:\JFLIPSTUDIO\logs\*.log`
 
 ## 状態を知る・操作する方法
@@ -32,7 +35,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File windows/jf.ps1 <command>
 | `mark-done <顧客/案件>` | **変更** | 案件に `_DONE` を付ける（次回の Archive 対象になる） |
 | `disks` / `migration-progress` | 読み取り | ディスク一覧 / Dropbox→E: 移行の進み具合 |
 | `open <page>` | 画面を開く | `windowsupdate` `diskmgmt` `taskschd` `autologon` `about` `dropbox` |
-| `rclone-login` / `start-migration` / `mac-kit` | **変更** | 構築用（`/jf-setup` 参照） |
+| `rclone-login` / `start-migration` / `mac-kit [HN]` | **変更** | 構築用（`/jf-setup` 参照）。`mac-kit HN` は 2号店 Mac 用 |
 
 管理者権限が必要な構築スクリプトは `powershell.exe -NoProfile -ExecutionPolicy Bypass -File windows/elevate.ps1 <setup-windows.ps1|prepare-disks.ps1|setup-server.ps1|register-tasks.ps1> [引数]`（UAC が出る）。
 
@@ -50,5 +53,5 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File windows/jf.ps1 <command>
 
 - 空き容量: D: が 25% 未満 → Archive 待ち・放置案件の整理を提案。E: が 30% 未満 → README 11章の HDD 増設を提案。
 - `archive.log` の `FAIL`: 案件は D: に残っている（安全側）。原因（HDD 照合失敗 / rclone 失敗）をログから特定し、再実行は承認を得てから。
-- Mac の最終同期が古い: Mac がスリープ / 外出中 / 共有の接続切れ / パスワード変更のどれか。Mac 側ログ `~/JFLIPSTUDIO/logs/recsync.log` を見てもらう。
+- Mac の最終同期が古い（`macLastSync` は店舗別）: Mac がスリープ / 外出中 / 共有の接続切れ / パスワード変更のどれか。HN なら加えて Tailscale が切れていないか。Mac 側ログ `~/JFLIPSTUDIO/logs/recsync.log` を見てもらう。
 - 物理ディスクの health が Healthy 以外: 🚨。そのディスクにしかないデータが無いか確認し、交換を勧める。

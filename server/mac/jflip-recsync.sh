@@ -21,6 +21,7 @@ DEST_SUBDIR="Work/Recording"
 SETTLE_MIN=2
 DAW_REGEX="Studio One|Fender Studio|Logic Pro|Pro Tools|Ableton Live|Cubase"
 MIXDOWN_WHILE_DAW=1            # 1 = still send Mixdown/ while the DAW is open
+STORE=""                       # "" = main store. Other stores (e.g. HN): project names must contain _HN<number>
 STATE_DIR="$HOME/JFLIPSTUDIO"
 [ -f "$STATE_DIR/recsync.conf" ] && . "$STATE_DIR/recsync.conf"
 
@@ -75,6 +76,31 @@ nfc() { iconv -f UTF-8-MAC -t UTF-8 2>/dev/null; }   # Mac (NFD) names -> NFC fo
 # files still being written
 ( cd "$SRC" && find . -type f -mmin "-$SETTLE_MIN" | sed 's#^\./#/#' | esc ) >> "$EXCL"
 
+# other stores: projects without the store code in their name are held back, so a
+# 260924_1 recorded here can never mix with 260924_1 from the main store on the server
+NAMECHECK="$HOME/Music/JFLIPSTUDIO/_NAME_CHECK.txt"
+if [ -n "$STORE" ]; then
+    : > "$TMP/badnames.txt"
+    for proj in "$SRC"/*/*/; do
+        [ -d "$proj" ] || continue
+        rel="${proj#$SRC/}"; rel="${rel%/}"
+        case "$(basename "$rel")" in
+            *_"$STORE"[0-9]*) ;;
+            *) printf '/%s/\n' "$rel" | esc >> "$EXCL"; echo "$rel" >> "$TMP/badnames.txt" ;;
+        esac
+    done
+    if [ -s "$TMP/badnames.txt" ]; then
+        {
+            echo "# These projects are NOT being sent to the server: the name must contain _${STORE} + number"
+            echo "# (e.g. 260924_${STORE}1). Rename the project folder, then they are sent automatically."
+            cat "$TMP/badnames.txt"
+        } > "$NAMECHECK"
+        log "NAME CHECK: $(wc -l < "$TMP/badnames.txt" | tr -d ' ') project(s) held back - see $NAMECHECK"
+    else
+        rm -f "$NAMECHECK"
+    fi
+fi
+
 # archived projects: skip them only if this Mac copy is identical to the server archive
 ARCHIVED="$MNT/_system/archived.txt"
 : > "$TMP/safe.txt"
@@ -125,7 +151,7 @@ taskpolicy -b nice -n 15 "$RSYNC" "${OPTS[@]}" "${FILTER[@]}" "$SRC/" "$DEST/" >
 rc=$?
 if [ $rc -eq 0 ]; then
     log "sync OK ($MODE)"
-    echo "$(date '+%Y-%m-%dT%H:%M:%S') $MODE $(scutil --get ComputerName 2>/dev/null)" > "$MNT/_system/mac-last-sync.txt" 2>/dev/null
+    echo "$(date '+%Y-%m-%dT%H:%M:%S') $MODE $(scutil --get ComputerName 2>/dev/null)" > "$MNT/_system/mac-last-sync${STORE:+-$STORE}.txt" 2>/dev/null
     [ "$MODE" = "full" ] && date '+%Y-%m-%d %H:%M:%S' > "$STATE_DIR/last-full-sync.txt"
 else
     log "sync FAILED rc=$rc ($MODE)"

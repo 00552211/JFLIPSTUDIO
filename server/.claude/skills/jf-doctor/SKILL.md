@@ -11,7 +11,7 @@ description: JFLIPSTUDIO SERVER のトラブル調査。バックアップ失敗
 | 症状 | 確認すること |
 |---|---|
 | Mixdown が Complete に来ない | `logs mixdown`。その案件が `work.projects` にあるか（無ければ Mac から未同期 → `macLastSync`）。拡張子が `.wav` か。書き出しから 3 分以内でないか。Dropbox アプリが動いているか |
-| Mac から同期されない | `macLastSync`。古ければ Mac 側 `~/JFLIPSTUDIO/logs/recsync.log` の末尾をオーナーに貼ってもらう。`could not mount` → 共有/パスワード/IP、`Operation not permitted` → フルディスクアクセス、`DAW running` → 正常（Mixdown のみ送信中） |
+| Mac から同期されない | `macLastSync`（店舗別。`main` / `HN`）。HN の場合は両方の Tailscale がオンか、`_NAME_CHECK.txt` に案件が出ていないか（案件名に `_HN<番号>` が無いと送られない）。古ければ Mac 側 `~/JFLIPSTUDIO/logs/recsync.log` の末尾をオーナーに貼ってもらう。`could not mount` → 共有/パスワード/IP、`Operation not permitted` → フルディスクアクセス、`DAW running` → 正常（Mixdown のみ送信中） |
 | backup FAILED | `logs backup` と `logs backup-robocopy` / `backup-rclone`。robocopy exit 8 以上 = コピー失敗（容量・権限・ディスク）。rclone = 回線/トークン切れ（`rclone config reconnect dropbox:` をオーナーに案内） |
 | archive FAIL | `logs archive`。`missing/size/hash differs` = HDD 書き込みの問題 → ディスク健康を確認。`rclone ... FAIL` = Dropbox 側。どちらも案件は D: に残っていて安全 |
 | 容量不足 | `drives`。D: なら Archive 待ち/放置案件の整理（/jf-archive）。E: なら README 11章の増設 |

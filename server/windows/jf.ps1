@@ -15,7 +15,7 @@
 #   mark-done <Client/Project>   create _DONE in a work project (it will be archived at the next archive run)
 #   rclone-login            connect rclone to Dropbox (opens the browser for the owner to log in)
 #   start-migration         start the Dropbox -> E: copy in its own window (keeps running after Claude stops)
-#   mac-kit                 put the Mac installer (with this server's IP filled in) on the share
+#   mac-kit [STORE]         put the Mac installer (server IP + store code filled in) on the share
 
 param([Parameter(Position = 0)][string]$Command = 'status',
       [Parameter(Position = 1)][string]$Arg1,
@@ -85,8 +85,14 @@ function Get-Status {
     }
     $archivedFile = Join-Path $JF.System 'archived.txt'
     $archived = if (Test-Path -LiteralPath $archivedFile) { @([System.IO.File]::ReadAllLines($archivedFile, $enc) | Where-Object { $_ }) } else { @() }
-    $macSync = Join-Path $JF.System 'mac-last-sync.txt'
+    $macSync = [ordered]@{}
+    foreach ($f in Get-ChildItem -LiteralPath $JF.System -Filter 'mac-last-sync*.txt' -ErrorAction SilentlyContinue) {
+        $store = if ($f.BaseName -eq 'mac-last-sync') { 'main' } else { $f.BaseName.Substring('mac-last-sync-'.Length) }
+        $macSync[$store] = ([System.IO.File]::ReadAllText($f.FullName, $enc)).Trim()
+    }
+    foreach ($s in $JF.Stores) { $k = if ($s) { $s } else { 'main' }; if (-not $macSync.Contains($k)) { $macSync[$k] = $null } }
     [pscustomobject]@{
+        studioName    = $JF.StudioName
         generated     = (Get-Date).ToString('s')
         host          = $env:COMPUTERNAME
         drives        = @($drives)
@@ -94,7 +100,7 @@ function Get-Status {
         tasks         = @(Get-TaskInfoList)
         dropboxAppRunning = [bool](Get-Process -Name Dropbox -ErrorAction SilentlyContinue)
         smbSessions   = @(Get-SmbSession -ErrorAction SilentlyContinue | ForEach-Object { "$($_.ClientUserName) from $($_.ClientComputerName)" })
-        macLastSync   = if (Test-Path -LiteralPath $macSync) { ([System.IO.File]::ReadAllText($macSync, $enc)).Trim() } else { $null }
+        macLastSync   = $macSync   # per store: 'main', 'HN', ... (null = that store's Mac never synced)
         work          = [pscustomobject]@{
             projectCount = @($projects).Count
             totalGB      = [math]::Round((@($projects) | Measure-Object sizeGB -Sum).Sum, 1)
@@ -132,7 +138,7 @@ function Get-SetupCheck {
                           shareUser = [bool](Get-LocalUser -Name 'jflipnas' -ErrorAction SilentlyContinue)
                           shares = @(@(Get-SmbShare -Name 'JFLIP*' -ErrorAction SilentlyContinue | ForEach-Object Name) +
                                      @((net share 2>$null) -match '^JFLIP' | ForEach-Object { ($_ -split '\s+')[0] }) | Sort-Object -Unique) }
-        '4_mac'       = [ordered]@{ macKitReady = Test-Path (Join-Path $JF.System 'mac-setup\recsync.conf'); macHasSynced = Test-Path (Join-Path $JF.System 'mac-last-sync.txt'); smbSessions = @(Get-SmbSession -ErrorAction SilentlyContinue).Count }
+        '4_mac'       = [ordered]@{ macKitReady = Test-Path (Join-Path $JF.System 'mac-setup\recsync.conf'); macHasSynced = Test-Path (Join-Path $JF.System 'mac-last-sync.txt'); hnKitReady = Test-Path (Join-Path $JF.System 'mac-setup-HN\recsync.conf'); hnHasSynced = Test-Path (Join-Path $JF.System 'mac-last-sync-HN.txt'); tailscaleIP = (Get-TailscaleIP); smbSessions = @(Get-SmbSession -ErrorAction SilentlyContinue).Count }
         '5_migration' = [ordered]@{ rcloneExe = Test-Path $JF.RcloneExe; dropboxRemote = $remoteOk
                           running = [bool](Get-MigrationProcess); started = ($mig.Count -gt 0); allOk = [bool]($mig | Select-String -SimpleMatch 'ALL OK' -Quiet)
                           lastLines = @($mig | Select-Object -Last 4) }
@@ -148,6 +154,13 @@ function Get-SetupCheck {
 function Get-ServerIP {
     (Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.PrefixOrigin -in 'Dhcp', 'Manual' -and $_.IPAddress -notlike '169.*' } |
         Select-Object -First 1).IPAddress
+}
+
+function Get-TailscaleIP {
+    $ts = Get-Command tailscale -ErrorAction SilentlyContinue
+    if (-not $ts) { $c = "$env:ProgramFiles\Tailscale\tailscale.exe"; if (Test-Path $c) { $ts = $c } else { return $null } }
+    $ip = (& $ts ip -4 2>$null | Select-Object -First 1)
+    if ($ip -match '^100\.') { return $ip.Trim() } else { return $null }
 }
 
 function Get-MigrationProcess {
@@ -246,19 +259,29 @@ switch ($Command) {
         'migration started in its own (minimized) window. Do not close it. Progress: jf.ps1 migration-progress'
     }
     'mac-kit' {
-        $ip = Get-ServerIP
-        $kit = Join-Path $JF.System 'mac-setup'
+        # mac-kit          -> main store Mac (same LAN, server LAN IP)
+        # mac-kit HN       -> other store Mac (over Tailscale, store code enforced in project names)
+        $store = if ($Arg1) { $Arg1.ToUpper() } else { '' }
+        if ($store -and ($JF.Stores -notcontains $store)) { throw "unknown store '$store' - add it to Stores in config.ps1 first" }
+        if ($store) {
+            $ip = Get-TailscaleIP
+            if (-not $ip) { throw 'Tailscale is not running on this server (install: winget install -e --id Tailscale.Tailscale, then log in)' }
+        } else { $ip = Get-ServerIP }
+        $kit = Join-Path $JF.System $(if ($store) { "mac-setup-$store" } else { 'mac-setup' })
         [System.IO.Directory]::CreateDirectory($kit) | Out-Null
         $macDir = Join-Path (Split-Path $PSScriptRoot -Parent) 'mac'
         foreach ($f in 'install-mac.sh', 'jflip-recsync.sh', 'jflip-done.sh') {
             $text = [System.IO.File]::ReadAllText((Join-Path $macDir $f), $enc) -replace "`r`n", "`n"
             [System.IO.File]::WriteAllText((Join-Path $kit $f), $text, $enc)
         }
-        [System.IO.File]::WriteAllText((Join-Path $kit 'recsync.conf'), "SERVER=`"$ip`"`n", $enc)
-        "Mac kit ready (server IP $ip). On the Mac:"
+        [System.IO.File]::WriteAllText((Join-Path $kit 'recsync.conf'), "SERVER=`"$ip`"`nSTORE=`"$store`"`n", $enc)
+        $where = if ($store) { "store $store, over Tailscale" } else { 'main store, LAN' }
+        "Mac kit ready ($where, server $ip). On the Mac:"
+        if ($store) { "  0. Install Tailscale (Mac App Store) and log in with the SAME account as this server" }
         "  1. Finder > Go > Connect to Server > smb://$ip/JFLIPSTUDIO  (user jflipnas, save password in Keychain)"
         "  2. brew install rsync"
-        "  3. bash /Volumes/JFLIPSTUDIO/_system/mac-setup/install-mac.sh"
+        "  3. bash /Volumes/JFLIPSTUDIO/_system/$(Split-Path $kit -Leaf)/install-mac.sh"
+        if ($store) { "  Project names at this store must contain _$store + number, e.g. 260924_${store}1" }
     }
     default { throw "unknown command: $Command  (status|setup-check|tasks|logs|archive-dryrun|disks|migration-progress|open|run|mark-done|rclone-login|start-migration|mac-kit)" }
 }

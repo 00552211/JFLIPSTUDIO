@@ -49,6 +49,14 @@ description: JFLIPSTUDIO SERVER の構築（Windows 初期設定・ディスク�
 3. Studio One の保存先を `~/Music/JFLIPSTUDIO/Recording` にし、進行中の案件を Mac の Dropbox フォルダからそこへ移すよう伝える（README Phase 7 の 5〜7）。
 4. 確認: 15 分以内に `setup-check` の `4_mac.macHasSynced` が true になる。ならなければ Mac の `~/JFLIPSTUDIO/logs/recsync.log` の末尾を貼ってもらい /jf-doctor の手順で調べる。
 
+### Step 4b — 2号店（HN）の Mac をつなぐ（本店が動いてから）
+1. サーバーに Tailscale を入れる（オーナーの OK を得て）: `winget install -e --id Tailscale.Tailscale --accept-source-agreements --accept-package-agreements` → タスクトレイの Tailscale からオーナーがログイン。
+2. `setup-check` の `4_mac.tailscaleIP` が `100.` で始まれば OK。共有用のファイアウォール規則は `setup-server.ps1` が作成済み（未実行なら Step 3 を先に）。
+3. 実行: `jf.ps1 mac-kit HN`（Tailscale の IP と店舗コード HN を書いたインストーラを共有に置く）。
+4. 表示された手順を 2号店の Mac で行ってもらう: Tailscale（Mac App Store）を **サーバーと同じアカウント** でログイン → Finder で `smb://<100.x.x.x>/JFLIPSTUDIO` に接続 → `brew install rsync` → `bash /Volumes/JFLIPSTUDIO/_system/mac-setup-HN/install-mac.sh`。
+5. 2号店のルールを伝える: Studio One の保存先は `~/Music/JFLIPSTUDIO/Recording/<顧客>/`、案件名は **`YYMMDD_HN<番号>`**（例 `260924_HN1`）。違う名前の案件は送られず `_NAME_CHECK.txt` に出る。
+6. 確認: `setup-check` の `4_mac.hnHasSynced` が true。
+
 ### Step 5 — 既存 Dropbox データを E: へ（Phase 5）
 1. Dropbox と接続: `jf.ps1 rclone-login` → ブラウザが開くのでオーナーが Dropbox にログインして「許可」。コマンドは許可されるまで待つ。最後の `check:` に Dropbox のフォルダ名が出れば成功。
 2. 開始: `jf.ps1 start-migration`（別ウィンドウで動き続ける。閉じないよう伝える。数時間〜2日）

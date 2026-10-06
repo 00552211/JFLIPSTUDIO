@@ -44,6 +44,11 @@ Get-NetFirewallRule -Group '@FirewallAPI.dll,-28502' |
     Where-Object { $_.Profile -match 'Private' -or $_.Profile -eq 'Any' } |
     Enable-NetFirewallRule
 Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force
+# Other stores reach the share over Tailscale (100.64.0.0/10). Only Tailscale peers match this rule.
+if (-not (Get-NetFirewallRule -Name 'JFLIP-SMB-Tailscale' -ErrorAction SilentlyContinue)) {
+    New-NetFirewallRule -Name 'JFLIP-SMB-Tailscale' -DisplayName 'JFLIPSTUDIO SMB via Tailscale' -Direction Inbound `
+        -Protocol TCP -LocalPort 445 -RemoteAddress '100.64.0.0/10' -Profile Any -Action Allow | Out-Null
+}
 
 Step "Local account '$ShareUser' for the Mac"
 if (-not (Get-LocalUser -Name $ShareUser -ErrorAction SilentlyContinue)) {

@@ -20,7 +20,7 @@ $rc = Invoke-JFRclone $log @('copy', $JF.Work, $JF.RemoteRec,
 if ($rc -ne 0) { $ok = $false; Write-JFLog $log "rclone FAILED exit=$rc" } else { Write-JFLog $log 'rclone ok' }
 
 # 3. status for humans
-$lines = @("JFLIPSTUDIO SERVER status  $(Get-Date -Format 'yyyy-MM-dd HH:mm')", '')
+$lines = @("$($JF.StudioName) SERVER status  $(Get-Date -Format 'yyyy-MM-dd HH:mm')", '')
 $lines += 'Last nightly backup: ' + $(if ($ok) { 'OK' } else { 'FAILED - check C:\JFLIPSTUDIO\logs\backup.log' })
 $lines += ''
 foreach ($d in 'C', 'D', 'E', 'F') {
