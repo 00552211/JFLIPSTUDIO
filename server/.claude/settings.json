@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell.exe -NoProfile -ExecutionPolicy Bypass -File windows/jf.ps1 status*)",
+      "Bash(powershell.exe -NoProfile -ExecutionPolicy Bypass -File windows/jf.ps1 setup-check*)",
+      "Bash(powershell.exe -NoProfile -ExecutionPolicy Bypass -File windows/jf.ps1 tasks*)",
+      "Bash(powershell.exe -NoProfile -ExecutionPolicy Bypass -File windows/jf.ps1 logs *)",
+      "Bash(powershell.exe -NoProfile -ExecutionPolicy Bypass -File windows/jf.ps1 archive-dryrun*)"
+    ],
+    "deny": [
+      "Bash(*rclone* sync*)",
+      "Bash(*rclone* move*)",
+      "Bash(*rclone* delete*)",
+      "Bash(*rclone* deletefile*)",
+      "Bash(*rclone* purge*)",
+      "Bash(*rclone* rmdir*)",
+      "Bash(*rclone* cleanup*)",
+      "Bash(*/MIR*)",
+      "Bash(*/mir*)",
+      "Bash(*/PURGE*)",
+      "Bash(*/purge*)",
+      "Bash(*/MOV*)",
+      "Bash(rm *)",
+      "Bash(*rm -r*)",
+      "Bash(*rm -f*)",
+      "Bash(*rmdir*)",
+      "Bash(*Remove-Item*)",
+      "Bash(*del /*)",
+      "Bash(*Format-Volume*)",
+      "Bash(*Clear-Disk*)",
+      "Bash(*Initialize-Disk*)",
+      "Bash(*Remove-Partition*)",
+      "Bash(*diskpart*)",
+      "Bash(*format.com*)",
+      "Bash(*Remove-SmbShare*)",
+      "Bash(*Remove-LocalUser*)"
+    ]
+  }
+}

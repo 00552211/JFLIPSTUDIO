@@ -125,6 +125,7 @@ taskpolicy -b nice -n 15 "$RSYNC" "${OPTS[@]}" "${FILTER[@]}" "$SRC/" "$DEST/" >
 rc=$?
 if [ $rc -eq 0 ]; then
     log "sync OK ($MODE)"
+    echo "$(date '+%Y-%m-%dT%H:%M:%S') $MODE $(scutil --get ComputerName 2>/dev/null)" > "$MNT/_system/mac-last-sync.txt" 2>/dev/null
     [ "$MODE" = "full" ] && date '+%Y-%m-%d %H:%M:%S' > "$STATE_DIR/last-full-sync.txt"
 else
     log "sync FAILED rc=$rc ($MODE)"

@@ -219,6 +219,7 @@ powershell -ExecutionPolicy Bypass -File C:\JFLIPSTUDIO\server\windows\register-
 | `mixdown-to-complete` | 10分ごと | `Work\Recording\<顧客>\<案件>\Mixdown\*.wav` → `D:\Dropbox\Complete\<顧客>\`。書き直された WAV は上書き（Dropbox の履歴に旧版が残る） |
 | `backup-nightly` | 毎日 02:00 | D: Work → E: Backup\Work（robocopy）、D: Work → Dropbox:/Recording（rclone）。`D:\JFLIPSTUDIO\_system\server-status.txt` に空き容量と「60日放置の案件」を書き出し |
 | `archive-completed` | 毎日 05:00 | `_DONE` のある案件だけ: E: Archive へコピー → SHA256 で全ファイル照合 → Dropbox へコピー＆照合 → 両方 OK なら D: と Backup\Work から削除し `archived.txt` に記録 |
+| `daily-report` | 毎日 08:00 | Claude が状態をまとめて Dropbox\JFLIPSTUDIO_Reports に保存（Phase 10.5） |
 
 動作テスト:
 
@@ -266,6 +267,68 @@ icacls C:\JFLIPSTUDIO /inheritance:r /grant:r "*S-1-5-18:(OI)(CI)F" "*S-1-5-32-5
 | Mac `~/JFLIPSTUDIO/logs/recsync.log` | Mac → サーバー同期 |
 
 設定（パス・時間など）は `server\windows\config.ps1` に集約。
+
+## Phase 10.5. Claude で半自動運用
+
+サーバー上で **Claude Code** を動かし、「調べる・まとめる・提案する」は Claude に任せ、「消す・動かす」はスクリプトとオーナーの承認に残す形です。
+
+| | 誰がやる | 承認 |
+|---|---|---|
+| Mac→サーバー同期、Mixdown コピー、夜間バックアップ、Archive | スクリプト（Phase 7〜8） | 不要（`_DONE` が合図） |
+| 毎朝のレポート（✅/⚠️/🚨 判定と要対応リスト） | Claude（**ツール権限なし**で状態 JSON を読むだけ） | 不要 |
+| 状態確認・ログ調査・原因特定・構築の次の一手の案内 | Claude（`jf.ps1` の読み取りコマンドだけ自動許可） | 不要 |
+| 今すぐバックアップ / Archive 実行、案件を完了にする | Claude が提案 → 実行 | **必要**（毎回確認される） |
+| 削除、`rclone sync/move/delete`、`robocopy /MIR /PURGE`、ディスク操作 | 誰も自動ではやらない | `.claude/settings.json` で禁止 + `CLAUDE.md` のルール |
+
+### インストール（Phase 1 の直後にやると、以降の構築も Claude が案内できる）
+
+1. `server` フォルダを `C:\JFLIPSTUDIO\server` に置く（Phase 3 の 1.）。
+2. Git for Windows と Claude Code を入れる（PowerShell）:
+
+   ```powershell
+   winget install Git.Git
+   irm https://claude.ai/install.ps1 | iex
+   ```
+
+3. 新しいターミナルで:
+
+   ```powershell
+   cd C:\JFLIPSTUDIO\server
+   claude
+   ```
+
+   初回は Claude アカウントでログイン → フォルダを信頼 → `/jf-setup` と打つと、今どこまで済んでいるかを調べて次の手順を案内してくれます。
+
+> 「許可を全部スキップする」モード（bypass / `--dangerously-skip-permissions`）は使わないでください。承認の確認がこの仕組みの安全装置です。
+
+### 使えるコマンド（Claude に話しかけるだけでも OK）
+
+| コマンド | こんなとき |
+|---|---|
+| `/jf-status` | 「サーバー大丈夫？」「バックアップできてる？」 |
+| `/jf-archive` | 「SSD 空けたい」「TI_千葉光樹 の 260924_1 完了にして」 |
+| `/jf-setup` | 「構築の続き」「次なにやる？」 |
+| `/jf-doctor` | 「Mixdown が Complete に来ない」「Mac から同期されてない」 |
+
+### スマホ（Galaxy）から話しかける
+
+サーバーで次を起動しておくと、Galaxy の Claude アプリ（Code）からこのサーバーの Claude に指示できます。
+
+```powershell
+cd C:\JFLIPSTUDIO\server
+claude remote-control
+```
+
+再起動後も自動で立ち上げたい場合は、`Win+R` → `shell:startup` で開くフォルダに次の内容の `jflip-claude.cmd` を置く:
+
+```bat
+cd /d C:\JFLIPSTUDIO\server
+claude remote-control
+```
+
+### 毎朝のレポート
+
+`register-tasks.ps1` が 08:00 のタスク `daily-report` も登録します。Claude が状態を読んで `D:\Dropbox\JFLIPSTUDIO_Reports\YYYY-MM-DD.md` に書くので、**スマホの Dropbox アプリで毎朝確認**できます（Mac からは `JFLIPSTUDIO` 共有の `_system/daily-report.md`）。Claude が使えないときは生の状態データが書かれるので、レポートが来ない日はそれ自体が異常のサインです。
 
 ---
 
@@ -368,6 +431,11 @@ HASS.Agent 側では「カスタムコマンド」として `schtasks /run /tn \
 | `windows/mixdown-to-complete.ps1` | タスク (10分ごと) | Mixdown → Dropbox/Complete |
 | `windows/backup-nightly.ps1` | タスク (02:00) | D: → E: と Dropbox |
 | `windows/archive-completed.ps1` | タスク (05:00) | `_DONE` 案件を検証付きで Archive |
+| `windows/jf.ps1` | Claude / 人 | 状態取得・ログ・ドライラン・タスク即時実行・`_DONE` 付与の窓口 |
+| `windows/daily-report.ps1` + `daily-report-prompt.md` | タスク (08:00) | Claude による朝のレポート |
+| `CLAUDE.md` | Claude Code | サーバー管理のルール（削除禁止など） |
+| `.claude/settings.json` | Claude Code | 自動許可するコマンドと禁止するコマンド |
+| `.claude/skills/jf-*/SKILL.md` | Claude Code | `/jf-status` `/jf-archive` `/jf-setup` `/jf-doctor` |
 | `mac/install-mac.sh` | Mac (1回) | 同期スクリプトと launchd 登録 |
 | `mac/jflip-recsync.sh` | Mac (15分ごと) | Mac → サーバー同期 |
 | `mac/jflip-done.sh` | Mac | 案件に `_DONE` を付ける |
