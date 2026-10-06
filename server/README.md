@@ -282,24 +282,29 @@ icacls C:\JFLIPSTUDIO /inheritance:r /grant:r "*S-1-5-18:(OI)(CI)F" "*S-1-5-32-5
 
 ### インストール（Phase 1 の直後にやると、以降の構築も Claude が案内できる）
 
+メインは **Windows 版 Claude デスクトップアプリの「Code」** を使います。`CLAUDE.md`・`.claude/settings.json`・`/jf-*` スキルはフォルダを開くだけで読み込まれます。
+
 1. `server` フォルダを `C:\JFLIPSTUDIO\server` に置く（Phase 3 の 1.）。
-2. Git for Windows と Claude Code を入れる（PowerShell）:
+2. Git for Windows を入れる（Claude Code が Windows でコマンドを実行するのに使う）:
 
    ```powershell
    winget install Git.Git
-   irm https://claude.ai/install.ps1 | iex
    ```
 
-3. 新しいターミナルで:
+3. Claude デスクトップアプリ → **Code** → フォルダに `C:\JFLIPSTUDIO\server` を選ぶ → 権限モードは **「毎回確認（Ask）」** のまま。
+4. `/jf-setup` と打つ → 今どこまで済んでいるかを調べて次の手順を案内してくれる。
+5. **朝のレポート用に CLI 版も入れる**（08:00 のタスクはアプリを開いていなくても動く必要があるため。ログインはアプリと同じアカウント）:
 
    ```powershell
-   cd C:\JFLIPSTUDIO\server
-   claude
+   irm https://claude.ai/install.ps1 | iex
+   claude      # 一度起動してログインだけ済ませ、/exit
    ```
 
-   初回は Claude アカウントでログイン → フォルダを信頼 → `/jf-setup` と打つと、今どこまで済んでいるかを調べて次の手順を案内してくれます。
+   入れない場合も、朝のレポートは「生の状態データ」で毎日書かれます。
 
-> 「許可を全部スキップする」モード（bypass / `--dangerously-skip-permissions`）は使わないでください。承認の確認がこの仕組みの安全装置です。
+> 「許可を全部スキップする」モード（bypass）は使わないでください。承認の確認がこの仕組みの安全装置です。
+>
+> `jf.ps1 status` などの読み取りコマンドで毎回確認が出る場合は、「常に許可」を選んで構いません（読み取り専用）。逆に `run` / `mark-done` は毎回確認されるのが正しい動作です。
 
 ### 使えるコマンド（Claude に話しかけるだけでも OK）
 
@@ -312,7 +317,7 @@ icacls C:\JFLIPSTUDIO /inheritance:r /grant:r "*S-1-5-18:(OI)(CI)F" "*S-1-5-32-5
 
 ### スマホ（Galaxy）から話しかける
 
-サーバーで次を起動しておくと、Galaxy の Claude アプリ（Code）からこのサーバーの Claude に指示できます。
+デスクトップアプリの Code で開いたセッションは、Galaxy の Claude アプリからも続けられます（アプリ側の案内に従ってリモート操作を有効化）。CLI 版で常駐させる場合は、サーバーで次を起動しておくと Galaxy の Claude アプリ（Code）から指示できます。
 
 ```powershell
 cd C:\JFLIPSTUDIO\server
