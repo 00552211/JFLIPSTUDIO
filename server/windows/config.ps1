@@ -7,8 +7,9 @@ $JF = @{
     # 'CONNECT Studio' when it happens. Folder/share names (JFLIPSTUDIO) are internal IDs and stay.
     StudioName   = 'JFLIPSTUDIO'
 
-    # Stores whose Macs sync into this server. '' = main store (project names as before, e.g. 260924_1).
-    # Other stores must put their code in every project name (e.g. 260924_HN1) so names never collide.
+    # Stores whose Macs sync into this server. '' = main store. Project folders are song titles; each
+    # project on the server records its store in _ORIGIN.txt, and a name already used by the other
+    # store is held back on the Mac (never merged) until it is renamed.
     Stores       = @('', 'HN')
 
     # D: 2TB SSD - active projects (Mac -> here), shared to the Mac as \\SERVER\JFLIPSTUDIO

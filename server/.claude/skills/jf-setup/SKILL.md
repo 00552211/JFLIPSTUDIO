@@ -54,7 +54,7 @@ description: JFLIPSTUDIO SERVER の構築（Windows 初期設定・ディスク�
 2. `setup-check` の `4_mac.tailscaleIP` が `100.` で始まれば OK。共有用のファイアウォール規則は `setup-server.ps1` が作成済み（未実行なら Step 3 を先に）。
 3. 実行: `jf.ps1 mac-kit HN`（Tailscale の IP と店舗コード HN を書いたインストーラを共有に置く）。
 4. 表示された手順を 2号店の Mac で行ってもらう: Tailscale（Mac App Store）を **サーバーと同じアカウント** でログイン → Finder で `smb://<100.x.x.x>/JFLIPSTUDIO` に接続 → `brew install rsync` → `bash /Volumes/JFLIPSTUDIO/_system/mac-setup-HN/install-mac.sh`。
-5. 2号店のルールを伝える: Studio One の保存先は `~/Music/JFLIPSTUDIO/Recording/<顧客>/`、案件名は **`YYMMDD_HN<番号>`**（例 `260924_HN1`）。違う名前の案件は送られず `_NAME_CHECK.txt` に出る。
+5. 2号店のルールを伝える: Studio One の保存先は `~/Music/JFLIPSTUDIO/Recording/<顧客>/<曲名>/`。本店と同じ顧客・同じ曲名の案件は送られずに `_NAME_CHECK.txt` に出るので、そのときだけ曲フォルダ名を変える（例 `曲名_HN`）。
 6. 確認: `setup-check` の `4_mac.hnHasSynced` が true。
 
 ### Step 5 — 既存 Dropbox データを E: へ（Phase 5）

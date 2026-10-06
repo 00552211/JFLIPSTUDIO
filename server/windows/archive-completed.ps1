@@ -44,6 +44,14 @@ foreach ($p in Get-JFProjects $JF.Work) {
     Write-JFLog $log "START $($p.Rel)  $sizeGB GB  -> $dst"
     if ($DryRun) { Write-JFLog $log '  (dry run - nothing changed)'; continue }
 
+    # 0. same client/song name from another store already in the archive? never merge them
+    $o1 = Join-Path $p.FullName '_ORIGIN.txt'; $o2 = Join-Path $dst '_ORIGIN.txt'
+    if ([System.IO.File]::Exists($o1) -and [System.IO.File]::Exists($o2) -and
+        ([System.IO.File]::ReadAllText($o1).Trim() -ne [System.IO.File]::ReadAllText($o2).Trim())) {
+        Write-JFLog $log "FAIL  archive already has a project with this name from another store - kept on D: (rename one of them)"
+        continue
+    }
+
     # 1. SSD -> HDD
     robocopy $p.FullName $dst /E /COPY:DAT /DCOPY:T /R:2 /W:5 /XF '.*' /NP /NDL /NFL `
         /LOG+:"$(Join-Path $JF.Logs 'archive-robocopy.log')" | Out-Null

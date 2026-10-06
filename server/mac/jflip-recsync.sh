@@ -21,7 +21,7 @@ DEST_SUBDIR="Work/Recording"
 SETTLE_MIN=2
 DAW_REGEX="Studio One|Fender Studio|Logic Pro|Pro Tools|Ableton Live|Cubase"
 MIXDOWN_WHILE_DAW=1            # 1 = still send Mixdown/ while the DAW is open
-STORE=""                       # "" = main store. Other stores (e.g. HN): project names must contain _HN<number>
+STORE=""                       # "" = main store, "HN" = Higashi-Nagasaki. Marks which store a project came from
 STATE_DIR="$HOME/JFLIPSTUDIO"
 [ -f "$STATE_DIR/recsync.conf" ] && . "$STATE_DIR/recsync.conf"
 
@@ -76,31 +76,6 @@ nfc() { iconv -f UTF-8-MAC -t UTF-8 2>/dev/null; }   # Mac (NFD) names -> NFC fo
 # files still being written
 ( cd "$SRC" && find . -type f -mmin "-$SETTLE_MIN" | sed 's#^\./#/#' | esc ) >> "$EXCL"
 
-# other stores: projects without the store code in their name are held back, so a
-# 260924_1 recorded here can never mix with 260924_1 from the main store on the server
-NAMECHECK="$HOME/Music/JFLIPSTUDIO/_NAME_CHECK.txt"
-if [ -n "$STORE" ]; then
-    : > "$TMP/badnames.txt"
-    for proj in "$SRC"/*/*/; do
-        [ -d "$proj" ] || continue
-        rel="${proj#$SRC/}"; rel="${rel%/}"
-        case "$(basename "$rel")" in
-            *_"$STORE"[0-9]*) ;;
-            *) printf '/%s/\n' "$rel" | esc >> "$EXCL"; echo "$rel" >> "$TMP/badnames.txt" ;;
-        esac
-    done
-    if [ -s "$TMP/badnames.txt" ]; then
-        {
-            echo "# These projects are NOT being sent to the server: the name must contain _${STORE} + number"
-            echo "# (e.g. 260924_${STORE}1). Rename the project folder, then they are sent automatically."
-            cat "$TMP/badnames.txt"
-        } > "$NAMECHECK"
-        log "NAME CHECK: $(wc -l < "$TMP/badnames.txt" | tr -d ' ') project(s) held back - see $NAMECHECK"
-    else
-        rm -f "$NAMECHECK"
-    fi
-fi
-
 # archived projects: skip them only if this Mac copy is identical to the server archive
 ARCHIVED="$MNT/_system/archived.txt"
 : > "$TMP/safe.txt"
@@ -133,6 +108,43 @@ fi
     echo "# Safe to delete from this Mac when you need space. Updated $(date '+%Y-%m-%d %H:%M')"
     cat "$TMP/safe.txt"
 } > "$REPORT"
+
+# ---- same name from another store? (project folders are song titles, so two stores can pick the
+# same <client>/<song>). Every project on the server carries _ORIGIN.txt = the store that created it.
+# A project whose name is already taken by the OTHER store is held back - never merged - and listed
+# in _NAME_CHECK.txt so the staff can rename it (e.g. add "_HN"). Nothing on the Mac is touched.
+ME="${STORE:-main}"
+NAMECHECK="$HOME/Music/JFLIPSTUDIO/_NAME_CHECK.txt"
+: > "$TMP/clash.txt"
+for proj in "$SRC"/*/*/; do
+    [ -d "$proj" ] || continue
+    rel="${proj#$SRC/}"; rel="${rel%/}"
+    pat="$(printf '/%s/' "$rel" | esc)"
+    grep -qxF "$pat" "$EXCL" && continue                       # archived & identical: not sent anyway
+    owner=""
+    if [ -f "$DEST/$rel/_ORIGIN.txt" ]; then owner="$(head -n 1 "$DEST/$rel/_ORIGIN.txt" | tr -d '\r\n ')"
+    elif [ -n "$AMNT" ] && [ -f "$AMNT/Recording/$rel/_ORIGIN.txt" ]; then owner="$(head -n 1 "$AMNT/Recording/$rel/_ORIGIN.txt" | tr -d '\r\n ')"
+    fi
+    if [ -n "$owner" ] && [ "$owner" != "$ME" ]; then
+        echo "$pat" >> "$EXCL"
+        echo "$rel    (already used by store: $owner)" >> "$TMP/clash.txt"
+        continue
+    fi
+    if [ -z "$owner" ]; then                                     # new project: claim the name for this store
+        mkdir -p "$DEST/$rel" && printf '%s\n' "$ME" > "$DEST/$rel/_ORIGIN.txt"
+    fi
+done
+if [ -s "$TMP/clash.txt" ]; then
+    {
+        echo "# These projects are NOT being sent: the other store already has a project with the same"
+        echo "# client and song folder name. Close Studio One, rename the song folder (e.g. add _$ME), and"
+        echo "# it is sent automatically next time. Your recording on this Mac is safe."
+        cat "$TMP/clash.txt"
+    } > "$NAMECHECK"
+    log "NAME CLASH: $(wc -l < "$TMP/clash.txt" | tr -d ' ') project(s) held back - see $NAMECHECK"
+else
+    rm -f "$NAMECHECK"
+fi
 
 # ---- what to send
 FILTER=()

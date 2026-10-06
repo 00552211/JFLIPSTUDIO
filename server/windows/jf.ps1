@@ -79,7 +79,9 @@ function Get-Status {
         $files = Get-JFFiles $p.FullName
         $newest = $files | Sort-Object LastWriteTime -Descending | Select-Object -First 1
         $hasDone = [System.IO.File]::Exists((Join-Path $p.FullName $JF.DoneMarker))
-        [pscustomobject]@{ project = $p.Rel; sizeGB = [math]::Round((($files | Measure-Object Length -Sum).Sum) / 1GB, 2)
+        $originFile = Join-Path $p.FullName '_ORIGIN.txt'
+        $origin = if ([System.IO.File]::Exists($originFile)) { ([System.IO.File]::ReadAllText($originFile)).Trim() } else { $null }
+        [pscustomobject]@{ project = $p.Rel; store = $origin; sizeGB = [math]::Round((($files | Measure-Object Length -Sum).Sum) / 1GB, 2)
             lastChange = if ($newest) { $newest.LastWriteTime.ToString('s') } else { $null }
             done = $hasDone; stale = ((-not $hasDone) -and $newest -and $newest.LastWriteTime -lt $stale) }
     }
@@ -281,7 +283,8 @@ switch ($Command) {
         "  1. Finder > Go > Connect to Server > smb://$ip/JFLIPSTUDIO  (user jflipnas, save password in Keychain)"
         "  2. brew install rsync"
         "  3. bash /Volumes/JFLIPSTUDIO/_system/$(Split-Path $kit -Leaf)/install-mac.sh"
-        if ($store) { "  Project names at this store must contain _$store + number, e.g. 260924_${store}1" }
+        if ($store) { "  Song folders keep plain song titles. If the main store already has the same client + title," }
+        if ($store) { "  that project is held back and listed in ~/Music/JFLIPSTUDIO/_NAME_CHECK.txt until renamed." }
     }
     default { throw "unknown command: $Command  (status|setup-check|tasks|logs|archive-dryrun|disks|migration-progress|open|run|mark-done|rclone-login|start-migration|mac-kit)" }
 }

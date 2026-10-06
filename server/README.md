@@ -214,7 +214,7 @@ Windows PC を「JFLIPSTUDIO の自宅サーバー」(NAS / REC管理 / 自動�
    tail ~/JFLIPSTUDIO/logs/recsync.log
    ```
 
-5. **Studio One の保存先** を `~/Music/JFLIPSTUDIO/Recording` に。新規ソングは `Recording/<顧客>/` の中に `YYMMDD_n` という名前で作る（今の Dropbox と同じ構成）。
+5. **Studio One の保存先** を `~/Music/JFLIPSTUDIO/Recording` に。新規ソングは `Recording/<顧客>/` の中に **曲名** で作る（例 `Recording/TI_千葉光樹/Unscripted/`）。
 6. 進行中の案件は Mac の Dropbox フォルダから `~/Music/JFLIPSTUDIO/Recording/<顧客>/` へ移動。今後 Mac の Dropbox フォルダには録音しない。
 7. 以前に Mac 側で「Mixdown → Complete」の自動化を作っていたら停止（サーバー側で二重にコピーしないため）。
 
@@ -370,17 +370,21 @@ claude remote-control
    │ 15分ごと・コピーのみ（本店と同じ同期スクリプト）
    │ Tailscale（暗号化 VPN。ルーター設定不要・インターネットに共有を公開しない）
    ▼
- 本店サーバー D:\JFLIPSTUDIO\Work\Recording\<顧客>\<YYMMDD_HN番号>\
+ 本店サーバー D:\JFLIPSTUDIO\Work\Recording\<顧客>\<曲名>\
    → 以降は本店と全く同じ（Mixdown → Complete、夜間バックアップ、_DONE で Archive）
 ```
 
-**案件名のルール（重要）**: 2号店の案件は必ず `YYMMDD_HN<番号>`（例 `260924_HN1`）。本店の `260924_1` と同じ顧客フォルダに並んでも混ざりません。2号店の Mac は、名前に `_HN<番号>` が無い案件を **送らずに止め**、`~/Music/JFLIPSTUDIO/_NAME_CHECK.txt` に一覧を出します（フォルダ名を直せば次回から自動で送られる。Mac 上のデータには触らない）。
+**フォルダ名は曲名**（`<顧客>/<曲名>`）。両店舗で同じ顧客・同じ曲名になったときだけ注意が必要なので、自動で守ります:
+- サーバー上の各案件には、作った店舗が `_ORIGIN.txt`（`main` / `HN`）として記録される
+- もう一方の店舗にすでに同じ `<顧客>/<曲名>` があると、後から来た方の Mac はその案件を **送らずに止め**、`~/Music/JFLIPSTUDIO/_NAME_CHECK.txt` に一覧を出す（2つのセッションが混ざることは無い。Mac 上のデータにも触らない）
+- Studio One を閉じて曲フォルダ名を変えれば（例 `Unscripted_HN`）、次回から自動で送られる
+- 念のためサーバーの Archive 処理も、店舗の違う同名案件があれば合体させずに止める
 
 **セットアップ**（本店サーバーが Phase 8 まで動いてから。`/jf-setup` の Step 4b で Claude が案内）:
 1. 本店サーバーに Tailscale を入れてログイン（`winget install -e --id Tailscale.Tailscale`）
 2. サーバーの Claude に「2号店の Mac キットを作って」→ `jf.ps1 mac-kit HN`（Tailscale の IP と店舗コードを書いたインストーラを共有に置く）
 3. 2号店の Mac: Tailscale（Mac App Store）を **同じアカウント** でログイン → Finder で `smb://100.x.x.x/JFLIPSTUDIO` に接続（`jflipnas`、キーチェーンに保存）→ `brew install rsync` → `bash /Volumes/JFLIPSTUDIO/_system/mac-setup-HN/install-mac.sh`
-4. 2号店の Studio One の保存先も `~/Music/JFLIPSTUDIO/Recording`
+4. 2号店の Studio One の保存先も `~/Music/JFLIPSTUDIO/Recording`（フォルダ名は曲名）
 
 **監視**: 朝のレポートとサーバーの状態に、店舗ごとの「Mac の最終同期」が出ます（`main` / `HN`）。2号店の Mac から本店サーバーに届かない日（Tailscale 切れ・回線障害）も、録音は Mac 内蔵 SSD に残っているので安全。つながった時点で自動で送られます。
 
