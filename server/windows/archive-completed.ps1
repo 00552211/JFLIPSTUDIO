@@ -1,4 +1,4 @@
-# JFLIPSTUDIO SERVER - move finished projects from the SSD to the HDD archive (Task Scheduler, 04:00).
+# CONNECTSTUDIO SERVER - move finished projects from the SSD to the HDD archive (Task Scheduler, 04:00).
 #
 # A project is archived only when ALL of these are true:
 #   - it contains the marker file _DONE (made on the Mac, arrives with the normal sync)

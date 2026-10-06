@@ -1,4 +1,4 @@
-# JFLIPSTUDIO SERVER - Phase 2: prepare the 2TB SSD as D: (JF_WORK) and the 3TB HDD as E: (JF_ARCHIVE).
+# CONNECTSTUDIO SERVER - Phase 2: prepare the 2TB SSD as D: (CS_WORK) and the 3TB HDD as E: (CS_ARCHIVE).
 # Run as admin, normally via elevate.ps1.
 #
 #   prepare-disks.ps1                                  list disks only (changes nothing)
@@ -35,7 +35,7 @@ function Prepare([int]$Number, [string]$Letter, [string]$Label, [int]$MinGB, [in
     if (-not $AnySize -and ($gb -lt $MinGB -or $gb -gt $MaxGB)) { throw "Disk #$Number is $gb GB, expected $MinGB-$MaxGB GB for ${Letter}:. Wrong disk? (use -AnySize to override)" }
 
     $existing = $parts | Where-Object DriveLetter -eq $Letter | ForEach-Object { Get-Volume -Partition $_ }
-    if ($existing -and $existing.FileSystem -eq 'NTFS' -and $existing.FileSystemLabel -eq $Label) { "already prepared: ${Letter}: $Label"; return }
+    if ($existing -and $existing.FileSystem -eq 'NTFS' -and $existing.FileSystemLabel -in $Label, ($Label -replace '^CS_', 'JF_')) { "already prepared: ${Letter}: $($existing.FileSystemLabel)"; return }
 
     $other = Get-Volume -DriveLetter $Letter -ErrorAction SilentlyContinue
     if ($other) {
@@ -66,7 +66,7 @@ function Prepare([int]$Number, [string]$Letter, [string]$Label, [int]$MinGB, [in
 Show-Disks
 if ($WorkDisk -lt 0 -and $ArchiveDisk -lt 0) { "`n(list only - pass -WorkDisk <n> -ArchiveDisk <n> to prepare)"; return }
 if ($WorkDisk -ge 0 -and $WorkDisk -eq $ArchiveDisk) { throw 'WorkDisk and ArchiveDisk must be different disks.' }
-if ($WorkDisk -ge 0) { Prepare $WorkDisk 'D' 'JF_WORK' 1700 2100 }
-if ($ArchiveDisk -ge 0) { Prepare $ArchiveDisk 'E' 'JF_ARCHIVE' 2500 3100 }
+if ($WorkDisk -ge 0) { Prepare $WorkDisk 'D' 'CS_WORK' 1700 2100 }
+if ($ArchiveDisk -ge 0) { Prepare $ArchiveDisk 'E' 'CS_ARCHIVE' 2500 3100 }
 "`nResult:"
 Show-Disks

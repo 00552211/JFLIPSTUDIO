@@ -1,6 +1,6 @@
-# JFLIPSTUDIO SERVER 構築ガイド
+# CONNECTSTUDIO SERVER 構築ガイド
 
-Windows PC を「JFLIPSTUDIO の自宅サーバー」(NAS / REC管理 / 自動バックアップ / Dropbox整理 / 将来の Home Assistant) にするための、リセット直後からの手順です。
+Windows PC を「CONNECTSTUDIO の自宅サーバー」(NAS / REC管理 / 自動バックアップ / Dropbox整理 / 将来の Home Assistant) にするための、リセット直後からの手順です。
 
 **大原則: Mac での REC が最優先。** Mac 内蔵 SSD に録音して、サーバーへは「コピーだけ」。サーバー側の仕組みが何をしても、Mac の録音データは消えないし変更もされない。
 
@@ -30,13 +30,13 @@ Windows PC を「JFLIPSTUDIO の自宅サーバー」(NAS / REC管理 / 自動�
    winget install Git.Git
    ```
 
-2. エクスプローラーで `C:\JFLIPSTUDIO` フォルダを作る → Claude アプリ → **Code** → フォルダに `C:\JFLIPSTUDIO` を選ぶ。
+2. エクスプローラーで `C:\CONNECTSTUDIO` フォルダを作る → Claude アプリ → **Code** → フォルダに `C:\CONNECTSTUDIO` を選ぶ。
 3. 次の文をそのまま貼り付けて送る:
 
-   > GitHub の 00552211/jflipstudio リポジトリを、ブランチ ccr-a495d7e7-qzkz26 で C:\JFLIPSTUDIO\repo に git clone して（GitHub のログインが必要ならブラウザで私がやります）。終わったら repo の server フォルダを C:\JFLIPSTUDIO\server にコピーして、中身を一覧で見せて。
+   > GitHub の 00552211/jflipstudio リポジトリを、ブランチ ccr-a495d7e7-qzkz26 で C:\CONNECTSTUDIO\repo に git clone して（GitHub のログインが必要ならブラウザで私がやります）。終わったら repo の server フォルダを C:\CONNECTSTUDIO\server にコピーして、中身を一覧で見せて。
 
-4. コピーが終わったら、Code で **`C:\JFLIPSTUDIO\server` を開き直し**、`/jf-setup` と送る。
-   → Claude が今の状態を調べ、Windows 設定 → ディスク → 共有 → Mac → Dropbox 移行 → Dropbox アプリ → 自動タスク の順に、1ステップずつ実行・確認していきます。途中で再起動しても `/jf-setup` で続きから再開できます。
+4. コピーが終わったら、Code で **`C:\CONNECTSTUDIO\server` を開き直し**、`/cs-setup` と送る。
+   → Claude が今の状態を調べ、Windows 設定 → ディスク → 共有 → Mac → Dropbox 移行 → Dropbox アプリ → 自動タスク の順に、1ステップずつ実行・確認していきます。途中で再起動しても `/cs-setup` で続きから再開できます。
 
 権限モードは **「毎回確認」** のままにしてください（許可を全部スキップするモードは使わない）。ディスクの消去が必要な場合は、Claude ではなくあなたが管理者ウィンドウに `ERASE <番号>` と打たない限り何も消えません。
 
@@ -62,9 +62,9 @@ Windows PC を「JFLIPSTUDIO の自宅サーバー」(NAS / REC管理 / 自動�
 
 | ドライブ | 名前 (ラベル) | 役割 | 置くもの |
 |---|---|---|---|
-| C: 1TB SSD | `SYSTEM` | Windows とアプリ | Windows, アプリ, `C:\JFLIPSTUDIO\`（スクリプト・ログ・rclone）, 将来の Home Assistant VM |
-| D: 2TB SSD | `JF_WORK` | 速い作業領域（**永久保存場所にしない**） | `D:\JFLIPSTUDIO\Work\Recording`（作業中の案件）, `D:\JFLIPSTUDIO\_system`, `D:\Dropbox`（Complete だけ同期） |
-| E: 3TB HDD | `JF_ARCHIVE` | 保管庫 + D: のバックアップ | `E:\JFLIPSTUDIO\Archive\Recording`, `Archive\Dropbox\…`, `E:\JFLIPSTUDIO\Backup\Work` |
+| C: 1TB SSD | `SYSTEM` | Windows とアプリ | Windows, アプリ, `C:\CONNECTSTUDIO\`（スクリプト・ログ・rclone）, 将来の Home Assistant VM |
+| D: 2TB SSD | `CS_WORK` | 速い作業領域（**永久保存場所にしない**） | `D:\CONNECTSTUDIO\Work\Recording`（作業中の案件）, `D:\CONNECTSTUDIO\_system`, `D:\Dropbox`（Complete だけ同期） |
+| E: 3TB HDD | `CS_ARCHIVE` | 保管庫 + D: のバックアップ | `E:\CONNECTSTUDIO\Archive\Recording`, `Archive\Dropbox\…`, `E:\CONNECTSTUDIO\Backup\Work` |
 
 目安: D: の Work は **1TB 以内** を保つ（`_DONE` で Archive へ流す）。E: は使用率が **70% を超えたら 8TB 増設**（→ 11章）。
 
@@ -99,7 +99,7 @@ Windows PC を「JFLIPSTUDIO の自宅サーバー」(NAS / REC管理 / 自動�
 
 1. **Windows Update** を「更新がなくなるまで」繰り返す。チップセット/LAN ドライバーもメーカーサイトから。
 2. **エディション確認**: 設定 → システム → バージョン情報。Pro なら Home Assistant を Hyper-V で動かせる（Home でも VirtualBox で可）。
-3. **PC 名を変更**: 設定 → システム → バージョン情報 → 「この PC の名前を変更」→ `JFLIP-SERVER` → 再起動。
+3. **PC 名を変更**: 設定 → システム → バージョン情報 → 「この PC の名前を変更」→ `CONNECT-SERVER` → 再起動。
 4. **BIOS/UEFI 設定**（起動時に Del / F2）: 「Restore on AC Power Loss」(停電復帰時の動作) を **Power On** に。停電後に自動で立ち上がるようにする。
 5. **Windows Update の再起動時間**: 設定 → Windows Update → 詳細オプション → アクティブ時間を「手動: 9:00〜翌1:00」など制作時間に合わせる。
 6. **BitLocker / デバイスの暗号化** が有効なら回復キーを必ず保存（Microsoft アカウント or 印刷）。
@@ -113,8 +113,8 @@ Windows PC を「JFLIPSTUDIO の自宅サーバー」(NAS / REC管理 / 自動�
 「ディスクの管理」（スタートを右クリック → ディスクの管理）で:
 
 1. **容量で必ず確認**してから作業（1TB = Windows, 2TB = SSD, 3TB = HDD）。Windows の入ったディスクは触らない。
-2. 2TB SSD: 未初期化なら「GPT」で初期化 → 新しいシンプルボリューム → **ドライブ文字 D:** → NTFS → ラベル `JF_WORK`。
-3. 3TB HDD: 同様に GPT → **E:** → NTFS → ラベル `JF_ARCHIVE`。
+2. 2TB SSD: 未初期化なら「GPT」で初期化 → 新しいシンプルボリューム → **ドライブ文字 D:** → NTFS → ラベル `CS_WORK`。
+3. 3TB HDD: 同様に GPT → **E:** → NTFS → ラベル `CS_ARCHIVE`。
    - 中古・古い HDD なら「クイックフォーマット」のチェックを外して通常フォーマット（数時間かかるが全セクタ検査になる）。
 4. D:/E: が別の文字（DVD ドライブ等）に取られていたら、そちらの文字を先に変更する。
 
@@ -122,20 +122,20 @@ Windows PC を「JFLIPSTUDIO の自宅サーバー」(NAS / REC管理 / 自動�
 
 ## Phase 3. スクリプト配置とサーバー設定（SMB 共有）
 
-1. このリポジトリの `server` フォルダを **`C:\JFLIPSTUDIO\server`** にコピー（GitHub の「Code → Download ZIP」で取得して展開）。
+1. このリポジトリの `server` フォルダを **`C:\CONNECTSTUDIO\server`** にコピー（GitHub の「Code → Download ZIP」で取得して展開）。
 2. スタートを右クリック → **ターミナル (管理者)** を開き:
 
    ```powershell
-   Get-ChildItem C:\JFLIPSTUDIO\server -Recurse | Unblock-File
-   powershell -ExecutionPolicy Bypass -File C:\JFLIPSTUDIO\server\windows\setup-server.ps1
+   Get-ChildItem C:\CONNECTSTUDIO\server -Recurse | Unblock-File
+   powershell -ExecutionPolicy Bypass -File C:\CONNECTSTUDIO\server\windows\setup-server.ps1
    ```
 
    これで以下が自動で行われます（何度実行しても安全）:
-   - フォルダ作成（D:/E: の `JFLIPSTUDIO` 構成, `C:\JFLIPSTUDIO\bin`, `logs`）
+   - フォルダ作成（D:/E: の `CONNECTSTUDIO` 構成, `C:\CONNECTSTUDIO\bin`, `logs`）
    - 電源: スリープ・休止・ディスク停止を無効（モニターだけ 10分で消灯）
    - ネットワークを「プライベート」に、ファイル共有をファイアウォールで許可、SMB1 無効
-   - Mac 専用ローカルユーザー **`jflipnas`** を作成（パスワードを聞かれるのでメモ）
-   - 共有 **`JFLIPSTUDIO`**（D:\JFLIPSTUDIO, 読み書き）と **`JFLIP_ARCHIVE`**（E:\JFLIPSTUDIO\Archive, **読み取り専用**）
+   - Mac 専用ローカルユーザー **`connectnas`** を作成（パスワードを聞かれるのでメモ）
+   - 共有 **`CONNECTSTUDIO`**（D:\CONNECTSTUDIO, 読み書き）と **`CONNECT_ARCHIVE`**（E:\CONNECTSTUDIO\Archive, **読み取り専用**）
      - Archive を Mac から読み取り専用にしているのは、Finder の誤操作で保管庫を消さないため。
 
 3. 最後に表示される IP をルーターで固定（DHCP 予約）。
@@ -144,20 +144,20 @@ Windows PC を「JFLIPSTUDIO の自宅サーバー」(NAS / REC管理 / 自動�
 
 ## Phase 4. Mac から接続テスト
 
-1. Finder → 移動 → サーバへ接続（⌘K）→ `smb://192.168.1.50/JFLIPSTUDIO`
-2. 「登録ユーザ」: 名前 `jflipnas` / Phase 3 のパスワード → **「パスワードをキーチェーンに保存」に必ずチェック**（自動同期がこれを使う）
-3. 適当なファイルをコピーして、Windows の `D:\JFLIPSTUDIO` に現れればOK。速度の目安は有線 1GbE で 100MB/s 前後。
-4. `smb://192.168.1.50/JFLIP_ARCHIVE` も同様に接続できるか（書き込めないのが正常）。
+1. Finder → 移動 → サーバへ接続（⌘K）→ `smb://192.168.1.50/CONNECTSTUDIO`
+2. 「登録ユーザ」: 名前 `connectnas` / Phase 3 のパスワード → **「パスワードをキーチェーンに保存」に必ずチェック**（自動同期がこれを使う）
+3. 適当なファイルをコピーして、Windows の `D:\CONNECTSTUDIO` に現れればOK。速度の目安は有線 1GbE で 100MB/s 前後。
+4. `smb://192.168.1.50/CONNECT_ARCHIVE` も同様に接続できるか（書き込めないのが正常）。
 
 ## Phase 5. 既存 Dropbox データ（約1TB）を HDD へ移行
 
 **Dropbox デスクトップアプリより先に** やります。デスクトップアプリで全部「オフラインで使用可」にすると、SSD を圧迫するうえ「同期」なので Windows で消すとクラウドからも消えます。移行は **rclone で Dropbox から一方向にコピー** して、独立したコピーを作ります。
 
-1. https://rclone.org/downloads/ から Windows (AMD64) の zip をダウンロード → 中の `rclone.exe` を `C:\JFLIPSTUDIO\bin\` に置く。
+1. https://rclone.org/downloads/ から Windows (AMD64) の zip をダウンロード → 中の `rclone.exe` を `C:\CONNECTSTUDIO\bin\` に置く。
 2. 管理者ターミナルで Dropbox と接続:
 
    ```powershell
-   C:\JFLIPSTUDIO\bin\rclone.exe config --config C:\JFLIPSTUDIO\rclone.conf
+   C:\CONNECTSTUDIO\bin\rclone.exe config --config C:\CONNECTSTUDIO\rclone.conf
    ```
 
    `n`（新規）→ name: **`dropbox`** → Storage: `dropbox` → client_id / client_secret は空 Enter → Edit advanced config: `n` → Use web browser: `y` → ブラウザで Dropbox にログインして許可 → `y` → `q`
@@ -165,17 +165,17 @@ Windows PC を「JFLIPSTUDIO の自宅サーバー」(NAS / REC管理 / 自動�
 3. 確認:
 
    ```powershell
-   C:\JFLIPSTUDIO\bin\rclone.exe --config C:\JFLIPSTUDIO\rclone.conf size dropbox:Recording
+   C:\CONNECTSTUDIO\bin\rclone.exe --config C:\CONNECTSTUDIO\rclone.conf size dropbox:Recording
    ```
 
 4. 移行開始（途中で止めても、もう一度実行すれば続きから）:
 
    ```powershell
-   powershell -ExecutionPolicy Bypass -File C:\JFLIPSTUDIO\server\windows\migrate-dropbox.ps1
+   powershell -ExecutionPolicy Bypass -File C:\CONNECTSTUDIO\server\windows\migrate-dropbox.ps1
    ```
 
-   - `Dropbox:/Recording` → `E:\JFLIPSTUDIO\Archive\Recording`
-   - `Complete` `Deliver` `RecData` `BackUp` `Songs` `R2M` `Template` `STUDIO BEAT` `INM PARA` → `E:\JFLIPSTUDIO\Archive\Dropbox\<名前>`
+   - `Dropbox:/Recording` → `E:\CONNECTSTUDIO\Archive\Recording`
+   - `Complete` `Deliver` `RecData` `BackUp` `Songs` `R2M` `Template` `STUDIO BEAT` `INM PARA` → `E:\CONNECTSTUDIO\Archive\Dropbox\<名前>`
    - 対象フォルダは `migrate-dropbox.ps1` 冒頭のリストで変更可能。
    - 最後に **全ファイルをサイズ + Dropbox のハッシュで照合**。`ALL OK` が出れば完了。失敗があればもう一度実行。
    - 所要時間は回線次第で半日〜2日。PC はスリープしない設定済みなので放置でOK。
@@ -206,16 +206,16 @@ Windows PC を「JFLIPSTUDIO の自宅サーバー」(NAS / REC管理 / 自動�
    bash install-mac.sh
    ```
 
-3. `~/JFLIPSTUDIO/bin/jflip-recsync.sh` の冒頭 `SERVER="192.168.1.50"` を実際の IP に変更（または `~/JFLIPSTUDIO/recsync.conf` に `SERVER="..."` と書く）。
+3. `~/CONNECTSTUDIO/bin/connect-sync.sh` の冒頭 `SERVER="192.168.1.50"` を実際の IP に変更（または `~/CONNECTSTUDIO/recsync.conf` に `SERVER="..."` と書く）。
 4. 手動で1回テスト:
 
    ```bash
-   ~/JFLIPSTUDIO/bin/jflip-recsync.sh
-   tail ~/JFLIPSTUDIO/logs/recsync.log
+   ~/CONNECTSTUDIO/bin/connect-sync.sh
+   tail ~/CONNECTSTUDIO/logs/recsync.log
    ```
 
-5. **Studio One の保存先** を `~/Music/JFLIPSTUDIO/Recording` に。新規ソングは `Recording/<顧客>/` の中に **曲名** で作る（例 `Recording/TI_千葉光樹/Unscripted/`）。
-6. 進行中の案件は Mac の Dropbox フォルダから `~/Music/JFLIPSTUDIO/Recording/<顧客>/` へ移動。今後 Mac の Dropbox フォルダには録音しない。
+5. **Studio One の保存先** を `~/Music/CONNECTSTUDIO/Recording` に。新規ソングは `Recording/<顧客>/` の中に **曲名** で作る（例 `Recording/TI_千葉光樹/Unscripted/`）。
+6. 進行中の案件は Mac の Dropbox フォルダから `~/Music/CONNECTSTUDIO/Recording/<顧客>/` へ移動。今後 Mac の Dropbox フォルダには録音しない。
 7. 以前に Mac 側で「Mixdown → Complete」の自動化を作っていたら停止（サーバー側で二重にコピーしないため）。
 
 同期スクリプトの安全装置:
@@ -225,7 +225,7 @@ Windows PC を「JFLIPSTUDIO の自宅サーバー」(NAS / REC管理 / 自動�
 | Studio One など DAW が起動中 | `Mixdown/` フォルダだけ送る（録音中のセッションには触らない） |
 | 2分以内に書き込まれたファイル | 送らない（録音中・書き出し中のため） |
 | サーバーに届かない / 外出中 | 何もせず終了。次回に送る |
-| Archive 済みの案件 | Mac のコピーとサーバーの Archive を比較し、**同一なら再送しない**。同一と確認できた案件だけ `~/Music/JFLIPSTUDIO/_SAFE_TO_DELETE.txt` に「Mac から消してよい案件」として載る。Archive 後に Mac で変更があれば自動で再送 |
+| Archive 済みの案件 | Mac のコピーとサーバーの Archive を比較し、**同一なら再送しない**。同一と確認できた案件だけ `~/Music/CONNECTSTUDIO/_SAFE_TO_DELETE.txt` に「Mac から消してよい案件」として載る。Archive 後に Mac で変更があれば自動で再送 |
 | 常に | コピーのみ。Mac 上のファイルは削除も変更もしない。低優先度 I/O で実行 |
 
 > launchd から動かしたときにログに `Operation not permitted` が出たら: システム設定 → プライバシーとセキュリティ → フルディスクアクセス に `/bin/bash` と `/opt/homebrew/bin/rsync` を追加（⌘⇧G でパス入力）。
@@ -235,28 +235,28 @@ Windows PC を「JFLIPSTUDIO の自宅サーバー」(NAS / REC管理 / 自動�
 管理者ターミナルで:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File C:\JFLIPSTUDIO\server\windows\register-tasks.ps1
+powershell -ExecutionPolicy Bypass -File C:\CONNECTSTUDIO\server\windows\register-tasks.ps1
 ```
 
 | タスク | タイミング | 内容 |
 |---|---|---|
 | `mixdown-to-complete` | 10分ごと | `Work\Recording\<顧客>\<案件>\Mixdown\*.wav` → `D:\Dropbox\Complete\<顧客>\`。書き直された WAV は上書き（Dropbox の履歴に旧版が残る） |
-| `backup-nightly` | 毎日 02:00 | D: Work → E: Backup\Work（robocopy）、D: Work → Dropbox:/Recording（rclone）。`D:\JFLIPSTUDIO\_system\server-status.txt` に空き容量と「60日放置の案件」を書き出し |
+| `backup-nightly` | 毎日 02:00 | D: Work → E: Backup\Work（robocopy）、D: Work → Dropbox:/Recording（rclone）。`D:\CONNECTSTUDIO\_system\server-status.txt` に空き容量と「60日放置の案件」を書き出し |
 | `archive-completed` | 毎日 05:00 | `_DONE` のある案件だけ: E: Archive へコピー → SHA256 で全ファイル照合 → Dropbox へコピー＆照合 → 両方 OK なら D: と Backup\Work から削除し `archived.txt` に記録 |
 | `daily-report` | 毎日 08:00 | Claude が状態をまとめて Dropbox\Server_Reports に保存（Phase 10.5） |
 
 動作テスト:
 
 ```powershell
-schtasks /run /tn \JFLIPSTUDIO\backup-nightly
-Get-Content C:\JFLIPSTUDIO\logs\backup.log -Tail 20
-powershell -ExecutionPolicy Bypass -File C:\JFLIPSTUDIO\server\windows\archive-completed.ps1 -DryRun
+schtasks /run /tn \CONNECTSTUDIO\backup-nightly
+Get-Content C:\CONNECTSTUDIO\logs\backup.log -Tail 20
+powershell -ExecutionPolicy Bypass -File C:\CONNECTSTUDIO\server\windows\archive-completed.ps1 -DryRun
 ```
 
 任意: `rclone.conf`（Dropbox の鍵）を管理者と SYSTEM だけが読めるようにする:
 
 ```powershell
-icacls C:\JFLIPSTUDIO /inheritance:r /grant:r "*S-1-5-18:(OI)(CI)F" "*S-1-5-32-544:(OI)(CI)F"
+icacls C:\CONNECTSTUDIO /inheritance:r /grant:r "*S-1-5-18:(OI)(CI)F" "*S-1-5-32-544:(OI)(CI)F"
 ```
 
 ## Phase 9. 日々の運用
@@ -266,17 +266,17 @@ icacls C:\JFLIPSTUDIO /inheritance:r /grant:r "*S-1-5-18:(OI)(CI)F" "*S-1-5-32-5
 **案件が終わったら**: 案件フォルダに空ファイル `_DONE` を置く。
 
 ```bash
-~/JFLIPSTUDIO/bin/jflip-done.sh ~/Music/JFLIPSTUDIO/Recording/TI_千葉光樹/260924_1
+~/CONNECTSTUDIO/bin/connect-done.sh ~/Music/CONNECTSTUDIO/Recording/TI_千葉光樹/260924_1
 ```
 
-（Finder の右クリックにしたい場合: Automator → クイックアクション → 「フォルダ」を受け取る → 「シェルスクリプトを実行」入力の引き渡し方法「引数として」→ `for f in "$@"; do touch "$f/_DONE"; done` → 「JFLIP 完了にする」で保存）
+（Finder の右クリックにしたい場合: Automator → クイックアクション → 「フォルダ」を受け取る → 「シェルスクリプトを実行」入力の引き渡し方法「引数として」→ `for f in "$@"; do touch "$f/_DONE"; done` → 「CONNECT 完了にする」で保存）
 
-→ その夜〜翌朝にサーバーが Archive。翌日以降 `~/Music/JFLIPSTUDIO/_SAFE_TO_DELETE.txt` に載ったら、Mac の空き容量が必要なときに Mac から消してOK。
+→ その夜〜翌朝にサーバーが Archive。翌日以降 `~/Music/CONNECTSTUDIO/_SAFE_TO_DELETE.txt` に載ったら、Mac の空き容量が必要なときに Mac から消してOK。
 
-**Archive 後に作業を再開したいとき**: Mac に残っていればその `_DONE` を消して作業するだけ（変更が検出されて自動で再びサーバーへ送られる。`_DONE` が無い間は Archive されない）。Mac から消していたら、`JFLIP_ARCHIVE` 共有から Mac へコピーして作業。終わったら再度 `_DONE`。
+**Archive 後に作業を再開したいとき**: Mac に残っていればその `_DONE` を消して作業するだけ（変更が検出されて自動で再びサーバーへ送られる。`_DONE` が無い間は Archive されない）。Mac から消していたら、`CONNECT_ARCHIVE` 共有から Mac へコピーして作業。終わったら再度 `_DONE`。
 
 **月1回の確認（5分）**:
-- `D:\JFLIPSTUDIO\_system\server-status.txt`（Mac からも共有で見える）: バックアップ OK / 空き容量 / 放置案件
+- `D:\CONNECTSTUDIO\_system\server-status.txt`（Mac からも共有で見える）: バックアップ OK / 空き容量 / 放置案件
 - CrystalDiskInfo が「正常」か
 - 年に数回、Archive から適当な案件を Mac に戻して Studio One で開けるか（**復元テスト**。開けないバックアップはバックアップではない）
 
@@ -284,11 +284,11 @@ icacls C:\JFLIPSTUDIO /inheritance:r /grant:r "*S-1-5-18:(OI)(CI)F" "*S-1-5-32-5
 
 | 見る場所 | 内容 |
 |---|---|
-| `C:\JFLIPSTUDIO\logs\backup.log` | 夜間バックアップ |
-| `C:\JFLIPSTUDIO\logs\archive.log` | Archive（`FAIL` の案件は D: に残ったまま = 安全側） |
-| `C:\JFLIPSTUDIO\logs\mixdown.log` | 納品 WAV のコピー |
-| `C:\JFLIPSTUDIO\logs\migrate.log` | 初回移行 |
-| Mac `~/JFLIPSTUDIO/logs/recsync.log` | Mac → サーバー同期 |
+| `C:\CONNECTSTUDIO\logs\backup.log` | 夜間バックアップ |
+| `C:\CONNECTSTUDIO\logs\archive.log` | Archive（`FAIL` の案件は D: に残ったまま = 安全側） |
+| `C:\CONNECTSTUDIO\logs\mixdown.log` | 納品 WAV のコピー |
+| `C:\CONNECTSTUDIO\logs\migrate.log` | 初回移行 |
+| Mac `~/CONNECTSTUDIO/logs/recsync.log` | Mac → サーバー同期 |
 
 設定（パス・時間など）は `server\windows\config.ps1` に集約。
 
@@ -300,23 +300,23 @@ icacls C:\JFLIPSTUDIO /inheritance:r /grant:r "*S-1-5-18:(OI)(CI)F" "*S-1-5-32-5
 |---|---|---|
 | Mac→サーバー同期、Mixdown コピー、夜間バックアップ、Archive | スクリプト（Phase 7〜8） | 不要（`_DONE` が合図） |
 | 毎朝のレポート（✅/⚠️/🚨 判定と要対応リスト） | Claude（**ツール権限なし**で状態 JSON を読むだけ） | 不要 |
-| 状態確認・ログ調査・原因特定・構築の次の一手の案内 | Claude（`jf.ps1` の読み取りコマンドだけ自動許可） | 不要 |
+| 状態確認・ログ調査・原因特定・構築の次の一手の案内 | Claude（`cs.ps1` の読み取りコマンドだけ自動許可） | 不要 |
 | 今すぐバックアップ / Archive 実行、案件を完了にする | Claude が提案 → 実行 | **必要**（毎回確認される） |
 | 削除、`rclone sync/move/delete`、`robocopy /MIR /PURGE`、ディスク操作 | 誰も自動ではやらない | `.claude/settings.json` で禁止 + `CLAUDE.md` のルール |
 
 ### インストール（Phase 1 の直後にやると、以降の構築も Claude が案内できる）
 
-メインは **Windows 版 Claude デスクトップアプリの「Code」** を使います。`CLAUDE.md`・`.claude/settings.json`・`/jf-*` スキルはフォルダを開くだけで読み込まれます。
+メインは **Windows 版 Claude デスクトップアプリの「Code」** を使います。`CLAUDE.md`・`.claude/settings.json`・`/cs-*` スキルはフォルダを開くだけで読み込まれます。
 
-1. `server` フォルダを `C:\JFLIPSTUDIO\server` に置く（Phase 3 の 1.）。
+1. `server` フォルダを `C:\CONNECTSTUDIO\server` に置く（Phase 3 の 1.）。
 2. Git for Windows を入れる（Claude Code が Windows でコマンドを実行するのに使う）:
 
    ```powershell
    winget install Git.Git
    ```
 
-3. Claude デスクトップアプリ → **Code** → フォルダに `C:\JFLIPSTUDIO\server` を選ぶ → 権限モードは **「毎回確認（Ask）」** のまま。
-4. `/jf-setup` と打つ → 今どこまで済んでいるかを調べて次の手順を案内してくれる。
+3. Claude デスクトップアプリ → **Code** → フォルダに `C:\CONNECTSTUDIO\server` を選ぶ → 権限モードは **「毎回確認（Ask）」** のまま。
+4. `/cs-setup` と打つ → 今どこまで済んでいるかを調べて次の手順を案内してくれる。
 5. **朝のレポート用に CLI 版も入れる**（08:00 のタスクはアプリを開いていなくても動く必要があるため。ログインはアプリと同じアカウント）:
 
    ```powershell
@@ -328,36 +328,36 @@ icacls C:\JFLIPSTUDIO /inheritance:r /grant:r "*S-1-5-18:(OI)(CI)F" "*S-1-5-32-5
 
 > 「許可を全部スキップする」モード（bypass）は使わないでください。承認の確認がこの仕組みの安全装置です。
 >
-> `jf.ps1 status` などの読み取りコマンドで毎回確認が出る場合は、「常に許可」を選んで構いません（読み取り専用）。逆に `run` / `mark-done` は毎回確認されるのが正しい動作です。
+> `cs.ps1 status` などの読み取りコマンドで毎回確認が出る場合は、「常に許可」を選んで構いません（読み取り専用）。逆に `run` / `mark-done` は毎回確認されるのが正しい動作です。
 
 ### 使えるコマンド（Claude に話しかけるだけでも OK）
 
 | コマンド | こんなとき |
 |---|---|
-| `/jf-status` | 「サーバー大丈夫？」「バックアップできてる？」 |
-| `/jf-archive` | 「SSD 空けたい」「TI_千葉光樹 の 260924_1 完了にして」 |
-| `/jf-setup` | 「構築の続き」「次なにやる？」 |
-| `/jf-doctor` | 「Mixdown が Complete に来ない」「Mac から同期されてない」 |
+| `/cs-status` | 「サーバー大丈夫？」「バックアップできてる？」 |
+| `/cs-archive` | 「SSD 空けたい」「TI_千葉光樹 の 260924_1 完了にして」 |
+| `/cs-setup` | 「構築の続き」「次なにやる？」 |
+| `/cs-doctor` | 「Mixdown が Complete に来ない」「Mac から同期されてない」 |
 
 ### スマホ（Galaxy）から話しかける
 
 デスクトップアプリの Code で開いたセッションは、Galaxy の Claude アプリからも続けられます（アプリ側の案内に従ってリモート操作を有効化）。CLI 版で常駐させる場合は、サーバーで次を起動しておくと Galaxy の Claude アプリ（Code）から指示できます。
 
 ```powershell
-cd C:\JFLIPSTUDIO\server
+cd C:\CONNECTSTUDIO\server
 claude remote-control
 ```
 
-再起動後も自動で立ち上げたい場合は、`Win+R` → `shell:startup` で開くフォルダに次の内容の `jflip-claude.cmd` を置く:
+再起動後も自動で立ち上げたい場合は、`Win+R` → `shell:startup` で開くフォルダに次の内容の `connect-claude.cmd` を置く:
 
 ```bat
-cd /d C:\JFLIPSTUDIO\server
+cd /d C:\CONNECTSTUDIO\server
 claude remote-control
 ```
 
 ### 毎朝のレポート
 
-`register-tasks.ps1` が 08:00 のタスク `daily-report` も登録します。Claude が状態を読んで `D:\Dropbox\Server_Reports\YYYY-MM-DD.md` に書くので、**スマホの Dropbox アプリで毎朝確認**できます（Mac からは `JFLIPSTUDIO` 共有の `_system/daily-report.md`）。Claude が使えないときは生の状態データが書かれるので、レポートが来ない日はそれ自体が異常のサインです。
+`register-tasks.ps1` が 08:00 のタスク `daily-report` も登録します。Claude が状態を読んで `D:\Dropbox\Server_Reports\YYYY-MM-DD.md` に書くので、**スマホの Dropbox アプリで毎朝確認**できます（Mac からは `CONNECTSTUDIO` 共有の `_system/daily-report.md`）。Claude が使えないときは生の状態データが書かれるので、レポートが来ない日はそれ自体が異常のサインです。
 
 ---
 
@@ -370,21 +370,21 @@ claude remote-control
    │ 15分ごと・コピーのみ（本店と同じ同期スクリプト）
    │ Tailscale（暗号化 VPN。ルーター設定不要・インターネットに共有を公開しない）
    ▼
- 本店サーバー D:\JFLIPSTUDIO\Work\Recording\<顧客>\<曲名>\
+ 本店サーバー D:\CONNECTSTUDIO\Work\Recording\<顧客>\<曲名>\
    → 以降は本店と全く同じ（Mixdown → Complete、夜間バックアップ、_DONE で Archive）
 ```
 
 **フォルダ名は曲名**（`<顧客>/<曲名>`）。両店舗で同じ顧客・同じ曲名になったときだけ注意が必要なので、自動で守ります:
 - サーバー上の各案件には、作った店舗が `_ORIGIN.txt`（`main` / `HN`）として記録される
-- もう一方の店舗にすでに同じ `<顧客>/<曲名>` があると、後から来た方の Mac はその案件を **送らずに止め**、`~/Music/JFLIPSTUDIO/_NAME_CHECK.txt` に一覧を出す（2つのセッションが混ざることは無い。Mac 上のデータにも触らない）
+- もう一方の店舗にすでに同じ `<顧客>/<曲名>` があると、後から来た方の Mac はその案件を **送らずに止め**、`~/Music/CONNECTSTUDIO/_NAME_CHECK.txt` に一覧を出す（2つのセッションが混ざることは無い。Mac 上のデータにも触らない）
 - Studio One を閉じて曲フォルダ名を変えれば（例 `Unscripted_HN`）、次回から自動で送られる
 - 念のためサーバーの Archive 処理も、店舗の違う同名案件があれば合体させずに止める
 
-**セットアップ**（本店サーバーが Phase 8 まで動いてから。`/jf-setup` の Step 4b で Claude が案内）:
+**セットアップ**（本店サーバーが Phase 8 まで動いてから。`/cs-setup` の Step 4b で Claude が案内）:
 1. 本店サーバーに Tailscale を入れてログイン（`winget install -e --id Tailscale.Tailscale`）
-2. サーバーの Claude に「2号店の Mac キットを作って」→ `jf.ps1 mac-kit HN`（Tailscale の IP と店舗コードを書いたインストーラを共有に置く）
-3. 2号店の Mac: Tailscale（Mac App Store）を **同じアカウント** でログイン → Finder で `smb://100.x.x.x/JFLIPSTUDIO` に接続（`jflipnas`、キーチェーンに保存）→ `brew install rsync` → `bash /Volumes/JFLIPSTUDIO/_system/mac-setup-HN/install-mac.sh`
-4. 2号店の Studio One の保存先も `~/Music/JFLIPSTUDIO/Recording`（フォルダ名は曲名）
+2. サーバーの Claude に「2号店の Mac キットを作って」→ `cs.ps1 mac-kit HN`（Tailscale の IP と店舗コードを書いたインストーラを共有に置く）
+3. 2号店の Mac: Tailscale（Mac App Store）を **同じアカウント** でログイン → Finder で `smb://100.x.x.x/CONNECTSTUDIO` に接続（`connectnas`、キーチェーンに保存）→ `brew install rsync` → `bash /Volumes/CONNECTSTUDIO/_system/mac-setup-HN/install-mac.sh`
+4. 2号店の Studio One の保存先も `~/Music/CONNECTSTUDIO/Recording`（フォルダ名は曲名）
 
 **監視**: 朝のレポートとサーバーの状態に、店舗ごとの「Mac の最終同期」が出ます（`main` / `HN`）。2号店の Mac から本店サーバーに届かない日（Tailscale 切れ・回線障害）も、録音は Mac 内蔵 SSD に残っているので安全。つながった時点で自動で送られます。
 
@@ -392,9 +392,30 @@ claude remote-control
 
 ## スタジオ名の変更（JFLIPSTUDIO → CONNECT Studio）
 
-名前が変わったら `windows\config.ps1` の `StudioName = 'JFLIPSTUDIO'` を `'CONNECT Studio'` に変えるだけで、朝のレポートや状態表示の名前が切り替わります。サーバーの Claude に「スタジオ名を CONNECT Studio に変えて」と頼めば、その1行を確認つきで変更します。
+サーバーの仕組みは **CONNECT Studio** の名前で統一しています。画面やレポートの表示は「CONNECT Studio」、フォルダ名・共有名などは空白を入れない `CONNECTSTUDIO`（空白入りのパスはコマンドや Mac の接続でトラブルになりやすいため）。
 
-フォルダ名・共有名・Mac 側のパス（`D:\JFLIPSTUDIO`、`\\SERVER\JFLIPSTUDIO`、`~/Music/JFLIPSTUDIO` など）は**内部の識別名なので変えません**。変えると、両店舗の Mac・自動タスク・保存済みデータの場所をすべて移し替える必要があり、その作業自体がデータ事故の原因になるためです。お客さんの目に触れるのは Dropbox の `Complete`（納品用）だけで、ここにはスタジオ名が入っていません。
+| 旧 | 新 |
+|---|---|
+| `D:\JFLIPSTUDIO`, `E:\JFLIPSTUDIO`, `C:\JFLIPSTUDIO` | `D:\CONNECTSTUDIO`, `E:\CONNECTSTUDIO`, `C:\CONNECTSTUDIO` |
+| 共有 `JFLIPSTUDIO` / `JFLIP_ARCHIVE` | `CONNECTSTUDIO` / `CONNECT_ARCHIVE` |
+| Mac 用ユーザー `jflipnas` | `connectnas`（パスワードはそのまま） |
+| ドライブ名 `JF_WORK` / `JF_ARCHIVE` | `CS_WORK` / `CS_ARCHIVE` |
+| タスクのフォルダ `\JFLIPSTUDIO\` | `\CONNECTSTUDIO\` |
+| PC 名 `JFLIP-SERVER` | `CONNECT-SERVER` |
+| Mac `~/Music/JFLIPSTUDIO`、`~/JFLIPSTUDIO` | `~/Music/CONNECTSTUDIO`、`~/CONNECTSTUDIO` |
+| Claude のコマンド `/jf-*`、`jf.ps1` | `/cs-*`、`cs.ps1` |
+
+Dropbox の `Recording` / `Complete` / `Server_Reports` は名前が変わりません（スタジオ名が入っていないため）。
+
+### 旧名で構築を始めていた PC の切り替え
+
+**Dropbox → HDD の移行中は切り替えないでください**（移行は `E:\JFLIPSTUDIO` に書き込み中なので、名前を変えると失敗します）。移行が `ALL OK` で終わってから:
+
+1. 新しい ZIP を展開し、`server` フォルダを **`C:\CONNECTSTUDIO\server`** に置く（古い `C:\JFLIPSTUDIO\server` はそのまま）
+2. Claude アプリの Code で `C:\CONNECTSTUDIO\server` を開き、`/cs-setup` → Claude が旧名を検出して `rename-to-connect.ps1` を実行（UAC あり）
+   - フォルダは同じドライブ内で名前を変えるだけなので、1TB あっても一瞬・コピーなし
+   - 共有・ユーザー・タスク・ドライブ名・PC 名（再起動が必要）を切り替え、rclone の設定とログを `C:\CONNECTSTUDIO` へ移す
+3. Mac を接続済みなら、Mac で新しいインストーラを実行し直す（`~/Music/JFLIPSTUDIO` → `~/Music/CONNECTSTUDIO` への移動と古い自動送信の停止も自動。Studio One の保存先だけ手で変更）
 
 ---
 
@@ -413,12 +434,12 @@ claude remote-control
 増設1 の移し方（例）:
 
 ```powershell
-robocopy E:\JFLIPSTUDIO F:\JFLIPSTUDIO /E /COPY:DAT /DCOPY:T /R:2 /W:5 /MT:8 /LOG:C:\JFLIPSTUDIO\logs\move-to-F.log
+robocopy E:\CONNECTSTUDIO F:\CONNECTSTUDIO /E /COPY:DAT /DCOPY:T /R:2 /W:5 /MT:8 /LOG:C:\CONNECTSTUDIO\logs\move-to-F.log
 ```
 
-→ `config.ps1` の `Archive` と `WorkBackup` を `F:\...` に変更 → `setup-server.ps1` の `E:\JFLIPSTUDIO\Archive` を `F:\...` に直して共有を作り直す。E: のデータはすぐ消さず、そのまま「2つ目のコピー」として残す。
+→ `config.ps1` の `Archive` と `WorkBackup` を `F:\...` に変更 → `setup-server.ps1` の `E:\CONNECTSTUDIO\Archive` を `F:\...` に直して共有を作り直す。E: のデータはすぐ消さず、そのまま「2つ目のコピー」として残す。
 
-増設2 では毎週 `robocopy F:\JFLIPSTUDIO G:\JFLIPSTUDIO /E`（`/MIR` や `/PURGE` は使わない＝削除を伝播しない）をタスクに追加。
+増設2 では毎週 `robocopy F:\CONNECTSTUDIO G:\CONNECTSTUDIO /E`（`/MIR` や `/PURGE` は使わない＝削除を伝播しない）をタスクに追加。
 
 注意: RAID0 や「Storage Spaces のシンプル（回復性なし）」は1台壊れると全滅するので使わない。RAID1 でも誤削除・ランサムウェアには無力なので、別コピー（Dropbox）は必須。
 
@@ -433,7 +454,7 @@ Docker 版より **Home Assistant OS を VM で** 動かすのがおすすめ（
 - **Windows Pro**: Hyper-V を有効化 → 「仮想スイッチ マネージャー」で **外部** スイッチ作成 → Home Assistant 公式の **Hyper-V 用イメージ (.vhdx)** で第2世代 VM（2 vCPU / RAM 4GB / セキュアブート無効）→ 自動起動アクション「常に自動的に起動」
 - **Windows Home**: VirtualBox + 公式 `.vdi` イメージ（ネットワークは「ブリッジアダプター」）
 - ブラウザで `http://homeassistant.local:8123` → 初期設定。ルーターで VM の IP も固定。
-- 設定 → システム → バックアップ で自動バックアップを ON、保存先に `\\JFLIP-SERVER\JFLIPSTUDIO` の共有を追加（Network storage）。
+- 設定 → システム → バックアップ で自動バックアップを ON、保存先に `\\CONNECT-SERVER\CONNECTSTUDIO` の共有を追加（Network storage）。
 
 ### 12-2. 機器の連携
 
@@ -470,13 +491,13 @@ alias: レコーディング終わり
 description: バックアップを開始して不要な機材をOFF
 sequence:
   - action: button.press                 # HASS.Agent で作ったボタン
-    target: { entity_id: button.jflip_server_run_backup }
+    target: { entity_id: button.connect_server_run_backup }
   - delay: "00:00:05"
   - action: switch.turn_off
     target: { entity_id: switch.tapo_strip_interface }
 ```
 
-HASS.Agent 側では「カスタムコマンド」として `schtasks /run /tn \JFLIPSTUDIO\backup-nightly` を登録すると、上のボタンで夜間バックアップを今すぐ実行できます。
+HASS.Agent 側では「カスタムコマンド」として `schtasks /run /tn \CONNECTSTUDIO\backup-nightly` を登録すると、上のボタンで夜間バックアップを今すぐ実行できます。
 
 スクリプトを Assist に公開すれば「制作始める」「スタジオモードにして」「レコーディング終わった」など言い方が違っても GPT が該当スクリプトを選んで実行します。
 
@@ -500,13 +521,13 @@ HASS.Agent 側では「カスタムコマンド」として `schtasks /run /tn \
 | `windows/elevate.ps1` | Claude | 構築用スクリプトを管理者として実行（UAC）し、結果を Claude に返す |
 | `windows/setup-windows.ps1` | 管理者 (1回) | PC 名・電源・Update 時間・Git/rclone/CrystalDiskInfo/Autologon 導入・LAN/ディスク/BitLocker 確認 |
 | `windows/prepare-disks.ps1` | 管理者 (1回) | 2TB SSD → D:, 3TB HDD → E:（Windows ディスクは拒否、既存データは ERASE 入力が必要） |
-| `windows/jf.ps1` | Claude / 人 | 状態取得・ログ・ドライラン・タスク即時実行・`_DONE` 付与の窓口 |
+| `windows/cs.ps1` | Claude / 人 | 状態取得・ログ・ドライラン・タスク即時実行・`_DONE` 付与の窓口 |
 | `windows/daily-report.ps1` + `daily-report-prompt.md` | タスク (08:00) | Claude による朝のレポート |
 | `CLAUDE.md` | Claude Code | サーバー管理のルール（削除禁止など） |
 | `.claude/settings.json` | Claude Code | 自動許可するコマンドと禁止するコマンド |
-| `.claude/skills/jf-*/SKILL.md` | Claude Code | `/jf-status` `/jf-archive` `/jf-setup` `/jf-doctor` |
+| `.claude/skills/cs-*/SKILL.md` | Claude Code | `/cs-status` `/cs-archive` `/cs-setup` `/cs-doctor` |
 | `mac/install-mac.sh` | Mac (1回) | 同期スクリプトと launchd 登録 |
-| `mac/jflip-recsync.sh` | Mac (15分ごと) | Mac → サーバー同期 |
-| `mac/jflip-done.sh` | Mac | 案件に `_DONE` を付ける |
+| `mac/connect-sync.sh` | Mac (15分ごと) | Mac → サーバー同期 |
+| `mac/connect-done.sh` | Mac | 案件に `_DONE` を付ける |
 
 Windows 用スクリプトはコメントが英語・ASCII のみです（Windows PowerShell 5.1 が BOM なし UTF-8 の日本語を文字化けさせるため）。

@@ -1,7 +1,7 @@
-# JFLIPSTUDIO SERVER - nightly backup of the active work area (Task Scheduler, 02:00).
+# CONNECTSTUDIO SERVER - nightly backup of the active work area (Task Scheduler, 02:00).
 #   1. D:\...\Work  -> E:\...\Backup\Work   (robocopy, copy-only: deletions on D: are NOT propagated)
 #   2. D:\...\Work  -> Dropbox:/Recording    (rclone copy, copy-only: never deletes in Dropbox)
-#   3. Writes D:\JFLIPSTUDIO\_system\server-status.txt (disk space, stale projects) for the Mac to read.
+#   3. Writes D:\CONNECTSTUDIO\_system\server-status.txt (disk space, stale projects) for the Mac to read.
 
 . "$PSScriptRoot\config.ps1"
 $log = 'backup'
@@ -21,7 +21,7 @@ if ($rc -ne 0) { $ok = $false; Write-JFLog $log "rclone FAILED exit=$rc" } else 
 
 # 3. status for humans
 $lines = @("$($JF.StudioName) SERVER status  $(Get-Date -Format 'yyyy-MM-dd HH:mm')", '')
-$lines += 'Last nightly backup: ' + $(if ($ok) { 'OK' } else { 'FAILED - check C:\JFLIPSTUDIO\logs\backup.log' })
+$lines += 'Last nightly backup: ' + $(if ($ok) { 'OK' } else { 'FAILED - check C:\CONNECTSTUDIO\logs\backup.log' })
 $lines += ''
 foreach ($d in 'C', 'D', 'E', 'F') {
     $v = Get-Volume -DriveLetter $d -ErrorAction SilentlyContinue

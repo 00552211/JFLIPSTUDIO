@@ -1,6 +1,6 @@
-# JFLIPSTUDIO SERVER - register the scheduled jobs (run once in an ADMIN PowerShell).
+# CONNECTSTUDIO SERVER - register the scheduled jobs (run once in an ADMIN PowerShell).
 # Jobs run as SYSTEM: no windows pop up and they run even when nobody is logged in.
-# Check them in Task Scheduler > Task Scheduler Library > JFLIPSTUDIO.
+# Check them in Task Scheduler > Task Scheduler Library > CONNECTSTUDIO.
 
 #Requires -RunAsAdministrator
 $ps = "$env:WINDIR\System32\WindowsPowerShell\v1.0\powershell.exe"
@@ -12,9 +12,9 @@ function Register-JFTask([string]$Name, [string]$Script, $Trigger, [int]$MaxHour
         New-ScheduledTaskPrincipal -UserId 'SYSTEM' -LogonType ServiceAccount -RunLevel Highest }
     $settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -MultipleInstances IgnoreNew `
         -ExecutionTimeLimit (New-TimeSpan -Hours $MaxHours)
-    Register-ScheduledTask -TaskPath '\JFLIPSTUDIO\' -TaskName $Name -Action $action -Trigger $Trigger `
+    Register-ScheduledTask -TaskPath '\CONNECTSTUDIO\' -TaskName $Name -Action $action -Trigger $Trigger `
         -Principal $principal -Settings $settings -Force | Out-Null
-    "registered \JFLIPSTUDIO\$Name"
+    "registered \CONNECTSTUDIO\$Name"
 }
 
 Register-JFTask 'mixdown-to-complete' 'mixdown-to-complete.ps1' `
@@ -28,11 +28,11 @@ $me = New-ScheduledTaskPrincipal -UserId "$env:USERDOMAIN\$env:USERNAME" -LogonT
 Register-JFTask 'daily-report' 'daily-report.ps1' (New-ScheduledTaskTrigger -Daily -At '08:00') 1 $me
 
 # Let this (non-elevated) user read and start the SYSTEM tasks, so Claude Code does not need an
-# admin terminal for "jf.ps1 status" / "jf.ps1 run ...". Nothing else about the tasks changes.
+# admin terminal for "cs.ps1 status" / "cs.ps1 run ...". Nothing else about the tasks changes.
 $sid = ([System.Security.Principal.WindowsIdentity]::GetCurrent()).User.Value
 $svc = New-Object -ComObject Schedule.Service
 $svc.Connect()
-$folder = $svc.GetFolder('\JFLIPSTUDIO')
+$folder = $svc.GetFolder('\CONNECTSTUDIO')
 foreach ($n in 'mixdown-to-complete', 'backup-nightly', 'archive-completed') {
     $t = $folder.GetTask($n)
     $sd = $t.GetSecurityDescriptor(0xF)
@@ -40,4 +40,4 @@ foreach ($n in 'mixdown-to-complete', 'backup-nightly', 'archive-completed') {
 }
 "granted read/run on the tasks to $env:USERNAME"
 
-"Run one now to test:  schtasks /run /tn \JFLIPSTUDIO\backup-nightly"
+"Run one now to test:  schtasks /run /tn \CONNECTSTUDIO\backup-nightly"

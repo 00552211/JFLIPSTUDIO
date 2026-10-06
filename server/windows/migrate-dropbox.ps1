@@ -1,11 +1,11 @@
-# JFLIPSTUDIO SERVER - one-time copy of the existing Dropbox data to the HDD.
+# CONNECTSTUDIO SERVER - one-time copy of the existing Dropbox data to the HDD.
 # Copy only (never deletes anything in Dropbox). Safe to stop and re-run: it resumes.
 #
 #   powershell -ExecutionPolicy Bypass -File migrate-dropbox.ps1            # copy, then verify
 #   powershell -ExecutionPolicy Bypass -File migrate-dropbox.ps1 -CheckOnly # verify again only
 #
-# Dropbox:/Recording       -> E:\JFLIPSTUDIO\Archive\Recording
-# Dropbox:/<other folders> -> E:\JFLIPSTUDIO\Archive\Dropbox\<folder>
+# Dropbox:/Recording       -> E:\CONNECTSTUDIO\Archive\Recording
+# Dropbox:/<other folders> -> E:\CONNECTSTUDIO\Archive\Dropbox\<folder>
 
 param([switch]$CheckOnly)
 . "$PSScriptRoot\config.ps1"
@@ -14,7 +14,7 @@ $jobs = @(
     @{ Src = 'dropbox:Recording'; Dst = $JF.Archive }
 )
 foreach ($f in 'Complete', 'Deliver', 'RecData', 'BackUp', 'Songs', 'R2M', 'Template', 'STUDIO BEAT', 'INM PARA') {
-    $jobs += @{ Src = "dropbox:$f"; Dst = "E:\JFLIPSTUDIO\Archive\Dropbox\$f" }
+    $jobs += @{ Src = "dropbox:$f"; Dst = "E:\CONNECTSTUDIO\Archive\Dropbox\$f" }
 }
 
 $failed = @()

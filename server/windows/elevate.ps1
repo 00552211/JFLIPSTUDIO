@@ -1,4 +1,4 @@
-# JFLIPSTUDIO SERVER - run one of the scripts in this folder as administrator, for Claude Code.
+# CONNECTSTUDIO SERVER - run one of the scripts in this folder as administrator, for Claude Code.
 #   powershell.exe -NoProfile -ExecutionPolicy Bypass -File windows/elevate.ps1 <script.ps1> [-Param value ...]
 #
 # Windows shows a UAC prompt; the script runs in a visible window (passwords / confirmations are
@@ -11,18 +11,18 @@ param([Parameter(Mandatory = $true, Position = 0)][string]$Script,
 $enc = New-Object System.Text.UTF8Encoding($false)
 [Console]::OutputEncoding = $enc
 
-$allowed = 'setup-windows.ps1', 'prepare-disks.ps1', 'setup-server.ps1', 'register-tasks.ps1'
+$allowed = 'setup-windows.ps1', 'prepare-disks.ps1', 'setup-server.ps1', 'register-tasks.ps1', 'rename-to-connect.ps1'
 if ($allowed -notcontains $Script) { throw "elevate.ps1 only runs: $($allowed -join ', ')" }
 $path = Join-Path $PSScriptRoot $Script
 
 $quoted = @($ScriptArgs | Where-Object { $_ -ne $null } | ForEach-Object {
     if ($_ -match '^-[A-Za-z]+$') { $_ } else { "'" + ($_ -replace "'", "''") + "'" }
 }) -join ' '
-$log = Join-Path $env:TEMP ('jflip-elevated-' + [guid]::NewGuid().ToString('N') + '.log')
+$log = Join-Path $env:TEMP ('cs-elevated-' + [guid]::NewGuid().ToString('N') + '.log')
 $rcFile = "$log.rc"
 
 $inner = @"
-`$Host.UI.RawUI.WindowTitle = 'JFLIPSTUDIO - $Script (administrator)'
+`$Host.UI.RawUI.WindowTitle = 'CONNECTSTUDIO - $Script (administrator)'
 Start-Transcript -LiteralPath '$log' | Out-Null
 `$rc = 0
 try { & '$path' $quoted 2>&1 | Out-Host; if (`$LASTEXITCODE) { `$rc = `$LASTEXITCODE } }

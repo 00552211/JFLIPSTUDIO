@@ -1,4 +1,4 @@
-# JFLIPSTUDIO SERVER - copy finished mixes to the Dropbox delivery folder (Task Scheduler, every 10 min).
+# CONNECTSTUDIO SERVER - copy finished mixes to the Dropbox delivery folder (Task Scheduler, every 10 min).
 #   Work\Recording\<Client>\<Project>\Mixdown\*.wav  ->  D:\Dropbox\Complete\<Client>\*.wav
 # Copy only. A re-exported mix (same name, new size/time) overwrites the old one;
 # Dropbox keeps the previous version in its version history.

@@ -1,7 +1,7 @@
-# JFLIPSTUDIO SERVER - Phase 1: Windows basics (run as admin, normally via elevate.ps1).
+# CONNECTSTUDIO SERVER - Phase 1: Windows basics (run as admin, normally via elevate.ps1).
 # Safe to run again. Prints a report of what still needs a human (BIOS, Autologon, Windows Update).
 
-param([string]$ComputerName = 'JFLIP-SERVER',
+param([string]$ComputerName = 'CONNECT-SERVER',
       [int]$ActiveHoursStart = 9,     # Windows Update will not restart between these hours
       [int]$ActiveHoursEnd = 1)
 
@@ -39,7 +39,7 @@ Set-ItemProperty -Path $wu -Name SmartActiveHoursState -Value 0 -Type DWord
 'done'
 
 Step 'Folders'
-foreach ($p in 'C:\JFLIPSTUDIO\bin', 'C:\JFLIPSTUDIO\logs') { [System.IO.Directory]::CreateDirectory($p) | Out-Null; "  $p" }
+foreach ($p in 'C:\CONNECTSTUDIO\bin', 'C:\CONNECTSTUDIO\logs') { [System.IO.Directory]::CreateDirectory($p) | Out-Null; "  $p" }
 
 Step 'Apps (winget)'
 $winget = Get-Command winget -ErrorAction SilentlyContinue
@@ -53,8 +53,8 @@ else {
     }
 }
 
-Step 'rclone -> C:\JFLIPSTUDIO\bin\rclone.exe'
-$rclone = 'C:\JFLIPSTUDIO\bin\rclone.exe'
+Step 'rclone -> C:\CONNECTSTUDIO\bin\rclone.exe'
+$rclone = 'C:\CONNECTSTUDIO\bin\rclone.exe'
 if (Test-Path $rclone) { & $rclone version | Select-Object -First 1 }
 else {
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12

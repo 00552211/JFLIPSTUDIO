@@ -1,5 +1,5 @@
 #!/bin/bash
-# JFLIPSTUDIO - Mac -> Windows REC sync (run by launchd every 15 min, or by hand).
+# CONNECTSTUDIO - Mac -> Windows REC sync (run by launchd every 15 min, or by hand).
 #
 # Safety rules (the Mac recording always comes first):
 #   - copy only: this script never deletes or changes anything on the Mac
@@ -8,35 +8,35 @@
 #   - runs at background I/O priority
 #   - projects already archived on the server (_system/archived.txt) are not re-sent
 #     as long as the Mac copy is identical to the archive; if anything changed, they are sent again
-#   - archived + identical projects are listed in ~/Music/JFLIPSTUDIO/_SAFE_TO_DELETE.txt
+#   - archived + identical projects are listed in ~/Music/CONNECTSTUDIO/_SAFE_TO_DELETE.txt
 #
-# Settings: edit below, or put overrides in ~/JFLIPSTUDIO/recsync.conf
+# Settings: edit below, or put overrides in ~/CONNECTSTUDIO/recsync.conf
 
 SERVER="192.168.1.50"          # Windows server IP (reserve it in the router)
-SHARE="JFLIPSTUDIO"
-ARCH_SHARE="JFLIP_ARCHIVE"
-SMB_USER="jflipnas"
-SRC="$HOME/Music/JFLIPSTUDIO/Recording"
+SHARE="CONNECTSTUDIO"
+ARCH_SHARE="CONNECT_ARCHIVE"
+SMB_USER="connectnas"
+SRC="$HOME/Music/CONNECTSTUDIO/Recording"
 DEST_SUBDIR="Work/Recording"
 SETTLE_MIN=2
 DAW_REGEX="Studio One|Fender Studio|Logic Pro|Pro Tools|Ableton Live|Cubase"
 MIXDOWN_WHILE_DAW=1            # 1 = still send Mixdown/ while the DAW is open
 STORE=""                       # "" = main store, "HN" = Higashi-Nagasaki. Marks which store a project came from
-STATE_DIR="$HOME/JFLIPSTUDIO"
+STATE_DIR="$HOME/CONNECTSTUDIO"
 [ -f "$STATE_DIR/recsync.conf" ] && . "$STATE_DIR/recsync.conf"
 
 LOG="$STATE_DIR/logs/recsync.log"
-REPORT="$HOME/Music/JFLIPSTUDIO/_SAFE_TO_DELETE.txt"
+REPORT="$HOME/Music/CONNECTSTUDIO/_SAFE_TO_DELETE.txt"
 mkdir -p "$STATE_DIR/logs"
 log() { echo "$(date '+%Y-%m-%d %H:%M:%S')  $*" >> "$LOG"; [ -t 1 ] && echo "$*"; }
 
 # ---- single instance
-LOCK="/tmp/jflip-recsync.lock"
+LOCK="/tmp/connect-sync.lock"
 if ! mkdir "$LOCK" 2>/dev/null; then
     if [ -n "$(find "$LOCK" -maxdepth 0 -mmin +360 2>/dev/null)" ]; then rm -rf "$LOCK"; mkdir "$LOCK" || exit 0
     else exit 0; fi
 fi
-TMP="$(mktemp -d /tmp/jflip-recsync.XXXXXX)"
+TMP="$(mktemp -d /tmp/connect-sync.XXXXXX)"
 trap 'rm -rf "$LOCK" "$TMP"' EXIT
 
 [ -d "$SRC" ] || { log "source not found: $SRC"; exit 1; }
@@ -114,7 +114,7 @@ fi
 # A project whose name is already taken by the OTHER store is held back - never merged - and listed
 # in _NAME_CHECK.txt so the staff can rename it (e.g. add "_HN"). Nothing on the Mac is touched.
 ME="${STORE:-main}"
-NAMECHECK="$HOME/Music/JFLIPSTUDIO/_NAME_CHECK.txt"
+NAMECHECK="$HOME/Music/CONNECTSTUDIO/_NAME_CHECK.txt"
 : > "$TMP/clash.txt"
 for proj in "$SRC"/*/*/; do
     [ -d "$proj" ] || continue

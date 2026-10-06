@@ -1,9 +1,9 @@
-# JFLIPSTUDIO SERVER - single entry point for Claude Code (and humans).
-#   powershell.exe -NoProfile -ExecutionPolicy Bypass -File windows/jf.ps1 <command> [args]
+# CONNECTSTUDIO SERVER - single entry point for Claude Code (and humans).
+#   powershell.exe -NoProfile -ExecutionPolicy Bypass -File windows/cs.ps1 <command> [args]
 #
 # Read-only (safe to run any time):
 #   status                  JSON: drives, disk health, tasks, work projects, pending archive, errors, Mac sync
-#   logs <name> [lines]     tail C:\JFLIPSTUDIO\logs\<name>.log  (backup|archive|mixdown|migrate|...)
+#   logs <name> [lines]     tail C:\CONNECTSTUDIO\logs\<name>.log  (backup|archive|mixdown|migrate|...)
 #   tasks                   scheduled task states
 #   setup-check             which setup phases are done (JSON)
 #   archive-dryrun          what archive-completed would do now
@@ -30,7 +30,7 @@ $TaskNames = @('mixdown-to-complete', 'backup-nightly', 'archive-completed', 'da
 
 function Get-TaskInfoList {
     foreach ($n in $TaskNames) {
-        $t = Get-ScheduledTask -TaskPath '\JFLIPSTUDIO\' -TaskName $n -ErrorAction SilentlyContinue
+        $t = Get-ScheduledTask -TaskPath '\CONNECTSTUDIO\' -TaskName $n -ErrorAction SilentlyContinue
         if (-not $t) { [pscustomobject]@{ name = $n; registered = $false }; continue }
         $i = $t | Get-ScheduledTaskInfo
         [pscustomobject]@{
@@ -128,7 +128,15 @@ function Get-SetupCheck {
     if (Test-Path $dbxInfo) { try { $dbxPath = ((Get-Content $dbxInfo -Raw -Encoding UTF8 | ConvertFrom-Json).PSObject.Properties | Select-Object -First 1).Value.path } catch {} }
     $mig = Get-LogTail 'migrate' 2000
     $claude = Get-Command claude -ErrorAction SilentlyContinue
+    $legacy = [ordered]@{
+        D_old = Test-Path 'D:\JFLIPSTUDIO'; E_old = Test-Path 'E:\JFLIPSTUDIO'; C_old = Test-Path 'C:\JFLIPSTUDIO\rclone.conf'
+        oldShares = @((net share 2>$null) -match '^JFLIP' | ForEach-Object { ($_ -split '\s+')[0] })
+        oldTasks = @(Get-ScheduledTask -TaskPath '\JFLIPSTUDIO\' -ErrorAction SilentlyContinue | ForEach-Object TaskName)
+        migrationRunning = [bool](Get-MigrationProcess)
+    }
+    $legacy['needsRename'] = [bool]($legacy.D_old -or $legacy.E_old -or $legacy.C_old -or $legacy.oldShares.Count -or $legacy.oldTasks.Count)
     [ordered]@{
+        '0_oldName_JFLIPSTUDIO' = $legacy
         '1_windows'   = [ordered]@{ computerName = $env:COMPUTERNAME; edition = (Get-CimInstance Win32_OperatingSystem).Caption
                           sleepDisabled = [bool]((powercfg /query SCHEME_CURRENT SUB_SLEEP STANDBYIDLE) -match 'AC.*0x00000000')
                           autologon = ((Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon' -ErrorAction SilentlyContinue).AutoAdminLogon -eq '1')
@@ -137,9 +145,9 @@ function Get-SetupCheck {
                           ip = (Get-ServerIP) }
         '2_disks'     = [ordered]@{ D_ntfs = (& $vol 'D'); E_ntfs = (& $vol 'E') }
         '3_server'    = [ordered]@{ folders = (Test-Path $JF.Work) -and (Test-Path $JF.Archive) -and (Test-Path $JF.System)
-                          shareUser = [bool](Get-LocalUser -Name 'jflipnas' -ErrorAction SilentlyContinue)
-                          shares = @(@(Get-SmbShare -Name 'JFLIP*' -ErrorAction SilentlyContinue | ForEach-Object Name) +
-                                     @((net share 2>$null) -match '^JFLIP' | ForEach-Object { ($_ -split '\s+')[0] }) | Sort-Object -Unique) }
+                          shareUser = [bool](Get-LocalUser -Name 'connectnas' -ErrorAction SilentlyContinue)
+                          shares = @(@(Get-SmbShare -Name 'CONNECT*' -ErrorAction SilentlyContinue | ForEach-Object Name) +
+                                     @((net share 2>$null) -match '^CONNECT' | ForEach-Object { ($_ -split '\s+')[0] }) | Sort-Object -Unique) }
         '4_mac'       = [ordered]@{ macKitReady = Test-Path (Join-Path $JF.System 'mac-setup\recsync.conf'); macHasSynced = Test-Path (Join-Path $JF.System 'mac-last-sync.txt'); hnKitReady = Test-Path (Join-Path $JF.System 'mac-setup-HN\recsync.conf'); hnHasSynced = Test-Path (Join-Path $JF.System 'mac-last-sync-HN.txt'); tailscaleIP = (Get-TailscaleIP); smbSessions = @(Get-SmbSession -ErrorAction SilentlyContinue).Count }
         '5_migration' = [ordered]@{ rcloneExe = Test-Path $JF.RcloneExe; dropboxRemote = $remoteOk
                           running = [bool](Get-MigrationProcess); started = ($mig.Count -gt 0); allOk = [bool]($mig | Select-String -SimpleMatch 'ALL OK' -Quiet)
@@ -174,7 +182,7 @@ function Get-MigrationProgress {
     $cache = Join-Path $JF.Logs 'migrate-source-sizes.json'
     $sources = @{ 'Recording' = $JF.Archive }
     foreach ($f in 'Complete', 'Deliver', 'RecData', 'BackUp', 'Songs', 'R2M', 'Template', 'STUDIO BEAT', 'INM PARA') {
-        $sources[$f] = "E:\JFLIPSTUDIO\Archive\Dropbox\$f"
+        $sources[$f] = "E:\CONNECTSTUDIO\Archive\Dropbox\$f"
     }
     $sizes = @{}
     if (Test-Path $cache) { (Get-Content $cache -Raw -Encoding UTF8 | ConvertFrom-Json).PSObject.Properties | ForEach-Object { $sizes[$_.Name] = $_.Value } }
@@ -211,8 +219,8 @@ switch ($Command) {
     'archive-dryrun' { & "$PSScriptRoot\archive-completed.ps1" -DryRun }
     'run' {
         if ($Arg1 -notin 'backup-nightly', 'archive-completed', 'mixdown-to-complete') { throw "unknown task: $Arg1" }
-        Start-ScheduledTask -TaskPath '\JFLIPSTUDIO\' -TaskName $Arg1
-        "started \JFLIPSTUDIO\$Arg1 - follow it with: jf.ps1 logs $(@{ 'backup-nightly'='backup'; 'archive-completed'='archive'; 'mixdown-to-complete'='mixdown' }[$Arg1])"
+        Start-ScheduledTask -TaskPath '\CONNECTSTUDIO\' -TaskName $Arg1
+        "started \CONNECTSTUDIO\$Arg1 - follow it with: cs.ps1 logs $(@{ 'backup-nightly'='backup'; 'archive-completed'='archive'; 'mixdown-to-complete'='mixdown' }[$Arg1])"
     }
     'mark-done' {
         $parts = $Arg1 -split '[\\/]'
@@ -255,10 +263,10 @@ switch ($Command) {
     }
     'start-migration' {
         if (Get-MigrationProcess) { 'migration is already running'; break }
-        if (-not (Test-Path 'E:\JFLIPSTUDIO\Archive')) { throw 'E:\JFLIPSTUDIO\Archive missing - run setup-server.ps1 first' }
+        if (-not (Test-Path 'E:\CONNECTSTUDIO\Archive')) { throw 'E:\CONNECTSTUDIO\Archive missing - run setup-server.ps1 first' }
         Start-Process -FilePath "$env:WINDIR\System32\WindowsPowerShell\v1.0\powershell.exe" -WindowStyle Minimized `
             -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$PSScriptRoot\migrate-dropbox.ps1`""
-        'migration started in its own (minimized) window. Do not close it. Progress: jf.ps1 migration-progress'
+        'migration started in its own (minimized) window. Do not close it. Progress: cs.ps1 migration-progress'
     }
     'mac-kit' {
         # mac-kit          -> main store Mac (same LAN, server LAN IP)
@@ -272,7 +280,7 @@ switch ($Command) {
         $kit = Join-Path $JF.System $(if ($store) { "mac-setup-$store" } else { 'mac-setup' })
         [System.IO.Directory]::CreateDirectory($kit) | Out-Null
         $macDir = Join-Path (Split-Path $PSScriptRoot -Parent) 'mac'
-        foreach ($f in 'install-mac.sh', 'jflip-recsync.sh', 'jflip-done.sh') {
+        foreach ($f in 'install-mac.sh', 'connect-sync.sh', 'connect-done.sh') {
             $text = [System.IO.File]::ReadAllText((Join-Path $macDir $f), $enc) -replace "`r`n", "`n"
             [System.IO.File]::WriteAllText((Join-Path $kit $f), $text, $enc)
         }
@@ -280,11 +288,11 @@ switch ($Command) {
         $where = if ($store) { "store $store, over Tailscale" } else { 'main store, LAN' }
         "Mac kit ready ($where, server $ip). On the Mac:"
         if ($store) { "  0. Install Tailscale (Mac App Store) and log in with the SAME account as this server" }
-        "  1. Finder > Go > Connect to Server > smb://$ip/JFLIPSTUDIO  (user jflipnas, save password in Keychain)"
+        "  1. Finder > Go > Connect to Server > smb://$ip/CONNECTSTUDIO  (user connectnas, save password in Keychain)"
         "  2. brew install rsync"
-        "  3. bash /Volumes/JFLIPSTUDIO/_system/$(Split-Path $kit -Leaf)/install-mac.sh"
+        "  3. bash /Volumes/CONNECTSTUDIO/_system/$(Split-Path $kit -Leaf)/install-mac.sh"
         if ($store) { "  Song folders keep plain song titles. If the main store already has the same client + title," }
-        if ($store) { "  that project is held back and listed in ~/Music/JFLIPSTUDIO/_NAME_CHECK.txt until renamed." }
+        if ($store) { "  that project is held back and listed in ~/Music/CONNECTSTUDIO/_NAME_CHECK.txt until renamed." }
     }
     default { throw "unknown command: $Command  (status|setup-check|tasks|logs|archive-dryrun|disks|migration-progress|open|run|mark-done|rclone-login|start-migration|mac-kit)" }
 }

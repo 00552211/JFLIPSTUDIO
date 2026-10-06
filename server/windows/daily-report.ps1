@@ -1,4 +1,4 @@
-# JFLIPSTUDIO SERVER - morning report written by Claude (Task Scheduler, 08:00, runs as the logged-in user).
+# CONNECTSTUDIO SERVER - morning report written by Claude (Task Scheduler, 08:00, runs as the logged-in user).
 # Claude gets NO tools here: it only reads the status JSON piped to it and writes a summary.
 # Output: <Dropbox>\Server_Reports\YYYY-MM-DD.md (readable on the phone) and _system\daily-report.md (Mac).
 # If Claude is not installed or fails, a plain report is written instead, so a report always appears.
@@ -12,7 +12,7 @@ $reportDir = $JF.ReportsDir
 [System.IO.Directory]::CreateDirectory($reportDir) | Out-Null
 $today = Get-Date -Format 'yyyy-MM-dd'
 
-$json = (& powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$PSScriptRoot\jf.ps1" status) -join "`n"
+$json = (& powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$PSScriptRoot\cs.ps1" status) -join "`n"
 $prompt = [System.IO.File]::ReadAllText("$PSScriptRoot\daily-report-prompt.md", $enc)
 
 $claude = (Get-Command claude -ErrorAction SilentlyContinue).Source

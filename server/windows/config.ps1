@@ -1,36 +1,35 @@
-# JFLIPSTUDIO SERVER - shared settings and helpers.
+# CONNECTSTUDIO SERVER - shared settings and helpers.
 # Every script dot-sources this file. Edit the paths here, nowhere else.
 # Keep this file ASCII-only: Windows PowerShell 5.1 reads BOM-less .ps1 as Shift_JIS.
 
 $JF = @{
-    # Shown in reports and messages. The studio is being renamed: change this one line to
-    # 'CONNECT Studio' when it happens. Folder/share names (JFLIPSTUDIO) are internal IDs and stay.
-    StudioName   = 'JFLIPSTUDIO'
+    # Shown in reports and messages. Folder/share names use CONNECTSTUDIO (no space, safer in paths).
+    StudioName   = 'CONNECT Studio'
 
     # Stores whose Macs sync into this server. '' = main store. Project folders are song titles; each
     # project on the server records its store in _ORIGIN.txt, and a name already used by the other
     # store is held back on the Mac (never merged) until it is renamed.
     Stores       = @('', 'HN')
 
-    # D: 2TB SSD - active projects (Mac -> here), shared to the Mac as \\SERVER\JFLIPSTUDIO
-    Root         = 'D:\JFLIPSTUDIO'
-    Work         = 'D:\JFLIPSTUDIO\Work\Recording'
-    System       = 'D:\JFLIPSTUDIO\_system'          # status files the Mac reads
+    # D: 2TB SSD - active projects (Mac -> here), shared to the Mac as \\SERVER\CONNECTSTUDIO
+    Root         = 'D:\CONNECTSTUDIO'
+    Work         = 'D:\CONNECTSTUDIO\Work\Recording'
+    System       = 'D:\CONNECTSTUDIO\_system'          # status files the Mac reads
 
     # E: 3TB HDD - archive + backup of D:
-    Archive      = 'E:\JFLIPSTUDIO\Archive\Recording'
-    WorkBackup   = 'E:\JFLIPSTUDIO\Backup\Work\Recording'
+    Archive      = 'E:\CONNECTSTUDIO\Archive\Recording'
+    WorkBackup   = 'E:\CONNECTSTUDIO\Backup\Work\Recording'
 
     # Dropbox desktop app folder (selective sync: Complete only, NOT Recording)
     CompleteDir  = 'D:\Dropbox\Complete'
     ReportsDir   = 'D:\Dropbox\Server_Reports'   # Claude's morning reports (readable on the phone)
 
     # rclone (talks to Dropbox directly, independent of the desktop app)
-    RcloneExe    = 'C:\JFLIPSTUDIO\bin\rclone.exe'
-    RcloneConf   = 'C:\JFLIPSTUDIO\rclone.conf'
+    RcloneExe    = 'C:\CONNECTSTUDIO\bin\rclone.exe'
+    RcloneConf   = 'C:\CONNECTSTUDIO\rclone.conf'
     RemoteRec    = 'dropbox:Recording'
 
-    Logs         = 'C:\JFLIPSTUDIO\logs'
+    Logs         = 'C:\CONNECTSTUDIO\logs'
 
     DoneMarker   = '_DONE'       # put this empty file in a project folder to archive it
     QuietMinutes = 60            # project must be untouched this long before archiving
