@@ -109,21 +109,6 @@ export default async function Home() {
   return (
     <StoreProvider>
       <ScrollReveal />
-      <a
-        href="/campaign"
-        style={{
-          display: "block",
-          textAlign: "center",
-          background: "#fff",
-          color: "#0a0a0a",
-          fontSize: 12.5,
-          fontWeight: 700,
-          letterSpacing: ".04em",
-          padding: "10px 16px",
-        }}
-      >
-        🎁 お友達紹介キャンペーン実施中｜紹介した方・された方 1時間無料 →
-      </a>
       <header
         style={{
           position: "sticky",
@@ -216,7 +201,7 @@ export default async function Home() {
               その場で立ち合い完結。
             </h1>
             <p data-reveal className="hero-lead" style={{ fontSize: 14.5, lineHeight: 2, color: "rgba(255,255,255,.6)", maxWidth: "44em", margin: "0 0 34px", transitionDelay: ".16s" }}>
-              JFLIPSTUDIO は、アーティストの理想のサウンドをその場で創り上げる立ち合い型スタジオ。ボーカル録音からMIX・マスタリングまでを一貫して行い、納品までの時間とワークフローを最短化します。<span className="only-s1">3時間以上なら1時間あたり¥5,000から（30分単位）。</span><S2Only><span className="only-s2">2号店はエンジニア（IKUTO）付きで、3時間以上なら1時間あたり¥4,000から。</span></S2Only>
+              JFLIPSTUDIO は、アーティストの理想のサウンドをその場で創り上げる立ち合い型スタジオ。ボーカル録音からMIX・マスタリングまでを一貫して行い、納品までの時間とワークフローを最短化します。<span className="only-s1">3時間以上なら1時間あたり¥5,500から（30分単位）。</span><S2Only><span className="only-s2">2号店はエンジニア（IKUTO）付きで、3時間以上なら1時間あたり¥4,000から。</span></S2Only>
             </p>
             <div data-reveal className="hero-cta" style={{ display: "flex", gap: 12, flexWrap: "wrap", transitionDelay: ".24s" }}>
               <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer" className="hover-lift only-s1" style={{ background: "#fff", color: "#0a0a0a", fontSize: 13, fontWeight: 700, padding: "14px 26px", borderRadius: 999 }}>
@@ -231,7 +216,7 @@ export default async function Home() {
             </div>
             <div data-reveal className="hero-stats" style={{ display: "flex", gap: 44, marginTop: 56, paddingTop: 30, borderTop: "1px solid rgba(255,255,255,.1)", transitionDelay: ".32s" }}>
               <div className="only-s1">
-                <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-.01em" }}>1時間 ¥5,000〜</div>
+                <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-.01em" }}>1時間 ¥5,500〜</div>
                 <div style={{ fontSize: 11, letterSpacing: ".14em", color: "rgba(255,255,255,.42)", marginTop: 7 }}>3時間以上 / エンジニア込み</div>
               </div>
               <div className="only-s1">
@@ -587,7 +572,6 @@ export default async function Home() {
               <a href="#gallery" style={{ color: "inherit" }}>GALLERY</a>
               <a href="#works" style={{ color: "inherit" }}>WORKS</a>
               <a href="#gear" style={{ color: "inherit" }}>EQUIPMENT</a>
-              <a href="/campaign" style={{ color: "inherit" }}>紹介キャンペーン</a>
             </div>
           </div>
           <div>
